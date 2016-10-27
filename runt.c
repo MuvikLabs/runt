@@ -15,6 +15,11 @@ runt_int runt_init(runt_vm *vm)
 
     vm->stack.pos = 0;
     vm->stack.size = RUNT_STACK_SIZE;
+
+    /* init dictionary */
+
+    runt_dictionary_init(vm);
+
     return RUNT_OK;
 }
 
@@ -231,4 +236,124 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
     pool->used += size;
 
     return id;
+}
+
+runt_uint runt_entry_create(runt_vm *vm, 
+        runt_cell *cell, 
+        runt_copy_proc copy,
+        runt_entry **entry)
+{
+    runt_entry *e;
+    runt_malloc(vm, sizeof(runt_entry), (void **)entry);
+    e = *entry;
+    e->copy = copy;
+    e->cell = cell;
+    e->str = vm->nil;
+    return 0;
+}
+
+runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest)
+{
+    return entry->copy(vm, entry->cell, dest);
+}
+
+static runt_uint runt_hash(const char *str, runt_int size)
+{
+    runt_uint h = 5381;
+    runt_int i = 0;
+
+    for(i = 0; i < size; i++) {
+        h = ((h << 5) + h) ^ str[0];
+        h %= 0x7FFFFFFF;
+    }
+
+    return h % RUNT_DICT_SIZE;
+}
+
+runt_int runt_word(runt_vm *vm, 
+        const char *name, 
+        runt_int size,
+        runt_entry *entry)
+{
+    runt_uint pos = runt_hash(name, size);
+    runt_list *list = &vm->dict.list[pos]; 
+
+    entry->str = runt_mk_string(vm, name, size);
+
+    runt_list_append(list, entry);
+
+    return RUNT_NOT_OK;
+}
+
+static runt_int runt_strncmp(const char *str, runt_ptr ptr, runt_int n)
+{
+    return strncmp(str, runt_to_string(ptr), n);
+}
+
+runt_int runt_word_search(runt_vm *vm, 
+        const char *name, 
+        runt_int size,
+        runt_entry **entry)
+{
+    runt_uint pos = runt_hash(name, size);
+    runt_list *list = &vm->dict.list[pos]; 
+
+    runt_uint i;
+    runt_entry *ent = list->root.next;
+    runt_entry *next;
+
+
+    for(i = 0; i < list->size; i++) {
+        next = ent->next;
+        if(runt_strncmp(name, ent->str, size) == 0) {
+            *entry = ent;
+            return RUNT_OK;
+        }
+        ent = next;
+    }
+
+    return RUNT_NOT_OK;
+}
+
+void runt_list_init(runt_list *lst)
+{
+    lst->size = 0;
+    lst->last = &lst->root;
+}
+
+runt_int runt_list_append(runt_list *lst, runt_entry *ent)
+{
+    lst->last->next = ent;
+    lst->last = ent;
+    lst->size++;
+    return RUNT_OK;
+}
+
+void runt_dictionary_init(runt_vm *vm)
+{
+    runt_uint i;
+    runt_dict *dict = &vm->dict;
+    for(i = 0; i < RUNT_DICT_SIZE; i++) {
+        runt_list_init(&dict->list[i]);
+    }
+}
+
+runt_uint runt_memory_pool_size(runt_vm *vm)
+{
+    return vm->memory_pool.size;
+}
+
+runt_uint runt_memory_pool_used(runt_vm *vm)
+{
+    return vm->memory_pool.used;
+}
+
+runt_uint runt_cell_pool_size(runt_vm *vm)
+{
+    return vm->cell_pool.size;
+}
+
+runt_uint runt_cell_pool_used(runt_vm *vm)
+{
+    return vm->cell_pool.used;
 }

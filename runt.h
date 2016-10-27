@@ -6,6 +6,7 @@
 #define RUNT_GIGABYTE (RUNT_MEGABYTE * 1000)
 #define RUNT_STACK_SIZE 32
 #define RUNT_MODE_PROC 1
+#define RUNT_DICT_SIZE 128
 
 enum {
 RUNT_NOT_OK = 0,
@@ -36,6 +37,8 @@ typedef struct {
     runt_uint psize;
 } runt_cell;
 
+typedef runt_int (*runt_copy_proc)(runt_vm *, runt_cell *, runt_cell *);
+
 typedef struct {
     runt_type t;
     runt_ptr p;
@@ -50,7 +53,9 @@ typedef struct {
 
 typedef struct runt_entry {
     runt_cell *cell;
-    runt_proc copy;
+    runt_copy_proc copy;
+    runt_ptr str;
+    struct runt_entry *next;
 } runt_entry;
 
 typedef struct runt_list {
@@ -61,7 +66,7 @@ typedef struct runt_list {
 
 typedef struct {
     runt_int size;
-    runt_list list[128];
+    runt_list list[RUNT_DICT_SIZE];
 } runt_dict;
 
 typedef struct {
@@ -80,6 +85,8 @@ struct runt_vm {
     runt_stack stack;
     runt_cell_pool cell_pool;
     runt_memory_pool memory_pool;
+    runt_dict dict;
+
     runt_uint status;
     runt_cell *proc;
 
@@ -95,8 +102,14 @@ runt_int runt_init(runt_vm *vm);
 runt_int runt_cell_pool_set(runt_vm *vm, runt_cell *cells, runt_uint size);
 runt_int runt_cell_pool_init(runt_vm *vm);
 
+runt_uint runt_cell_pool_size(runt_vm *vm);
+runt_uint runt_cell_pool_used(runt_vm *vm);
+
 runt_int runt_memory_pool_set(runt_vm *vm, unsigned char *buf, runt_uint size);
 runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud);
+
+runt_uint runt_memory_pool_size(runt_vm *vm);
+runt_uint runt_memory_pool_used(runt_vm *vm);
 
 /* Cell Operations */
 
@@ -125,13 +138,25 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size);
 
 runt_uint runt_entry_create(runt_vm *vm, 
         runt_cell *cell, 
-        runt_proc copy, 
+        runt_copy_proc copy, 
         runt_entry **entry);
+
+runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest);
 
 runt_int runt_word(runt_vm *vm, 
         const char *name, 
         runt_int size,
         runt_entry *entry);
+
+runt_int runt_word_search(runt_vm *vm, 
+        const char *name, 
+        runt_int size,
+        runt_entry **entry);
+
+void runt_list_init(runt_list *lst);
+runt_int runt_list_append(runt_list *lst, runt_entry *ent);
+
+void runt_dictionary_init(runt_vm *vm);
 
 /* Lexing and Parsing */
 
