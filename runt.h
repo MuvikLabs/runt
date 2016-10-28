@@ -188,8 +188,7 @@ runt_type runt_lex(runt_vm *vm,
 
 runt_float runt_atof(const char *str, runt_uint pos, runt_uint size);
 
-/* TODO: reconsider renaming this */
-void runt_record(runt_vm *vm, runt_uint state);
+runt_int runt_set_state(runt_vm *vm, runt_uint mode, runt_uint state);
 
 /* Procedures */
 

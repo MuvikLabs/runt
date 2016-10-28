@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "runt.h"
 
 static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p);
@@ -24,7 +25,8 @@ runt_int runt_init(runt_vm *vm)
 
     /* record cells being parsed by default */
 
-    runt_record(vm, RUNT_ON);
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+
     return RUNT_OK;
 }
 
@@ -493,22 +495,21 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 val = runt_atof(str, pos, word_size);
                 s = runt_push(vm);
                 s->f = val;
-                if(vm->status & RUNT_MODE_INTERACTIVE) {
+                if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
                     runt_cell_new(vm, &tmp);
                     runt_copy_float(vm, vm->f_cell, tmp);
                 }
                 break;
             case RUNT_STRING:
                 /* not yet implemented */
-                printf("STRING\n");
                 break;
             case RUNT_PROC:
                 if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
                     if(vm->status & RUNT_MODE_INTERACTIVE) {
+                        runt_entry_exec(vm, entry);
+                    } else {
                         runt_cell_new(vm, &tmp);
                         runt_entry_copy(vm, entry, tmp);
-                    } else {
-                        runt_entry_exec(vm, entry);
                     }
                 } else {
                     /*TODO: cleaner error reporting */
@@ -544,14 +545,17 @@ static int rproc_float(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-void runt_record(runt_vm *vm, runt_uint state)
+runt_int runt_set_state(runt_vm *vm, runt_uint mode, runt_uint state)
 {
+    runt_int rc = RUNT_OK;
+
     if(state == RUNT_ON) {
-        vm->status |= RUNT_MODE_INTERACTIVE;
+        vm->status |= mode;
     } else if(state == RUNT_OFF) {
-        vm->status &= ~(RUNT_MODE_INTERACTIVE);
+        vm->status &= ~(mode);
     } else {
-        /* TODO: more standardized messaging */
-        printf("runt_record: invalid state. Not doing anything.\n");
+       rc = RUNT_NOT_OK;
     }
+
+    return rc;
 }
