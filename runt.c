@@ -240,21 +240,30 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
 
 runt_uint runt_entry_create(runt_vm *vm, 
         runt_cell *cell, 
-        runt_copy_proc copy,
         runt_entry **entry)
 {
     runt_entry *e;
     runt_malloc(vm, sizeof(runt_entry), (void **)entry);
     e = *entry;
-    e->copy = copy;
+    e->copy = runt_link_cell;
     e->cell = cell;
     e->str = vm->nil;
     return 0;
 }
 
+void runt_entry_set_copy_proc(runt_entry *entry, runt_copy_proc copy)
+{
+    entry->copy = copy;
+}
+
 runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest)
 {
     return entry->copy(vm, entry->cell, dest);
+}
+
+runt_int runt_entry_exec(runt_vm *vm, runt_entry *entry)
+{
+    return runt_exec(vm, entry->cell);
 }
 
 static runt_uint runt_hash(const char *str, runt_int size)

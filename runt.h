@@ -136,12 +136,12 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size);
 
 /* Dictionary */
 
-runt_uint runt_entry_create(runt_vm *vm, 
-        runt_cell *cell, 
-        runt_copy_proc copy, 
-        runt_entry **entry);
+runt_uint runt_entry_create(runt_vm *vm, runt_cell *cell, runt_entry **entry);
+
+void runt_entry_set_copy_proc(runt_entry *entry, runt_copy_proc copy);
 
 runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest);
+runt_int runt_entry_exec(runt_vm *vm, runt_entry *entry);
 
 runt_int runt_word(runt_vm *vm, 
         const char *name, 
