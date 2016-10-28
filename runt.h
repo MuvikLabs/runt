@@ -11,6 +11,7 @@
 enum {
 RUNT_NOT_OK = 0,
 RUNT_OK,
+RUNT_CONTINUE,
 RUNT_NIL = 0,
 RUNT_FLOAT,
 RUNT_STRING,
@@ -162,10 +163,17 @@ void runt_dictionary_init(runt_vm *vm);
 
 runt_int runt_compile(runt_vm *vm, const char *str);
 
+runt_int runt_tokenize(runt_vm *vm, 
+        const char *str,
+        runt_uint *size,
+        runt_uint *pos,
+        runt_uint *wsize,
+        runt_uint *next);
+
 runt_type runt_lex(runt_vm *vm, 
         const char *str,
         runt_int size,
-        runt_int *post);
+        runt_int pos);
 
 /* Procedures */
 

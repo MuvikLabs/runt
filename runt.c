@@ -366,3 +366,75 @@ runt_uint runt_cell_pool_used(runt_vm *vm)
 {
     return vm->cell_pool.used;
 }
+
+runt_int runt_tokenize(runt_vm *vm, 
+        const char *str,
+        runt_uint *size,
+        runt_uint *pos,
+        runt_uint *wsize,
+        runt_uint *next)
+{
+    runt_uint s;
+    runt_uint p;
+    runt_uint mode = 0;
+
+    *pos = *next;
+
+    if(*pos >= *size) {
+        return RUNT_OK;
+    }
+
+    p = *pos;
+
+    /* if initial string has spaces, jump ahead */
+    if(p == 0) {
+        while(str[p] == ' ') p++;
+    }
+
+    *pos = p; 
+
+    *next = p;
+
+    for(s = *pos; s < *size; s++) {
+        switch(mode) {
+            case 1:
+                if(str[s] == ' ') {
+                    *next = *next + 1;
+                } else {
+                    return RUNT_CONTINUE;
+                }
+                break;
+
+            case 2:
+                if(str[s] != ' ') {
+                    mode = 0;
+                }
+                break;
+
+            case 0:
+            default:
+                if(str[s] == ' ') {
+                    if(s == *pos) {
+                        mode = 2;
+                    } else {
+                        *wsize = s - *pos;
+                        *next += *wsize + 1;
+                        mode = 1;
+                    }
+                }
+        }
+    }
+
+    *next += 1;
+
+   
+    return RUNT_CONTINUE;
+}
+
+runt_type runt_lex(runt_vm *vm, 
+        const char *str,
+        runt_int size,
+        runt_int pos)
+{
+    return RUNT_OK;
+}
