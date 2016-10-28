@@ -9,6 +9,8 @@ static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_float(runt_vm *vm, runt_ptr p);
 static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_string(runt_vm *vm, runt_ptr p);
+static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst);
+static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -41,6 +43,10 @@ runt_int runt_load_stdlib(runt_vm *vm)
     /* create string type */
     runt_cell_new(vm, &vm->s_cell);
     runt_cell_bind(vm, vm->s_cell, rproc_string);
+   
+    /* ability to create procedures by default */
+    runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
+    runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
     return RUNT_OK;
 }
 
@@ -612,7 +618,6 @@ static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest)
 
     return RUNT_OK;
 }
-
 static int rproc_string(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -620,5 +625,27 @@ static int rproc_string(runt_vm *vm, runt_ptr p)
     s = runt_push(vm);
     s->p = p;
     return RUNT_OK;
+}
+static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_ON);
+    return runt_proc_begin(vm, dst);
+}
 
+static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    return runt_proc_end(vm);
+}
+
+runt_int runt_cell_undo(runt_vm *vm)
+{
+    runt_cell_pool *pool = &vm->cell_pool;
+
+    if(pool->used == 0) {
+        return RUNT_NOT_OK;
+    } 
+
+    pool->used--;
+
+    return RUNT_OK;
 }

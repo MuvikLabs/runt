@@ -129,6 +129,7 @@ runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest);
 runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
 runt_int runt_cell_call(runt_vm *vm, runt_cell *cell);
 runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell);
+runt_int runt_cell_undo(runt_vm *vm);
 
 /* Stack Operations */
 
