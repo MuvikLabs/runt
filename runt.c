@@ -31,8 +31,8 @@ runt_int runt_init(runt_vm *vm)
 runt_int runt_load_stdlib(runt_vm *vm)
 {
     /* create float type */
-    runt_new_cell(vm, &vm->f_cell);
-    runt_bind(vm, vm->f_cell, rproc_float);
+    runt_cell_new(vm, &vm->f_cell);
+    runt_cell_bind(vm, vm->f_cell, rproc_float);
     return RUNT_OK;
 }
 
@@ -50,7 +50,7 @@ runt_int runt_cell_pool_init(runt_vm *vm)
     runt_cell *cells = vm->cell_pool.cells;
 
     for(i = 0; i < vm->cell_pool.size; i++) {
-       runt_bind(vm, &cells[i], runt_proc_zero);
+       runt_cell_bind(vm, &cells[i], runt_proc_zero);
        cells[i].psize = 1;
     }
 
@@ -66,7 +66,7 @@ runt_int runt_memory_pool_set(runt_vm *vm, unsigned char *buf, runt_uint size)
     return RUNT_OK;
 }
 
-runt_uint runt_new_cell(runt_vm *vm, runt_cell **cell)
+runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
 {
     runt_uint id;
     runt_cell_pool *pool = &vm->cell_pool;
@@ -88,7 +88,7 @@ runt_ptr runt_mk_ptr(runt_type type, void *ud)
     return ptr;
 }
 
-runt_int runt_bind(runt_vm *vm, runt_cell *cell, runt_proc proc)
+runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc)
 {
     cell->fun = proc;
     cell->p = vm->nil;
@@ -118,7 +118,7 @@ runt_int runt_proc_end(runt_vm *vm)
     return RUNT_OK;
 }
 
-runt_int runt_exec(runt_vm *vm, runt_cell *cell)
+runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
 {
     runt_uint i;
     runt_int rc = RUNT_OK;
@@ -131,14 +131,14 @@ runt_int runt_exec(runt_vm *vm, runt_cell *cell)
         if(cell[i].psize == 1) {
             rc = runt_call(vm, &cell[i]);
         } else {
-            rc = runt_exec(vm, &cell[i]); 
+            rc = runt_cell_exec(vm, &cell[i]); 
         }
     }
 
     return rc;
 }
 
-runt_int runt_link_cell(runt_vm *vm, runt_cell *src, runt_cell *dest)
+runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest)
 {
     /* TODO: error handling for init */
     dest->fun = runt_proc_link;
@@ -149,7 +149,7 @@ runt_int runt_link_cell(runt_vm *vm, runt_cell *src, runt_cell *dest)
 static runt_int runt_proc_link(runt_vm *vm, runt_ptr p)
 {
     runt_cell *cell = runt_to_cell(p);
-    return runt_exec(vm, cell);
+    return runt_cell_exec(vm, cell);
 }
 
 runt_cell * runt_to_cell(runt_ptr p)
@@ -258,7 +258,7 @@ runt_uint runt_entry_create(runt_vm *vm,
     runt_entry *e;
     runt_malloc(vm, sizeof(runt_entry), (void **)entry);
     e = *entry;
-    e->copy = runt_link_cell;
+    e->copy = runt_cell_link;
     e->cell = cell;
     e->str = vm->nil;
     return 0;
@@ -276,7 +276,7 @@ runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest)
 
 runt_int runt_entry_exec(runt_vm *vm, runt_entry *entry)
 {
-    return runt_exec(vm, entry->cell);
+    return runt_cell_exec(vm, entry->cell);
 }
 
 static runt_uint runt_hash(const char *str, runt_int size)
@@ -494,7 +494,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 s = runt_push(vm);
                 s->f = val;
                 if(vm->status & RUNT_MODE_INTERACTIVE) {
-                    runt_new_cell(vm, &tmp);
+                    runt_cell_new(vm, &tmp);
                     runt_copy_float(vm, vm->f_cell, tmp);
                 }
                 break;
@@ -505,7 +505,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
             case RUNT_PROC:
                 if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
                     if(vm->status & RUNT_MODE_INTERACTIVE) {
-                        runt_new_cell(vm, &tmp);
+                        runt_cell_new(vm, &tmp);
                         runt_entry_copy(vm, entry, tmp);
                     } else {
                         runt_entry_exec(vm, entry);

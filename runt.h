@@ -123,16 +123,11 @@ runt_uint runt_memory_pool_size(runt_vm *vm);
 runt_uint runt_memory_pool_used(runt_vm *vm);
 
 /* Cell Operations */
-/* TODO: rename to runt_cell_new */
-runt_uint runt_new_cell(runt_vm *vm, runt_cell **cell);
-/* TODO: rename to runt_cell_link */
-runt_int runt_link_cell(runt_vm *vm, runt_cell *src, runt_cell *dest);
-/* TODO: rename to runt_cell_bind */
-runt_int runt_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
-/* TODO: rename to runt_cell_call */
-runt_int runt_call(runt_vm *vm, runt_cell *cell);
-/* TODO: rename to runt_cell_exec */
-runt_int runt_exec(runt_vm *vm, runt_cell *cell);
+runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell);
+runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest);
+runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
+runt_int runt_cell_call(runt_vm *vm, runt_cell *cell);
+runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell);
 
 /* Stack Operations */
 
