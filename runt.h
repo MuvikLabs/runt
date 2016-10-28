@@ -211,4 +211,8 @@ runt_int runt_set_state(runt_vm *vm, runt_uint mode, runt_uint state);
 runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc);
 runt_int runt_proc_end(runt_vm *vm);
 
+/* Standard Library Procedures */
+
+runt_int runt_load_basic(runt_vm *vm);
+
 #endif

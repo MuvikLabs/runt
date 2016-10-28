@@ -11,7 +11,6 @@ static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_string(runt_vm *vm, runt_ptr p);
 static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
-static int rproc_quit(runt_vm *vm, runt_ptr p);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -50,8 +49,8 @@ runt_int runt_load_stdlib(runt_vm *vm)
     runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
     runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
 
-    /* quit function for interactive mode */
-    runt_word_define(vm, "quit", 4, rproc_quit);
+    runt_load_basic(vm);
+
     return RUNT_OK;
 }
 
@@ -488,8 +487,13 @@ runt_type runt_lex(runt_vm *vm,
             case '7':
             case '8':
             case '9':
-            case '-':
                 return RUNT_FLOAT;
+            case '-':
+                if(size == 1) {
+                    return RUNT_PROC;
+                } else {
+                    return RUNT_FLOAT;
+                }
             case '"':
             case '\'':
                 return RUNT_STRING;
@@ -517,6 +521,7 @@ runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
     if(str[pos] == '-') {
         sign = -1;
         pos++;
+        size--;
     }
 
     for(i = pos; i < pos + size; i++) {
@@ -562,13 +567,13 @@ runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
         }
 
         if(mode == 0) {
-            total *= place;
+            total *= scale;
             total += num;
         } else {
             total += num * place;
+            place *= scale;
         }
 
-        place *= scale;
     }
 
     return total * sign;
@@ -587,7 +592,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     float val = 0.0;
     while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
     {
-        switch(runt_lex(vm, str, pos, size)) {
+        switch(runt_lex(vm, str, pos, word_size)) {
             case RUNT_FLOAT:
                 val = runt_atof(str, pos, word_size);
                 s = runt_push(vm);
@@ -764,10 +769,4 @@ runt_int runt_is_alive(runt_vm *vm)
     } else {
         return RUNT_NOT_OK;
     }
-}
-
-static int rproc_quit(runt_vm *vm, runt_ptr p)
-{
-    runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
-    return RUNT_OK;
 }

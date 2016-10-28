@@ -1,6 +1,6 @@
 CFLAGS = -g -Wall -ansi -pedantic
 
-OBJ = runt.o 
+OBJ = runt.o basic.o
 
 default: irunt
 

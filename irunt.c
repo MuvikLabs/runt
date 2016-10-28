@@ -44,11 +44,6 @@ int main(int argc, char *argv[])
     size_t len = 0;
     ssize_t read;
 
-    if(argc == 1) {
-        fprintf(stderr, "Usage: %s dictionary\n", argv[0]);
-        return 1;
-    }
-
     runt_init(&vm);
 
     mem = malloc(MEMPOOL_SIZE);
@@ -61,7 +56,7 @@ int main(int argc, char *argv[])
   
     runt_load_stdlib(&vm);
 
-    load_dictionary(&vm, argv[1]);
+    if(argc > 1) load_dictionary(&vm, argv[1]);
 
     runt_set_state(&vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
 
