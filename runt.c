@@ -11,6 +11,7 @@ static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_string(runt_vm *vm, runt_ptr p);
 static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
+static int rproc_quit(runt_vm *vm, runt_ptr p);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -30,6 +31,7 @@ runt_int runt_init(runt_vm *vm)
     /* record cells being parsed by default */
 
     runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+    runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_ON);
 
     return RUNT_OK;
 }
@@ -47,6 +49,9 @@ runt_int runt_load_stdlib(runt_vm *vm)
     /* ability to create procedures by default */
     runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
     runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
+
+    /* quit function for interactive mode */
+    runt_word_define(vm, "quit", 4, rproc_quit);
     return RUNT_OK;
 }
 
@@ -426,20 +431,20 @@ runt_int runt_tokenize(runt_vm *vm,
                 }
                 continue;
             case 2:
-                if(str[s] != ' ') {
+                if(str[s] != ' ' && str[s] != '\n') {
                     *next = s;
                     stop = 1;
                     break;
                 }
                 continue;
             case 1:
-                if(str[s] == ' ') {
+                if(str[s] == ' ' || str[s] == '\n') {
                     mode = 2;
                     *wsize = (s - *pos);
                 }
                 continue;
             case 0:
-                if(str[s] != ' ') {
+                if(str[s] != ' ' && str[s] != '\n') {
                     if(str[s] == '\'' || str[s] == '\"') {
                         mode = 3;
                         m = str[s];
@@ -749,5 +754,20 @@ runt_int runt_cell_undo(runt_vm *vm)
 
     pool->used--;
 
+    return RUNT_OK;
+}
+
+runt_int runt_is_alive(runt_vm *vm)
+{
+    if(vm->status & RUNT_MODE_RUNNING) {
+        return RUNT_OK;
+    } else {
+        return RUNT_NOT_OK;
+    }
+}
+
+static int rproc_quit(runt_vm *vm, runt_ptr p)
+{
+    runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
     return RUNT_OK;
 }

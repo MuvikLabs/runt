@@ -8,6 +8,7 @@
 #define RUNT_MODE_PROC 1 
 #define RUNT_MODE_INTERACTIVE 2
 #define RUNT_MODE_KEYWORD 4
+#define RUNT_MODE_RUNNING 8
 #define RUNT_DICT_SIZE 128
 
 enum {
@@ -109,6 +110,7 @@ struct runt_vm {
 /* Main */
 runt_int runt_init(runt_vm *vm);
 runt_int runt_load_stdlib(runt_vm *vm);
+runt_int runt_is_alive(runt_vm *vm);
 
 /* Pools */
 
