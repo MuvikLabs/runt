@@ -483,6 +483,7 @@ runt_type runt_lex(runt_vm *vm,
             case '7':
             case '8':
             case '9':
+            case '-':
                 return RUNT_FLOAT;
             case '"':
             case '\'':
@@ -499,9 +500,73 @@ runt_type runt_lex(runt_vm *vm,
 
 runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
 {
-    const char *start = &str[pos];
-    char *end = (char *)&str[pos + size];
-    return strtof(start, &end);
+    runt_float total = 0.0;
+    runt_int sign = 1.0;
+    runt_uint i;
+    runt_uint mode = 0;
+    runt_float place = 1.0;
+    runt_float scale = 10.0;
+
+    runt_float num = 0.0;
+
+    if(str[pos] == '-') {
+        sign = -1;
+        pos++;
+    }
+
+    for(i = pos; i < pos + size; i++) {
+        num = 0.0;
+        switch(str[i]) {
+            case '0':
+                num = 0.0;
+                break;
+            case '1':
+                num = 1.0;
+                break;
+            case '2':
+                num = 2.0;
+                break;
+            case '3':
+                num = 3.0;
+                break;
+            case '4':
+                num = 4.0;
+                break;
+            case '5':
+                num = 5.0;
+                break;
+            case '6':
+                num = 6.0;
+                break;
+            case '7':
+                num = 7.0;
+                break;
+            case '8':
+                num = 8.0;
+                break;
+            case '9':
+                num = 9.0;
+                break;
+            case '.':
+                if(mode == 0) {
+                    scale = 0.1;
+                    mode = 1;
+                    place = 1.0;
+                }
+                break;
+        }
+
+        if(mode == 0) {
+            total *= place;
+            total += num;
+        } else {
+            total += num * place;
+        }
+
+        place *= scale;
+    }
+
+    return total * sign;
 }
 
 runt_int runt_compile(runt_vm *vm, const char *str)

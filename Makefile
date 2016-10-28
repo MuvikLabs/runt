@@ -1,4 +1,4 @@
-CFLAGS = -g -Wall -std=c99 -pedantic
+CFLAGS = -g -Wall -ansi -pedantic
 
 playground: playground.c runt.o
 	$(CC) $(CFLAGS) $^ -o $@
