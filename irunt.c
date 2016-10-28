@@ -34,6 +34,32 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     return RUNT_OK;
 }
 
+
+static int rproc_rec(runt_vm *vm, runt_ptr p)
+{
+    fprintf(stderr, "Recording.\n");
+    return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+}
+
+static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    fprintf(stderr, "Stopping.\n");
+    runt_cell_undo(vm);
+    return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+}
+
+static int rproc_usage(runt_vm *vm, runt_ptr p)
+{
+    printf("Cell pool: used %d of %d cells.\n", 
+            runt_cell_pool_used(vm),
+            runt_cell_pool_size(vm));
+
+    printf("Memory pool: used %d of %d bytes.\n", 
+            runt_memory_pool_used(vm),
+            runt_memory_pool_size(vm));
+    return RUNT_OK;
+}
+
 int main(int argc, char *argv[])
 {
     runt_vm vm;
@@ -43,6 +69,7 @@ int main(int argc, char *argv[])
     char  *line = NULL;
     size_t len = 0;
     ssize_t read;
+
 
     runt_init(&vm);
 
@@ -56,7 +83,13 @@ int main(int argc, char *argv[])
   
     runt_load_stdlib(&vm);
 
+
     if(argc > 1) load_dictionary(&vm, argv[1]);
+
+    runt_word_define(&vm, "rec", 3, rproc_rec);
+    runt_word_define_with_copy(&vm, "stop", 4, vm.zproc, rproc_stop);
+
+    runt_word_define(&vm, "u", 1, rproc_usage);
 
     runt_set_state(&vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
 

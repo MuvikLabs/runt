@@ -72,6 +72,19 @@ static int rproc_mul(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+runt_int rproc_dup(runt_vm *vm, runt_ptr p)
+{
+    /* TODO: how do we make this polymorphic? */
+    runt_stacklet *val = runt_pop(vm);
+    runt_stacklet *s1 = runt_push(vm);
+    runt_stacklet *s2 = runt_push(vm);
+
+    s1->f = val->f;
+    s2->f = val->f;
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -85,5 +98,8 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "-", 1, rproc_sub);
     runt_word_define(vm, "*", 1, rproc_mul);
     runt_word_define(vm, "/", 1, rproc_div);
+
+    /* stack operations */
+    runt_word_define(vm, "dup", 3, rproc_dup);
     return RUNT_OK;
 }

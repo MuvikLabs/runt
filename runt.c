@@ -746,6 +746,7 @@ static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
+    runt_cell_undo(vm);
     return runt_proc_end(vm);
 }
 
