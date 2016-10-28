@@ -369,7 +369,7 @@ runt_uint runt_cell_pool_used(runt_vm *vm)
 
 runt_int runt_tokenize(runt_vm *vm, 
         const char *str,
-        runt_uint *size,
+        runt_uint size,
         runt_uint *pos,
         runt_uint *wsize,
         runt_uint *next)
@@ -380,7 +380,7 @@ runt_int runt_tokenize(runt_vm *vm,
 
     *pos = *next;
 
-    if(*pos >= *size) {
+    if(*pos >= size) {
         return RUNT_OK;
     }
 
@@ -395,7 +395,7 @@ runt_int runt_tokenize(runt_vm *vm,
 
     *next = p;
 
-    for(s = *pos; s < *size; s++) {
+    for(s = *pos; s < size; s++) {
         switch(mode) {
             case 1:
                 if(str[s] == ' ') {
@@ -433,8 +433,39 @@ runt_int runt_tokenize(runt_vm *vm,
 
 runt_type runt_lex(runt_vm *vm, 
         const char *str,
-        runt_int size,
-        runt_int pos)
+        runt_uint pos,
+        runt_uint size)
 {
-    return RUNT_OK;
+    runt_uint c;
+
+    for(c = pos; c < pos + size; c++) {
+        switch(str[c]) {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return RUNT_FLOAT;
+            case '"':
+            case '\'':
+            case '_':
+                return RUNT_STRING;
+            default:
+                return RUNT_PROC;
+        }
+    }
+
+    return RUNT_NIL;
+}
+
+runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
+{
+    const char *start = &str[pos];
+    char *end = (char *)&str[pos + size];
+    return strtof(start, &end);
 }
