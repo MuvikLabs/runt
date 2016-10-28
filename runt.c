@@ -7,6 +7,8 @@ static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p);
 static runt_int runt_proc_link(runt_vm *vm, runt_ptr p);
 static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_float(runt_vm *vm, runt_ptr p);
+static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest);
+static int rproc_string(runt_vm *vm, runt_ptr p);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -35,6 +37,10 @@ runt_int runt_load_stdlib(runt_vm *vm)
     /* create float type */
     runt_cell_new(vm, &vm->f_cell);
     runt_cell_bind(vm, vm->f_cell, rproc_float);
+
+    /* create string type */
+    runt_cell_new(vm, &vm->s_cell);
+    runt_cell_bind(vm, vm->s_cell, rproc_string);
     return RUNT_OK;
 }
 
@@ -502,6 +508,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 break;
             case RUNT_STRING:
                 /* not yet implemented */
+
                 break;
             case RUNT_PROC:
                 if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
@@ -513,12 +520,12 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     }
                 } else {
                     /*TODO: cleaner error reporting */
-                    printf("Error: could not find function '%*.*s'\n",
+                    fprintf(stderr, "Error: could not find function '%*.*s'\n",
                             word_size, word_size, str + pos);
                 }
                 break;
             default:
-                printf("UNKOWN TYPE\n");
+                fprintf(stderr, "UNKOWN TYPE\n");
         }
     }
     return RUNT_OK;
@@ -558,4 +565,51 @@ runt_int runt_set_state(runt_vm *vm, runt_uint mode, runt_uint state)
     }
 
     return rc;
+}
+
+runt_int runt_word_define(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc)
+{
+    return runt_word_define_with_copy(vm, name, size, proc, runt_cell_link);
+}
+
+runt_int runt_word_define_with_copy(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc,
+        runt_copy_proc copy)
+{
+    runt_cell *cell;
+    runt_entry *entry;
+
+    runt_cell_new(vm, &cell);
+    runt_cell_bind(vm, cell, proc);
+    runt_entry_create(vm, cell, &entry);
+    runt_word(vm, name, size, entry);
+
+    return RUNT_OK;
+}
+
+static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest)
+{
+    runt_stacklet *s = runt_pop(vm);
+
+    const char *str = runt_to_string(s->p);
+
+    dest->fun = src->fun;
+    dest->p = runt_mk_string(vm, str, strlen(str));
+
+    return RUNT_OK;
+}
+
+static int rproc_string(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+
+    s = runt_push(vm);
+    s->p = p;
+    return RUNT_OK;
+
 }

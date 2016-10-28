@@ -170,6 +170,17 @@ runt_int runt_list_append(runt_list *lst, runt_entry *ent);
 
 void runt_dictionary_init(runt_vm *vm);
 
+runt_int runt_word_define(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc);
+
+runt_int runt_word_define_with_copy(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc,
+        runt_copy_proc copy);
+
 /* Lexing, Parsing, and Compiling */
 
 runt_int runt_compile(runt_vm *vm, const char *str);
