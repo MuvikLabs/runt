@@ -123,11 +123,15 @@ runt_uint runt_memory_pool_size(runt_vm *vm);
 runt_uint runt_memory_pool_used(runt_vm *vm);
 
 /* Cell Operations */
-
+/* TODO: rename to runt_cell_new */
 runt_uint runt_new_cell(runt_vm *vm, runt_cell **cell);
+/* TODO: rename to runt_cell_link */
 runt_int runt_link_cell(runt_vm *vm, runt_cell *src, runt_cell *dest);
+/* TODO: rename to runt_cell_bind */
 runt_int runt_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
+/* TODO: rename to runt_cell_call */
 runt_int runt_call(runt_vm *vm, runt_cell *cell);
+/* TODO: rename to runt_cell_exec */
 runt_int runt_exec(runt_vm *vm, runt_cell *cell);
 
 /* Stack Operations */
@@ -136,6 +140,8 @@ runt_stacklet * runt_pop(runt_vm *vm);
 runt_stacklet * runt_push(runt_vm *vm);
 
 /* Pointers */
+
+/* TODO: reconsider naming conventions for conversion functions */
 
 runt_ptr runt_mk_ptr(runt_type type, void *ud);
 runt_int runt_ref_to_cptr(runt_vm *vm, runt_uint ref, void **ud);
@@ -169,7 +175,7 @@ runt_int runt_list_append(runt_list *lst, runt_entry *ent);
 
 void runt_dictionary_init(runt_vm *vm);
 
-/* Lexing and Parsing */
+/* Lexing, Parsing, and Compiling */
 
 runt_int runt_compile(runt_vm *vm, const char *str);
 
@@ -187,6 +193,7 @@ runt_type runt_lex(runt_vm *vm,
 
 runt_float runt_atof(const char *str, runt_uint pos, runt_uint size);
 
+/* TODO: reconsider renaming this */
 void runt_record(runt_vm *vm, runt_uint state);
 
 /* Procedures */
