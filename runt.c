@@ -377,57 +377,50 @@ runt_int runt_tokenize(runt_vm *vm,
     runt_uint s;
     runt_uint p;
     runt_uint mode = 0;
+    *wsize = 0;
 
     *pos = *next;
-
-    if(*pos >= size) {
-        return RUNT_OK;
-    }
-
     p = *pos;
+    
+    if(*pos > size) return RUNT_OK;
 
-    /* if initial string has spaces, jump ahead */
-    if(p == 0) {
-        while(str[p] == ' ') p++;
-    }
-
-    *pos = p; 
-
-    *next = p;
-
-    for(s = *pos; s < size; s++) {
-        switch(mode) {
-            case 1:
-                if(str[s] == ' ') {
-                    *next = *next + 1;
-                } else {
-                    return RUNT_CONTINUE;
-                }
-                break;
-
+    printf("starting new word...\n");
+    for(s = p; s < size; s++) {
+        if(mode == 3) {
+            break;
+        }
+        switch (mode) {
             case 2:
                 if(str[s] != ' ') {
-                    mode = 0;
+                    *next = s;
+                    mode = 3;
+                    break;
                 }
-                break;
-
-            case 0:
-            default:
+                continue;
+            case 1:
                 if(str[s] == ' ') {
-                    if(s == *pos) {
-                        mode = 2;
-                    } else {
-                        *wsize = s - *pos;
-                        *next += *wsize + 1;
-                        mode = 1;
-                    }
+                    mode = 2;
+                    *wsize = (s - *pos);
                 }
+                continue;
+            case 0:
+                if(str[s] != ' ') {
+                    mode = 1;
+                    *pos = s;
+                }
+                continue;
+            default: break;
         }
+
     }
 
-    *next += 1;
-
-   
+    /* if we are at the end, make next larger than the size */
+    if(s == size) {
+        *next = size + 1;
+        if(mode == 1) {
+            *wsize = (s - *pos);
+        }
+    }
     return RUNT_CONTINUE;
 }
 
@@ -468,4 +461,36 @@ runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
     const char *start = &str[pos];
     char *end = (char *)&str[pos + size];
     return strtof(start, &end);
+}
+
+runt_int runt_compile(runt_vm *vm, const char *str)
+{
+    runt_uint size = strlen(str);
+    runt_uint pos = 0;
+    runt_uint word_size = 0;
+    runt_uint next = 0;
+
+    float val = 0.0;
+    while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
+    {
+        printf("pos: %d, \"%*.*s\" ", 
+                pos, word_size, word_size, str + pos);
+
+        switch(runt_lex(vm, str, pos, size)) {
+            case RUNT_FLOAT:
+                printf("FLOAT\n");
+                val = runt_atof(str, pos, word_size);
+                printf("the val is %g\n", val);
+                break;
+            case RUNT_STRING:
+                printf("STRING\n");
+                break;
+            case RUNT_PROC:
+                printf("PROC\n");
+                break;
+            default:
+                printf("UNKOWN TYPE\n");
+        }
+    }
+    return RUNT_OK;
 }
