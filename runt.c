@@ -511,6 +511,14 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 break;
             case RUNT_PROC:
+
+                if(vm->status & RUNT_MODE_KEYWORD) {
+                    runt_entry_create(vm, vm->proc, &entry);
+                    runt_word(vm, &str[pos], word_size, entry);
+                    runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
+                    break;
+                } 
+
                 if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
                     if(vm->status & RUNT_MODE_INTERACTIVE) {
                         runt_entry_exec(vm, entry);
@@ -587,6 +595,7 @@ runt_int runt_word_define_with_copy(runt_vm *vm,
     runt_cell_new(vm, &cell);
     runt_cell_bind(vm, cell, proc);
     runt_entry_create(vm, cell, &entry);
+    runt_entry_set_copy_proc(entry, copy);
     runt_word(vm, name, size, entry);
 
     return RUNT_OK;
