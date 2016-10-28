@@ -4,6 +4,8 @@
 
 static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p);
 static runt_int runt_proc_link(runt_vm *vm, runt_ptr p);
+static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest);
+static int rproc_float(runt_vm *vm, runt_ptr p);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -20,6 +22,17 @@ runt_int runt_init(runt_vm *vm)
 
     runt_dictionary_init(vm);
 
+    /* record cells being parsed by default */
+
+    runt_record(vm, RUNT_ON);
+    return RUNT_OK;
+}
+
+runt_int runt_load_stdlib(runt_vm *vm)
+{
+    /* create float type */
+    runt_new_cell(vm, &vm->f_cell);
+    runt_bind(vm, vm->f_cell, rproc_float);
     return RUNT_OK;
 }
 
@@ -384,7 +397,6 @@ runt_int runt_tokenize(runt_vm *vm,
     
     if(*pos > size) return RUNT_OK;
 
-    printf("starting new word...\n");
     for(s = p; s < size; s++) {
         if(mode == 3) {
             break;
@@ -469,28 +481,77 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     runt_uint pos = 0;
     runt_uint word_size = 0;
     runt_uint next = 0;
+    runt_stacklet *s;
+    runt_cell *tmp;
+    runt_entry *entry;
 
     float val = 0.0;
     while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
     {
-        printf("pos: %d, \"%*.*s\" ", 
-                pos, word_size, word_size, str + pos);
-
         switch(runt_lex(vm, str, pos, size)) {
             case RUNT_FLOAT:
-                printf("FLOAT\n");
                 val = runt_atof(str, pos, word_size);
-                printf("the val is %g\n", val);
+                s = runt_push(vm);
+                s->f = val;
+                if(vm->status & RUNT_MODE_INTERACTIVE) {
+                    runt_new_cell(vm, &tmp);
+                    runt_copy_float(vm, vm->f_cell, tmp);
+                }
                 break;
             case RUNT_STRING:
+                /* not yet implemented */
                 printf("STRING\n");
                 break;
             case RUNT_PROC:
-                printf("PROC\n");
+                if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
+                    if(vm->status & RUNT_MODE_INTERACTIVE) {
+                        runt_new_cell(vm, &tmp);
+                        runt_entry_copy(vm, entry, tmp);
+                    } else {
+                        runt_entry_exec(vm, entry);
+                    }
+                } else {
+                    /*TODO: cleaner error reporting */
+                    printf("Error: could not find function '%*.*s'\n",
+                            word_size, word_size, str + pos);
+                }
                 break;
             default:
                 printf("UNKOWN TYPE\n");
         }
     }
     return RUNT_OK;
+}
+
+static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest)
+{
+    runt_stacklet *s = runt_pop(vm);
+
+    dest->fun = src->fun;
+    dest->p = runt_mk_float(vm, s->f);
+
+    return RUNT_OK;
+}
+
+static int rproc_float(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_float *f;
+
+    f = runt_to_float(p);
+    s = runt_push(vm);
+    s->f = *f;
+    return RUNT_OK;
+}
+
+void runt_record(runt_vm *vm, runt_uint state)
+{
+    if(state == RUNT_ON) {
+        vm->status |= RUNT_MODE_INTERACTIVE;
+    } else if(state == RUNT_OFF) {
+        vm->status &= ~(RUNT_MODE_INTERACTIVE);
+    } else {
+        /* TODO: more standardized messaging */
+        printf("runt_record: invalid state. Not doing anything.\n");
+    }
 }

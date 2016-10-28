@@ -6,12 +6,15 @@
 #define RUNT_GIGABYTE (RUNT_MEGABYTE * 1000)
 #define RUNT_STACK_SIZE 32
 #define RUNT_MODE_PROC 1
+#define RUNT_MODE_INTERACTIVE 2
 #define RUNT_DICT_SIZE 128
 
 enum {
 RUNT_NOT_OK = 0,
 RUNT_OK,
 RUNT_CONTINUE,
+RUNT_ON,
+RUNT_OFF,
 RUNT_NIL = 0,
 RUNT_FLOAT,
 RUNT_STRING,
@@ -94,10 +97,16 @@ struct runt_vm {
 
     runt_proc zproc;
     runt_ptr nil;
+
+    /* the base cell for floats */ 
+    runt_cell *f_cell;
+    /* the base cell for strings */ 
+    runt_cell *s_cell;
 };
 
 /* Main */
 runt_int runt_init(runt_vm *vm);
+runt_int runt_load_stdlib(runt_vm *vm);
 
 /* Pools */
 
@@ -177,6 +186,8 @@ runt_type runt_lex(runt_vm *vm,
         runt_uint size);
 
 runt_float runt_atof(const char *str, runt_uint pos, runt_uint size);
+
+void runt_record(runt_vm *vm, runt_uint state);
 
 /* Procedures */
 
