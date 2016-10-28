@@ -8,7 +8,7 @@ Here are some features:
 
 - Stack-based: heavily inspired by Forth
 - Memory-pool allocation system: only one call to malloc/free needed!
-- built-in parser and interpretor
+- built-in parser and interpreter
 - written in ANSI C
 - simple API for defining new words
 
