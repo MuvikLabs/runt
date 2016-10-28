@@ -404,6 +404,8 @@ runt_int runt_tokenize(runt_vm *vm,
     runt_uint s;
     runt_uint p;
     runt_uint mode = 0;
+    runt_uint stop = 0;
+    char m = '"';
     *wsize = 0;
 
     *pos = *next;
@@ -412,14 +414,21 @@ runt_int runt_tokenize(runt_vm *vm,
     if(*pos > size) return RUNT_OK;
 
     for(s = p; s < size; s++) {
-        if(mode == 3) {
+        if(stop != 0) {
             break;
         }
+
         switch (mode) {
+            case 3:
+                if(str[s] == m) {
+                    mode = 2;
+                    *wsize = (s - *pos) + 1;
+                }
+                continue;
             case 2:
                 if(str[s] != ' ') {
                     *next = s;
-                    mode = 3;
+                    stop = 1;
                     break;
                 }
                 continue;
@@ -431,8 +440,13 @@ runt_int runt_tokenize(runt_vm *vm,
                 continue;
             case 0:
                 if(str[s] != ' ') {
-                    mode = 1;
-                    *pos = s;
+                    if(str[s] == '\'' || str[s] == '\"') {
+                        mode = 3;
+                        m = str[s];
+                    } else {
+                        mode = 1;
+                        *pos = s;
+                    }
                 }
                 continue;
             default: break;
@@ -472,8 +486,9 @@ runt_type runt_lex(runt_vm *vm,
                 return RUNT_FLOAT;
             case '"':
             case '\'':
-            case '_':
                 return RUNT_STRING;
+            case '_':
+                return RUNT_WORD;
             default:
                 return RUNT_PROC;
         }
@@ -513,8 +528,28 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 }
                 break;
             case RUNT_STRING:
-                /* not yet implemented */
 
+                if((vm->status & RUNT_MODE_INTERACTIVE)) {
+                    fprintf(stderr, 
+                            "Error: strings not yet supported in interactive mode\n");
+                    return RUNT_NOT_OK;
+                }
+                s = runt_push(vm);
+                s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
+                runt_cell_new(vm, &tmp);
+                runt_copy_string(vm, vm->s_cell, tmp);
+
+                break;
+            case RUNT_WORD:
+                if((vm->status & RUNT_MODE_INTERACTIVE)) {
+                    fprintf(stderr, 
+                            "Error: strings not yet supported in interactive mode\n");
+                    return RUNT_NOT_OK;
+                }
+                s = runt_push(vm);
+                s->p = runt_mk_string(vm, &str[pos + 1], word_size - 1);
+                runt_cell_new(vm, &tmp);
+                runt_copy_string(vm, vm->s_cell, tmp);
                 break;
             case RUNT_PROC:
 
@@ -618,6 +653,7 @@ static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest)
 
     return RUNT_OK;
 }
+
 static int rproc_string(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -626,6 +662,7 @@ static int rproc_string(runt_vm *vm, runt_ptr p)
     s->p = p;
     return RUNT_OK;
 }
+
 static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
     runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_ON);
