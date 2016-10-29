@@ -33,6 +33,8 @@ runt_int runt_init(runt_vm *vm)
     runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
     runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_ON);
 
+    vm->level = 0;
+
     return RUNT_OK;
 }
 
@@ -151,7 +153,9 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
         if(cell[i].psize == 1) {
             rc = runt_call(vm, &cell[i]);
         } else {
+            vm->level++;
             rc = runt_cell_exec(vm, &cell[i]); 
+            vm->level--;
         }
     }
 
@@ -297,6 +301,7 @@ runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest)
 
 runt_int runt_entry_exec(runt_vm *vm, runt_entry *entry)
 {
+    vm->level = 0;
     return runt_cell_exec(vm, entry->cell);
 }
 
@@ -748,7 +753,6 @@ static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
-    runt_cell_undo(vm);
     return runt_proc_end(vm);
 }
 
