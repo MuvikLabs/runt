@@ -81,12 +81,14 @@ typedef struct {
     unsigned char *data;
     runt_uint size;
     runt_uint used;
+    runt_uint mark;
 } runt_memory_pool;
 
 typedef struct {
     runt_cell *cells;
     runt_uint size;
     runt_uint used;
+    runt_uint mark;
 } runt_cell_pool;
 
 struct runt_vm {
@@ -126,6 +128,9 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud);
 
 runt_uint runt_memory_pool_size(runt_vm *vm);
 runt_uint runt_memory_pool_used(runt_vm *vm);
+
+void runt_mark_set(runt_vm *vm);
+runt_uint runt_mark_free(runt_vm *vm);
 
 /* Cell Operations */
 runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell);

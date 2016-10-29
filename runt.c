@@ -72,7 +72,7 @@ runt_int runt_cell_pool_init(runt_vm *vm)
        runt_cell_bind(vm, &cells[i], runt_proc_zero);
        cells[i].psize = 1;
     }
-
+    vm->cell_pool.mark = 0;
     return RUNT_OK;
 }
 
@@ -81,6 +81,7 @@ runt_int runt_memory_pool_set(runt_vm *vm, unsigned char *buf, runt_uint size)
     vm->memory_pool.data = buf;
     vm->memory_pool.size = size;
     vm->memory_pool.used = 0;
+    vm->memory_pool.mark = 0;
     memset(buf, 0, size);
     return RUNT_OK;
 }
@@ -605,11 +606,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 break;
             case RUNT_STRING:
 
-                if((vm->status & RUNT_MODE_INTERACTIVE)) {
-                    fprintf(stderr, 
-                            "Error: strings not yet supported in interactive mode\n");
-                    return RUNT_NOT_OK;
-                }
                 s = runt_push(vm);
                 s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
                 runt_cell_new(vm, &tmp);
@@ -617,11 +613,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 break;
             case RUNT_WORD:
-                if((vm->status & RUNT_MODE_INTERACTIVE)) {
-                    fprintf(stderr, 
-                            "Error: strings not yet supported in interactive mode\n");
-                    return RUNT_NOT_OK;
-                }
                 s = runt_push(vm);
                 s->p = runt_mk_string(vm, &str[pos + 1], word_size - 1);
                 runt_cell_new(vm, &tmp);
@@ -787,5 +778,18 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 
     fun(vm);
     
+    return RUNT_OK;
+}
+
+void runt_mark_set(runt_vm *vm)
+{
+    vm->cell_pool.mark = vm->cell_pool.used;
+    vm->memory_pool.mark = vm->memory_pool.used;
+}
+
+runt_uint runt_mark_free(runt_vm *vm)
+{
+    vm->cell_pool.used = vm->cell_pool.mark;
+    vm->memory_pool.used = vm->memory_pool.mark;
     return RUNT_OK;
 }
