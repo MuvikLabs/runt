@@ -71,8 +71,7 @@ runt_int runt_cell_pool_init(runt_vm *vm)
     runt_cell *cells = vm->cell_pool.cells;
 
     for(i = 0; i < vm->cell_pool.size; i++) {
-       runt_cell_bind(vm, &cells[i], runt_proc_zero);
-       cells[i].psize = 1;
+       runt_cell_clear(vm, &cells[i]);
     }
     vm->cell_pool.mark = 0;
     return RUNT_OK;
@@ -137,6 +136,7 @@ runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc)
 runt_int runt_proc_end(runt_vm *vm)
 {
     vm->status &= ~(RUNT_MODE_PROC);
+    vm->proc->psize--;
     return RUNT_OK;
 }
 
@@ -753,18 +753,24 @@ static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
+    /* TODO: make this work someday.. */
+    runt_cell_undo(vm);
     return runt_proc_end(vm);
 }
 
 runt_int runt_cell_undo(runt_vm *vm)
 {
     runt_cell_pool *pool = &vm->cell_pool;
+    runt_cell *cell;
 
     if(pool->used == 0) {
         return RUNT_NOT_OK;
     } 
 
     pool->used--;
+    /* id is N - 1 */
+    cell = &pool->cells[pool->used];
+    runt_cell_clear(vm, cell);
 
     return RUNT_OK;
 }
@@ -827,4 +833,10 @@ runt_uint runt_pmark_free(runt_vm *vm)
             fprintf(stderr, "Not freeing!\n");
     }
     return RUNT_OK;
+}
+
+void runt_cell_clear(runt_vm *vm, runt_cell *cell)
+{
+   runt_cell_bind(vm, cell, runt_proc_zero);
+   cell->psize = 1;
 }
