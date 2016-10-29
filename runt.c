@@ -683,6 +683,15 @@ runt_int runt_set_state(runt_vm *vm, runt_uint mode, runt_uint state)
     return rc;
 }
 
+runt_uint runt_get_state(runt_vm *vm, runt_uint mode)
+{
+    if(vm->status & mode) {
+        return RUNT_ON;
+    } else {
+        return RUNT_OFF;
+    }
+}
+
 runt_int runt_word_define(runt_vm *vm, 
         const char *name, 
         runt_uint size,

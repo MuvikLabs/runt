@@ -85,6 +85,32 @@ static runt_int rproc_dup(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *val = runt_pop(vm);
+    const char *filename = runt_to_string(val->p);
+    runt_uint prev_state = runt_get_state(vm, RUNT_MODE_INTERACTIVE);
+    runt_int rc = RUNT_OK;
+
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+
+    /* remove dynload cell from cell pool */
+
+    runt_cell_undo(vm);
+
+    rc = runt_load_plugin(vm, filename);
+
+    /* mark it so it doesn't get overwritten in memory 
+     * NOTE: this will cause the filepath to stay in memory
+     * this will be fixed in the future for sure... */
+
+    runt_mark_set(vm);
+
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, prev_state);
+
+    return rc;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -101,5 +127,9 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* stack operations */
     runt_word_define(vm, "dup", 3, rproc_dup);
+
+    /* dynamic plugin loading */
+
+    runt_word_define(vm, "dynload", 7, rproc_dynload);
     return RUNT_OK;
 }
