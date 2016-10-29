@@ -793,17 +793,34 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 
 void runt_mark_set(runt_vm *vm)
 {
-    if(runt_get_state(vm, RUNT_MODE_INTERACTIVE) == RUNT_ON) {
-        vm->cell_pool.mark = vm->cell_pool.used;
-        vm->memory_pool.mark = vm->memory_pool.used;
-    }
+    vm->cell_pool.mark = vm->cell_pool.used;
+    vm->memory_pool.mark = vm->memory_pool.used;
 }
 
 runt_uint runt_mark_free(runt_vm *vm)
 {
+    vm->cell_pool.used = vm->cell_pool.mark;
+    vm->memory_pool.used = vm->memory_pool.mark;
+    return RUNT_OK;
+}
+
+void runt_pmark_set(runt_vm *vm)
+{
     if(runt_get_state(vm, RUNT_MODE_INTERACTIVE) == RUNT_ON) {
-        vm->cell_pool.used = vm->cell_pool.mark;
-        vm->memory_pool.used = vm->memory_pool.mark;
+        runt_mark_set(vm);
+    } else {
+        if(runt_get_state(vm, RUNT_MODE_VERBOSE) == RUNT_ON)
+            fprintf(stderr, "Not setting a mark!\n");
+    }
+}
+
+runt_uint runt_pmark_free(runt_vm *vm)
+{
+    if(runt_get_state(vm, RUNT_MODE_INTERACTIVE) == RUNT_ON) {
+        runt_mark_free(vm);
+    } else {
+        if(runt_get_state(vm, RUNT_MODE_VERBOSE) == RUNT_ON)
+            fprintf(stderr, "Not freeing!\n");
     }
     return RUNT_OK;
 }

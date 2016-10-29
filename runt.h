@@ -9,6 +9,7 @@
 #define RUNT_MODE_INTERACTIVE 2
 #define RUNT_MODE_KEYWORD 4
 #define RUNT_MODE_RUNNING 8
+#define RUNT_MODE_VERBOSE 16 
 #define RUNT_DICT_SIZE 128
 
 enum {
@@ -131,7 +132,9 @@ runt_uint runt_memory_pool_size(runt_vm *vm);
 runt_uint runt_memory_pool_used(runt_vm *vm);
 
 void runt_mark_set(runt_vm *vm);
+void runt_pmark_set(runt_vm *vm);
 runt_uint runt_mark_free(runt_vm *vm);
+runt_uint runt_pmark_free(runt_vm *vm);
 
 /* Cell Operations */
 runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell);

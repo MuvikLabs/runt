@@ -9,9 +9,9 @@
 static void parse(runt_vm *vm, char *str, size_t read)
 {
     const char *code = str;
-    /* runt_mark_set(vm); */
+    runt_pmark_set(vm);
     runt_compile(vm, code);
-    /* runt_mark_free(vm); */
+    runt_pmark_free(vm);
 }
 
 static runt_int load_dictionary(runt_vm *vm, char *filename)
@@ -47,7 +47,9 @@ static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
     fprintf(stderr, "Stopping.\n");
     runt_cell_undo(vm);
-    return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+    runt_mark_set(vm);
+    return RUNT_OK;
 }
 
 static int rproc_usage(runt_vm *vm, runt_ptr p)
