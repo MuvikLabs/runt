@@ -1,3 +1,5 @@
+.PHONY: default install clean
+
 CFLAGS = -g -Wall -ansi -pedantic -fPIC
 
 LDFLAGS = -ldl
@@ -20,6 +22,11 @@ plugin.so: plugin.c
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o $@
+
+install: irunt librunt.a
+	install irunt /usr/local/bin
+	install librunt.a /usr/local/lib
+	install runt.h /usr/local/include
 
 clean:
 	rm -rf playground runt.o plugin.so irunt librunt.a
