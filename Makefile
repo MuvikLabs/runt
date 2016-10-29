@@ -4,7 +4,7 @@ LDFLAGS = -ldl
 
 OBJ = runt.o basic.o
 
-default: irunt
+default: irunt librunt.a
 
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
@@ -12,12 +12,15 @@ playground: playground.c $(OBJ) plugin.so
 irunt: irunt.c $(OBJ)
 	$(CC) $(LDFLAGS) $(CFLAGS) irunt.c $(OBJ) -o $@
 
-plugin.so: plugin.c $(OBJ)
-	$(CC) plugin.c $(OBJ) -shared -fPIC -o $@ 
+librunt.a: $(OBJ)
+	ar rcs $@ $(OBJ)
+
+plugin.so: plugin.c 
+	$(CC) plugin.c -shared -fPIC -o $@ librunt.a
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
-	rm -rf playground runt.o plugin.so irunt
+	rm -rf playground runt.o plugin.so irunt librunt.a
 	rm -rf $(OBJ)
