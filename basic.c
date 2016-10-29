@@ -10,7 +10,7 @@ static runt_int rproc_print(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_say(runt_vm *vm, runt_ptr p)
+static runt_int rproc_say(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s = runt_pop(vm);
     const char *str = runt_to_string(s->p);
@@ -18,13 +18,13 @@ static int rproc_say(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_quit(runt_vm *vm, runt_ptr p)
+static runt_int rproc_quit(runt_vm *vm, runt_ptr p)
 {
     runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
     return RUNT_OK;
 }
 
-static int rproc_add(runt_vm *vm, runt_ptr p)
+static runt_int rproc_add(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s1 = runt_pop(vm);
     runt_stacklet *s2 = runt_pop(vm);
@@ -36,7 +36,7 @@ static int rproc_add(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_sub(runt_vm *vm, runt_ptr p)
+static runt_int rproc_sub(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s1 = runt_pop(vm);
     runt_stacklet *s2 = runt_pop(vm);
@@ -48,7 +48,7 @@ static int rproc_sub(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_div(runt_vm *vm, runt_ptr p)
+static runt_int rproc_div(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s1 = runt_pop(vm);
     runt_stacklet *s2 = runt_pop(vm);
@@ -60,7 +60,7 @@ static int rproc_div(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_mul(runt_vm *vm, runt_ptr p)
+static runt_int rproc_mul(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s1 = runt_pop(vm);
     runt_stacklet *s2 = runt_pop(vm);
@@ -72,7 +72,7 @@ static int rproc_mul(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-runt_int rproc_dup(runt_vm *vm, runt_ptr p)
+static runt_int rproc_dup(runt_vm *vm, runt_ptr p)
 {
     /* TODO: how do we make this polymorphic? */
     runt_stacklet *val = runt_pop(vm);
