@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <dlfcn.h>
 #include "runt.h"
 
 static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p);
@@ -770,4 +771,21 @@ runt_int runt_is_alive(runt_vm *vm)
     } else {
         return RUNT_NOT_OK;
     }
+}
+
+runt_int runt_load_plugin(runt_vm *vm, const char *filename)
+{
+    void *handle = dlopen(filename, RTLD_NOW);
+    void (*fun)(runt_vm *);
+
+    if(handle == NULL) {
+        dlerror();
+        return RUNT_NOT_OK;
+    }
+
+    *(void **) (&fun) = dlsym(handle, "runt_plugin_init");
+
+    fun(vm);
+    
+    return RUNT_OK;
 }
