@@ -221,7 +221,7 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     runt_ptr p;
     char *buf;
     runt_uint i;
-    runt_malloc(vm, size + 1, (void *)&buf);
+    runt_uint pos = runt_malloc(vm, size + 1, (void *)&buf);
 
     for(i = 0; i < size; i++) {
         buf[i] = str[i];
@@ -230,6 +230,7 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     buf[size] = 0;
 
     p = runt_mk_ptr(RUNT_STRING, (void *)buf);
+    p.pos = pos;
 
     return p;
 }
@@ -792,13 +793,17 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 
 void runt_mark_set(runt_vm *vm)
 {
-    vm->cell_pool.mark = vm->cell_pool.used;
-    vm->memory_pool.mark = vm->memory_pool.used;
+    if(runt_get_state(vm, RUNT_MODE_INTERACTIVE) == RUNT_ON) {
+        vm->cell_pool.mark = vm->cell_pool.used;
+        vm->memory_pool.mark = vm->memory_pool.used;
+    }
 }
 
 runt_uint runt_mark_free(runt_vm *vm)
 {
-    vm->cell_pool.used = vm->cell_pool.mark;
-    vm->memory_pool.used = vm->memory_pool.mark;
+    if(runt_get_state(vm, RUNT_MODE_INTERACTIVE) == RUNT_ON) {
+        vm->cell_pool.used = vm->cell_pool.mark;
+        vm->memory_pool.used = vm->memory_pool.mark;
+    }
     return RUNT_OK;
 }

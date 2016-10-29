@@ -98,6 +98,10 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
 
     runt_cell_undo(vm);
 
+    /* remove string from cell pool */
+
+    vm->memory_pool.used = val->p.pos;
+
     rc = runt_load_plugin(vm, filename);
 
     /* mark it so it doesn't get overwritten in memory 

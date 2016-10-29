@@ -9,9 +9,9 @@
 static void parse(runt_vm *vm, char *str, size_t read)
 {
     const char *code = str;
-    runt_mark_set(vm);
+    /* runt_mark_set(vm); */
     runt_compile(vm, code);
-    runt_mark_free(vm);
+    /* runt_mark_free(vm); */
 }
 
 static runt_int load_dictionary(runt_vm *vm, char *filename)

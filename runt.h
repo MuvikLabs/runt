@@ -35,6 +35,7 @@ typedef unsigned int runt_uint;
 typedef struct {
     runt_type type;
     void *ud;
+    runt_uint pos;
 } runt_ptr;
 
 typedef runt_int (*runt_proc)(runt_vm *, runt_ptr);
