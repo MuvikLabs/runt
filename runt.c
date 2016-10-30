@@ -891,3 +891,11 @@ void runt_print(runt_vm *vm, const char *fmt, ...)
     vfprintf(stderr, fmt, args);
     va_end(args);
 }
+
+runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p)
+{
+    runt_cell *pool = vm->cell_pool.cells;
+    if(id == 0) return RUNT_NOT_OK;
+    pool[id - 1].p = p;
+    return RUNT_OK;
+}

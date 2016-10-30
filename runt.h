@@ -208,6 +208,8 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
         runt_proc proc,
         runt_copy_proc copy);
 
+runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p);
+
 /* Lexing, Parsing, and Compiling */
 
 runt_int runt_compile(runt_vm *vm, const char *str);
