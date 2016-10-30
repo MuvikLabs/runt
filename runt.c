@@ -12,6 +12,7 @@ static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_string(runt_vm *vm, runt_ptr p);
 static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
+static int rproc_cptr(runt_vm *vm, runt_ptr p);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -136,7 +137,6 @@ runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc)
 runt_int runt_proc_end(runt_vm *vm)
 {
     vm->status &= ~(RUNT_MODE_PROC);
-    vm->proc->psize--;
     return RUNT_OK;
 }
 
@@ -202,7 +202,7 @@ runt_ptr runt_mk_float(runt_vm *vm, runt_float ival)
 {
     runt_ptr p;
     float *val;
-    runt_malloc(vm, sizeof(runt_float), (void**)&val);
+    p.pos = runt_malloc(vm, sizeof(runt_float), (void**)&val);
     p = runt_mk_ptr(RUNT_FLOAT, val);
     *val = ival;
     return p;
@@ -225,7 +225,7 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     runt_ptr p;
     char *buf;
     runt_uint i;
-    runt_uint pos = runt_malloc(vm, size + 1, (void *)&buf);
+    runt_malloc(vm, size + 1, (void *)&buf);
 
     for(i = 0; i < size; i++) {
         buf[i] = str[i];
@@ -234,7 +234,6 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     buf[size] = 0;
 
     p = runt_mk_ptr(RUNT_STRING, (void *)buf);
-    p.pos = pos;
 
     return p;
 }
@@ -755,6 +754,7 @@ static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
     /* TODO: make this work someday.. */
     runt_cell_undo(vm);
+    vm->proc->psize--;
     return runt_proc_end(vm);
 }
 
@@ -839,4 +839,39 @@ void runt_cell_clear(runt_vm *vm, runt_cell *cell)
 {
    runt_cell_bind(vm, cell, runt_proc_zero);
    cell->psize = 1;
+}
+
+void * runt_to_cptr(runt_ptr p)
+{
+    void *cptr = NULL;
+
+    /*TODO: error handling */
+    if(p.type == RUNT_CPTR) {
+        cptr = p.ud;
+    } 
+
+    return cptr;
+}
+
+runt_ptr runt_mk_cptr(runt_vm *vm, void *cptr)
+{
+    return runt_mk_ptr(RUNT_CPTR, cptr);
+}
+
+static int rproc_cptr(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s = runt_push(vm);
+    s->p = p;
+    return RUNT_OK;
+}
+
+runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr)
+{
+    runt_cell *cell;
+    if(runt_cell_new(vm, &cell) == RUNT_NOT_OK) {
+        return RUNT_NOT_OK;
+    } 
+    cell->fun = rproc_cptr;
+    cell->p = runt_mk_cptr(vm, cptr); 
+    return RUNT_OK;
 }

@@ -21,6 +21,7 @@ RUNT_OFF,
 RUNT_NIL = 0,
 RUNT_FLOAT,
 RUNT_STRING,
+RUNT_CPTR,
 RUNT_WORD,
 RUNT_PROC,
 RUNT_CELL
@@ -166,6 +167,9 @@ runt_float * runt_to_float(runt_ptr p);
 runt_ptr runt_mk_float(runt_vm *vm, runt_float ival);
 const char * runt_to_string(runt_ptr p);
 runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size);
+void * runt_to_cptr(runt_ptr p);
+runt_ptr runt_mk_cptr(runt_vm *vm, void *cptr);
+runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr);
 
 /* Dictionary */
 
