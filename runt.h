@@ -147,6 +147,7 @@ runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest);
 runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
 runt_int runt_cell_call(runt_vm *vm, runt_cell *cell);
 runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell);
+runt_int runt_cell_id_exec(runt_vm *vm, runt_uint id);
 /*TODO: rename to runt_cell_pool_undo */
 runt_int runt_cell_undo(runt_vm *vm);
 void runt_cell_clear(runt_vm *vm, runt_cell *cell);
@@ -195,12 +196,12 @@ runt_int runt_list_append(runt_list *lst, runt_entry *ent);
 
 void runt_dictionary_init(runt_vm *vm);
 
-runt_int runt_word_define(runt_vm *vm, 
+runt_uint runt_word_define(runt_vm *vm, 
         const char *name, 
         runt_uint size,
         runt_proc proc);
 
-runt_int runt_word_define_with_copy(runt_vm *vm, 
+runt_uint runt_word_define_with_copy(runt_vm *vm, 
         const char *name, 
         runt_uint size,
         runt_proc proc,

@@ -162,6 +162,11 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
     return rc;
 }
 
+runt_int runt_cell_id_exec(runt_vm *vm, runt_uint id)
+{
+    return runt_cell_exec(vm, &vm->cell_pool.cells[id - 1]);
+}
+
 runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest)
 {
     /* TODO: error handling for init */
@@ -698,7 +703,7 @@ runt_uint runt_get_state(runt_vm *vm, runt_uint mode)
     }
 }
 
-runt_int runt_word_define(runt_vm *vm, 
+runt_uint runt_word_define(runt_vm *vm, 
         const char *name, 
         runt_uint size,
         runt_proc proc)
@@ -706,7 +711,7 @@ runt_int runt_word_define(runt_vm *vm,
     return runt_word_define_with_copy(vm, name, size, proc, runt_cell_link);
 }
 
-runt_int runt_word_define_with_copy(runt_vm *vm, 
+runt_uint runt_word_define_with_copy(runt_vm *vm, 
         const char *name, 
         runt_uint size,
         runt_proc proc,
@@ -714,14 +719,15 @@ runt_int runt_word_define_with_copy(runt_vm *vm,
 {
     runt_cell *cell;
     runt_entry *entry;
+    runt_uint id;
 
-    runt_cell_new(vm, &cell);
+    id = runt_cell_new(vm, &cell);
     runt_cell_bind(vm, cell, proc);
     runt_entry_create(vm, cell, &entry);
     runt_entry_set_copy_proc(entry, copy);
     runt_word(vm, name, size, entry);
 
-    return RUNT_OK;
+    return id;
 }
 
 static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest)

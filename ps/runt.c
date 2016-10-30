@@ -150,6 +150,18 @@ static pointer ps_runt_mpool_size(scheme *sc, pointer args)
     return mk_integer(sc, (long )runt_memory_pool_size(vm));
 }
 
+static pointer ps_runt_ptr(scheme *sc, pointer args) 
+{
+    runt_vm *vm;
+    void *ptr;
+
+    vm = (runt_vm *) string_value(car(args));
+    args = cdr(args);
+    ptr = (runt_vm *) string_value(car(args));
+    runt_mk_cptr_cell(vm, ptr);
+    return sc->NIL;
+}
+
 void init_runt(scheme *sc) 
 {
     scheme_define(sc, sc->global_env, 
@@ -188,4 +200,7 @@ void init_runt(scheme *sc)
         mk_symbol(sc, "runt-mpool-size"), 
         mk_foreign_func(sc, ps_runt_mpool_size));
 
+    scheme_define(sc, sc->global_env, 
+        mk_symbol(sc, "runt-ptr"), 
+        mk_foreign_func(sc, ps_runt_ptr));
 }
