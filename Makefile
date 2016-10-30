@@ -1,12 +1,14 @@
 .PHONY: default install clean
 
-CFLAGS = -g -Wall -ansi -pedantic -fPIC
+CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips
+
+SPORTH_LIBS = -lsporth
 
 LDFLAGS = -ldl
 
 OBJ = runt.o basic.o
 
-default: irunt librunt.a
+default: irunt librunt.a ps/runt.so
 
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
@@ -20,8 +22,11 @@ librunt.a: $(OBJ)
 plugin.so: plugin.c 
 	$(CC) plugin.c -shared -fPIC -o $@ librunt.a
 
+ps/runt.so: ps/runt.c 
+	$(CC) $(CFLAGS) ps/runt.c -shared -fPIC -o $@ $(OBJ) $(LDFLAGS) $(SPORTH_LIBS)
+
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $^ -o $@ 
 
 install: irunt librunt.a
 	install irunt /usr/local/bin
@@ -29,5 +34,5 @@ install: irunt librunt.a
 	install runt.h /usr/local/include
 
 clean:
-	rm -rf playground runt.o plugin.so irunt librunt.a
+	rm -rf playground runt.o plugin.so irunt librunt.a ps/runt.so
 	rm -rf $(OBJ)
