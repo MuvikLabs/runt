@@ -24,7 +24,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     fp = fopen(filename, "r");
 
     if(fp == NULL) {
-        fprintf(stderr, "Could not open file %s\n", filename);
+        runt_print(vm, "Could not open file %s\n", filename);
         return RUNT_NOT_OK;
     }
 
@@ -39,13 +39,13 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
 
 static int rproc_rec(runt_vm *vm, runt_ptr p)
 {
-    fprintf(stderr, "Recording.\n");
+    runt_print(vm, "Recording.\n");
     return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
 }
 
 static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
-    fprintf(stderr, "Stopping.\n");
+    runt_print(vm, "Stopping.\n");
     runt_cell_undo(vm);
     runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
     runt_mark_set(vm);
@@ -54,11 +54,11 @@ static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_usage(runt_vm *vm, runt_ptr p)
 {
-    printf("Cell pool: used %d of %d cells.\n", 
+    runt_print(vm, "Cell pool: used %d of %d cells.\n", 
             runt_cell_pool_used(vm),
             runt_cell_pool_size(vm));
 
-    printf("Memory pool: used %d of %d bytes.\n", 
+    runt_print(vm, "Memory pool: used %d of %d bytes.\n", 
             runt_memory_pool_used(vm),
             runt_memory_pool_size(vm));
     return RUNT_OK;
@@ -103,11 +103,11 @@ int main(int argc, char *argv[])
         parse(&vm, line, read);
     }
 
-    printf("Cell pool: used %d of %d cells.\n", 
+    runt_print(&vm, "Cell pool: used %d of %d cells.\n", 
             runt_cell_pool_used(&vm),
             runt_cell_pool_size(&vm));
 
-    printf("Memory pool: used %d of %d bytes.\n", 
+    runt_print(&vm, "Memory pool: used %d of %d bytes.\n", 
             runt_memory_pool_used(&vm),
             runt_memory_pool_size(&vm));
 

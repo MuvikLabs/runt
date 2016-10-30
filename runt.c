@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <dlfcn.h>
+#include <stdarg.h>
 #include "runt.h"
 
 static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p);
@@ -647,12 +648,12 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     }
                 } else {
                     /*TODO: cleaner error reporting */
-                    fprintf(stderr, "Error: could not find function '%*.*s'\n",
+                    runt_print(vm, "Error: could not find function '%*.*s'\n",
                             word_size, word_size, str + pos);
                 }
                 break;
             default:
-                fprintf(stderr, "UNKOWN TYPE\n");
+                runt_print(vm, "UNKOWN TYPE\n");
         }
     }
     return RUNT_OK;
@@ -827,7 +828,7 @@ void runt_pmark_set(runt_vm *vm)
         runt_mark_set(vm);
     } else {
         if(runt_get_state(vm, RUNT_MODE_VERBOSE) == RUNT_ON)
-            fprintf(stderr, "Not setting a mark!\n");
+            runt_print(vm, "Not setting a mark!\n");
     }
 }
 
@@ -837,7 +838,7 @@ runt_uint runt_pmark_free(runt_vm *vm)
         runt_mark_free(vm);
     } else {
         if(runt_get_state(vm, RUNT_MODE_VERBOSE) == RUNT_ON)
-            fprintf(stderr, "Not freeing!\n");
+            runt_print(vm, "Not freeing!\n");
     }
     return RUNT_OK;
 }
@@ -881,4 +882,12 @@ runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr)
     cell->fun = rproc_cptr;
     cell->p = runt_mk_cptr(vm, cptr); 
     return RUNT_OK;
+}
+
+void runt_print(runt_vm *vm, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
 }

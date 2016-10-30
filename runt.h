@@ -119,6 +119,7 @@ runt_int runt_init(runt_vm *vm);
 runt_int runt_load_stdlib(runt_vm *vm);
 runt_int runt_is_alive(runt_vm *vm);
 runt_int runt_load_plugin(runt_vm *vm, const char *filename);
+void runt_print(runt_vm *vm, const char *fmt, ...);
 
 /* Pools */
 

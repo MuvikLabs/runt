@@ -14,7 +14,7 @@ static runt_int rproc_say(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s = runt_pop(vm);
     const char *str = runt_to_string(s->p);
-    fprintf(stdout, "%s\n", str);
+    runt_print(vm, "%s\n", str);
     return RUNT_OK;
 }
 
