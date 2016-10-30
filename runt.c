@@ -225,7 +225,7 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     runt_ptr p;
     char *buf;
     runt_uint i;
-    runt_malloc(vm, size + 1, (void *)&buf);
+    runt_uint pos = runt_malloc(vm, size + 1, (void *)&buf);
 
     for(i = 0; i < size; i++) {
         buf[i] = str[i];
@@ -234,6 +234,7 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     buf[size] = 0;
 
     p = runt_mk_ptr(RUNT_STRING, (void *)buf);
+    p.pos = pos;
 
     return p;
 }
