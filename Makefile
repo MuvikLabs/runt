@@ -1,6 +1,6 @@
 .PHONY: default install clean
 
-CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips
+CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips -I.
 
 SPORTH_LIBS = -lsporth
 
