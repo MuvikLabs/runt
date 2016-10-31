@@ -115,6 +115,21 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
     return rc;
 }
 
+static int rproc_rec(runt_vm *vm, runt_ptr p)
+{
+    runt_print(vm, "Recording.\n");
+    return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+}
+
+static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    runt_print(vm, "Stopping.\n");
+    runt_cell_undo(vm);
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+    runt_mark_set(vm);
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -135,5 +150,9 @@ runt_int runt_load_basic(runt_vm *vm)
     /* dynamic plugin loading */
 
     runt_word_define(vm, "dynload", 7, rproc_dynload);
+   
+    /* recording operations */
+    runt_word_define(vm, "rec", 3, rproc_rec);
+    runt_word_define_with_copy(vm, "stop", 4, vm->zproc, rproc_stop);
     return RUNT_OK;
 }

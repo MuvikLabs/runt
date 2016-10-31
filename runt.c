@@ -100,6 +100,7 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
     if(vm->status & RUNT_MODE_PROC) vm->proc->psize++;
     id = pool->used;
     *cell = &pool->cells[id - 1];
+    (*cell)->id = id;
     return id;
 }
 
@@ -513,12 +514,14 @@ runt_type runt_lex(runt_vm *vm,
                 return RUNT_STRING;
             case '_':
                 return RUNT_WORD;
+            case '\n':
+                return RUNT_NIL;
             default:
                 return RUNT_PROC;
         }
     }
 
-    return RUNT_NIL;
+    return RUNT_NOT_OK;
 }
 
 runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
@@ -625,10 +628,14 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 break;
             case RUNT_WORD:
+                if(runt_word_search(vm, 
+                            &str[pos + 1], 
+                            word_size - 1, 
+                            &entry) == RUNT_NOT_OK) {
+                    return RUNT_NOT_OK;
+                } 
                 s = runt_push(vm);
-                s->p = runt_mk_string(vm, &str[pos + 1], word_size - 1);
-                runt_cell_new(vm, &tmp);
-                runt_copy_string(vm, vm->s_cell, tmp);
+                s->f = entry->cell->id;
                 break;
             case RUNT_PROC:
 
@@ -651,6 +658,9 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     runt_print(vm, "Error: could not find function '%*.*s'\n",
                             word_size, word_size, str + pos);
                 }
+                break;
+
+            case RUNT_NIL:
                 break;
             default:
                 runt_print(vm, "UNKOWN TYPE\n");

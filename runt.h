@@ -46,6 +46,7 @@ typedef struct {
     runt_proc fun;
     runt_ptr p;
     runt_uint psize;
+    runt_uint id;
 } runt_cell;
 
 typedef runt_int (*runt_copy_proc)(runt_vm *, runt_cell *, runt_cell *);

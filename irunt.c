@@ -36,22 +36,6 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     return RUNT_OK;
 }
 
-
-static int rproc_rec(runt_vm *vm, runt_ptr p)
-{
-    runt_print(vm, "Recording.\n");
-    return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-}
-
-static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
-{
-    runt_print(vm, "Stopping.\n");
-    runt_cell_undo(vm);
-    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
-    runt_mark_set(vm);
-    return RUNT_OK;
-}
-
 static int rproc_usage(runt_vm *vm, runt_ptr p)
 {
     runt_print(vm, "Cell pool: used %d of %d cells.\n", 
@@ -90,8 +74,6 @@ int main(int argc, char *argv[])
 
     if(argc > 1) load_dictionary(&vm, argv[1]);
 
-    runt_word_define(&vm, "rec", 3, rproc_rec);
-    runt_word_define_with_copy(&vm, "stop", 4, vm.zproc, rproc_stop);
 
     runt_word_define(&vm, "u", 1, rproc_usage);
 
