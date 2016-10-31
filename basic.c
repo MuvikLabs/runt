@@ -130,6 +130,15 @@ static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
     return RUNT_OK;
 }
 
+static int rproc_swap(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s1 = runt_pop(vm);
+    runt_stacklet *s2 = runt_pop(vm);
+    s1->f = s2->f;
+    s2->f = s1->f;
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -146,6 +155,7 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* stack operations */
     runt_word_define(vm, "dup", 3, rproc_dup);
+    runt_word_define(vm, "swap", 4, rproc_swap);
 
     /* dynamic plugin loading */
 
