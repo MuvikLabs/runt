@@ -10,7 +10,9 @@
 #define RUNT_MODE_KEYWORD 4
 #define RUNT_MODE_RUNNING 8
 #define RUNT_MODE_VERBOSE 16 
+#define RUNT_MODE_LOCK 32
 #define RUNT_DICT_SIZE 128
+
 
 enum {
 RUNT_NOT_OK = 0,
@@ -173,6 +175,10 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size);
 void * runt_to_cptr(runt_ptr p);
 runt_ptr runt_mk_cptr(runt_vm *vm, void *cptr);
 runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr);
+runt_uint runt_mk_float_cell(runt_vm *vm, 
+        const char *name,
+        runt_uint size,
+        runt_float *flt);
 
 /* Dictionary */
 

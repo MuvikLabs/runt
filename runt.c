@@ -605,8 +605,12 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     runt_stacklet *s;
     runt_cell *tmp;
     runt_entry *entry;
-
     float val = 0.0;
+
+    /* wait for lock */ 
+    while(runt_get_state(vm, RUNT_MODE_LOCK) == RUNT_ON);
+
+    runt_set_state(vm, RUNT_MODE_LOCK, RUNT_ON);
     while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
     {
         switch(runt_lex(vm, str, pos, word_size)) {
@@ -632,6 +636,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                             &str[pos + 1], 
                             word_size - 1, 
                             &entry) == RUNT_NOT_OK) {
+                    runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF);
                     return RUNT_NOT_OK;
                 } 
                 s = runt_push(vm);
@@ -666,6 +671,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 runt_print(vm, "UNKOWN TYPE\n");
         }
     }
+    runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF);
     return RUNT_OK;
 }
 
@@ -892,6 +898,16 @@ runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr)
     cell->fun = rproc_cptr;
     cell->p = runt_mk_cptr(vm, cptr); 
     return RUNT_OK;
+}
+
+runt_uint runt_mk_float_cell(runt_vm *vm, 
+        const char *name,
+        runt_uint size,
+        runt_float *flt)
+{
+    runt_uint id = runt_word_define(vm, name, size, vm->f_cell->fun);
+    runt_word_bind_ptr(vm, id, runt_mk_ptr(RUNT_FLOAT, flt));
+    return id;
 }
 
 void runt_print(runt_vm *vm, const char *fmt, ...)

@@ -1,6 +1,7 @@
 #include <soundpipe.h>
 #include <sporth.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 /* You'll need this header file. It can be found in the Sporth codebase */
@@ -150,15 +151,22 @@ static pointer ps_runt_mpool_size(scheme *sc, pointer args)
     return mk_integer(sc, (long )runt_memory_pool_size(vm));
 }
 
-static pointer ps_runt_ptr(scheme *sc, pointer args) 
+static pointer ps_runt_float(scheme *sc, pointer args) 
 {
     runt_vm *vm;
-    void *ptr;
+    SPFLOAT *ptr;
+    const char *name;
+    runt_uint size;
 
     vm = (runt_vm *) string_value(car(args));
     args = cdr(args);
-    ptr = (runt_vm *) string_value(car(args));
-    runt_mk_cptr_cell(vm, ptr);
+    name = string_value(car(args));
+    size = strlen(name);
+    args = cdr(args);
+    ptr = (SPFLOAT *) string_value(car(args));
+
+    runt_mk_float_cell(vm, name, size, ptr);
+
     return sc->NIL;
 }
 
@@ -201,6 +209,6 @@ void init_runt(scheme *sc)
         mk_foreign_func(sc, ps_runt_mpool_size));
 
     scheme_define(sc, sc->global_env, 
-        mk_symbol(sc, "runt-ptr"), 
-        mk_foreign_func(sc, ps_runt_ptr));
+        mk_symbol(sc, "runt-float"), 
+        mk_foreign_func(sc, ps_runt_float));
 }
