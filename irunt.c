@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "runt.h"
 
-#define CELLPOOL_SIZE 256
+#define CELLPOOL_SIZE 512
 #define MEMPOOL_SIZE 4 * RUNT_MEGABYTE
 
 static void parse(runt_vm *vm, char *str, size_t read)
