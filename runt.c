@@ -249,6 +249,10 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
 runt_stacklet * runt_push(runt_vm *vm)
 {
     /*TODO: error handling for stack overflows */
+    if(vm->stack.pos == vm->stack.size) {
+        runt_print(vm, "stack overflow!\n");
+        return &vm->stack.stack[0];
+    }
     vm->stack.pos++;
     return &vm->stack.stack[vm->stack.pos - 1];
 }
