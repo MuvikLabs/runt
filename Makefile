@@ -29,11 +29,11 @@ ps/runt.so: ps/runt.c
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
 install: irunt librunt.a ps/runt.so
-	mkdir -p /usr/local/share/sporth/plugin
+	mkdir -p /usr/local/share/sporth/polysporth
 	install irunt /usr/local/bin
 	install librunt.a /usr/local/lib
 	install runt.h /usr/local/include
-	install ps/runt.so /usr/local/share/sporth/plugin
+	install ps/runt.so /usr/local/share/sporth/polysporth
 
 clean:
 	rm -rf playground runt.o plugin.so irunt librunt.a ps/runt.so
