@@ -105,7 +105,7 @@ struct runt_vm {
     runt_dict dict;
 
     runt_uint status;
-    runt_cell *proc;
+    /* runt_cell *proc; */
 
     runt_proc zproc;
     runt_ptr nil;
@@ -161,6 +161,7 @@ void runt_cell_clear(runt_vm *vm, runt_cell *cell);
 
 runt_stacklet * runt_pop(runt_vm *vm);
 runt_stacklet * runt_push(runt_vm *vm);
+runt_stacklet * runt_peak(runt_vm *vm);
 
 /* Pointers */
 

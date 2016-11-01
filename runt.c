@@ -93,11 +93,20 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
 {
     runt_uint id;
     runt_cell_pool *pool = &vm->cell_pool;
+    runt_cell *proc;
+    runt_stacklet *s;
+
     if(pool->used >= pool->size) {
         return 0;
     }
     pool->used++;
-    if(vm->status & RUNT_MODE_PROC) vm->proc->psize++;
+
+    if(vm->status & RUNT_MODE_PROC) {
+        s = runt_peak(vm);
+        proc = runt_to_cell(s->p);
+        proc->psize++;
+    }
+
     id = pool->used;
     *cell = &pool->cells[id - 1];
     (*cell)->id = id;
@@ -131,13 +140,15 @@ static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p)
 
 runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc)
 {
+    runt_stacklet *s = runt_push(vm);
     vm->status |= RUNT_MODE_PROC;
-    vm->proc = proc;
+    s->p = runt_mk_ptr(RUNT_CELL, (void *)proc);
     return RUNT_OK;
 }
 
 runt_int runt_proc_end(runt_vm *vm)
 {
+    runt_pop(vm);
     vm->status &= ~(RUNT_MODE_PROC);
     return RUNT_OK;
 }
@@ -255,6 +266,18 @@ runt_stacklet * runt_push(runt_vm *vm)
     }
     vm->stack.pos++;
     return &vm->stack.stack[vm->stack.pos - 1];
+}
+
+/* peak just looks at the last item on the stack */
+
+runt_stacklet * runt_peak(runt_vm *vm)
+{
+    /*TODO: error handling for stack underflows */
+    if(vm->stack.pos > 0) {
+        return &vm->stack.stack[vm->stack.pos];
+    }
+    
+    return &vm->stack.stack[0];
 }
 
 runt_stacklet * runt_pop(runt_vm *vm)
@@ -653,7 +676,9 @@ runt_int runt_compile(runt_vm *vm, const char *str)
             case RUNT_PROC:
 
                 if(vm->status & RUNT_MODE_KEYWORD) {
-                    runt_entry_create(vm, vm->proc, &entry);
+                    s = runt_peak(vm);
+                    tmp = runt_to_cell(s->p);
+                    runt_entry_create(vm, tmp, &entry);
                     runt_word(vm, &str[pos], word_size, entry);
                     runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
                     break;
@@ -784,9 +809,10 @@ static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
-    /* TODO: make this work someday.. */
+    runt_stacklet *s = runt_peak(vm);
+    runt_cell *proc = runt_to_cell(s->p);
     runt_cell_undo(vm);
-    vm->proc->psize--;
+    proc->psize--;
     return runt_proc_end(vm);
 }
 
