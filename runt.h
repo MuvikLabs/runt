@@ -162,6 +162,7 @@ void runt_cell_clear(runt_vm *vm, runt_cell *cell);
 runt_stacklet * runt_pop(runt_vm *vm);
 runt_stacklet * runt_push(runt_vm *vm);
 runt_stacklet * runt_peak(runt_vm *vm);
+void runt_unpop(runt_vm *vm);
 
 /* Pointers */
 

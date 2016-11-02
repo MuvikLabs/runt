@@ -148,6 +148,9 @@ runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc)
 
 runt_int runt_proc_end(runt_vm *vm)
 {
+    runt_stacklet *s = runt_peak(vm);
+    runt_cell *c = runt_to_cell(s->p);
+    runt_print(vm, "the p-size is now %d\n", c->psize);
     runt_pop(vm);
     vm->status &= ~(RUNT_MODE_PROC);
     return RUNT_OK;
@@ -280,6 +283,12 @@ runt_stacklet * runt_peak(runt_vm *vm)
     }
     
     return &vm->stack.stack[0];
+}
+/* undo the last pop */
+
+void runt_unpop(runt_vm *vm)
+{
+    vm->stack.pos++;
 }
 
 runt_stacklet * runt_pop(runt_vm *vm)
