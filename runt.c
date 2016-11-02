@@ -465,9 +465,12 @@ runt_int runt_tokenize(runt_vm *vm,
     *pos = *next;
     p = *pos;
     
+
     if(*pos > size) return RUNT_OK;
 
     for(s = p; s < size; s++) {
+        if(str[s] == '#') return  RUNT_OK;
+
         if(stop != 0) {
             break;
         }
