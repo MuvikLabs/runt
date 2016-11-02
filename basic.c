@@ -170,6 +170,73 @@ static int rproc_endif_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
     return runt_proc_end(vm);
 }
 
+static int rproc_lt(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_float v1, v2;
+
+    s = runt_pop(vm);
+    v2 = s->f;
+    s = runt_pop(vm);
+    v1 = s->f;
+    s = runt_push(vm);
+
+    if(v1 < v2) s->f = 1.0;
+    else s->f = 0.0;
+
+    return RUNT_OK;
+}
+
+static int rproc_gt(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_float v1, v2;
+
+    s = runt_pop(vm);
+    v2 = s->f;
+    s = runt_pop(vm);
+    v1 = s->f;
+    s = runt_push(vm);
+
+    if(v1 > v2) s->f = 1.0;
+    else s->f = 0.0;
+
+    return RUNT_OK;
+}
+
+static int rproc_eq(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_float v1, v2;
+
+    s = runt_pop(vm);
+    v2 = s->f;
+    s = runt_pop(vm);
+    v1 = s->f;
+    s = runt_push(vm);
+
+    if(v1 == v2) s->f = 1.0;
+    else s->f = 0.0;
+
+    return RUNT_OK;
+}
+
+static int rproc_neq(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_float v1, v2;
+
+    s = runt_pop(vm);
+    v2 = s->f;
+    s = runt_pop(vm);
+    v1 = s->f;
+    s = runt_push(vm);
+
+    if(v1 != v2) s->f = 1.0;
+    else s->f = 0.0;
+
+    return RUNT_OK;
+}
 
 runt_int runt_load_basic(runt_vm *vm)
 {
@@ -197,9 +264,13 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "rec", 3, rproc_rec);
     runt_word_define_with_copy(vm, "stop", 4, vm->zproc, rproc_stop);
 
-    /* conditionals */
+    /* conditionals and comparisons */
     runt_word_define_with_copy(vm, "if", 2, rproc_if, rproc_if_copy);
     runt_word_define_with_copy(vm, "endif", 5, vm->zproc, rproc_endif_copy);
+    runt_word_define(vm, "<", 1, rproc_lt);
+    runt_word_define(vm, ">", 1, rproc_gt);
+    runt_word_define(vm, "=", 1, rproc_eq);
+    runt_word_define(vm, "!=", 2, rproc_neq);
 
     return RUNT_OK;
 }
