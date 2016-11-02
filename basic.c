@@ -144,70 +144,6 @@ static int rproc_swap(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_if_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
-{
-    runt_if_d *if_d;
-
-    runt_malloc(vm, sizeof(runt_if_d), (void **)&if_d);
-
-    /* runt_cell_new(vm, &if_d->cell_else); */
-    runt_cell_new(vm, &if_d->cell_if);
-
-    /* s = runt_push(vm);
-    s->p = runt_mk_ptr(RUNT_CELL, if_d->cell_else); */
-
-    runt_proc_begin(vm, if_d->cell_if);
-    dst->p = runt_mk_cptr(vm, (void *)if_d);
-    dst->fun = src->fun;
-    return RUNT_OK;
-}
-
-static int rproc_if(runt_vm *vm, runt_ptr p)
-{
-    runt_stacklet *s = runt_pop(vm);
-    runt_float val = s->f;
-    runt_if_d *if_d = (runt_if_d *)runt_to_cptr(p);
-    if(val != 0) runt_cell_exec(vm, if_d->cell_if);
-
-    return RUNT_OK;
-}
-
-static int rproc_endif_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
-{
-    /* TODO: this is duplicate code from rproc_end */
-    runt_stacklet *s = runt_peak(vm);
-    runt_cell *proc = runt_to_cell(s->p);
-    runt_cell_undo(vm); 
-    proc->psize--;
-    return runt_proc_end(vm);
-}
-
-static int rproc_else(runt_vm *vm, runt_cell *src, runt_cell *dst)
-{
-    /* TODO: this is duplicate code from rproc_end */
-    runt_stacklet *s1 = runt_pop(vm);
-    runt_stacklet *s2 = runt_pop(vm);
-  
-    runt_cell *cell = runt_to_cell(s1->p);
-
-    /* swap, put if cell back onto stack  */
-    s1 = runt_push(vm);
-    s1->p = runt_mk_ptr(RUNT_CELL, cell);
-    runt_cell_undo(vm);
-
-    cell->psize--;
-    
-    runt_proc_end(vm);
-    /* runt proc pops the last cell, so unpop it */
-    runt_unpop(vm);
-
-    /* begin new procedure, which pops cell onto stack */
-    cell = runt_to_cell(s2->p);
-    runt_proc_begin(vm, cell);
-
-    return RUNT_OK;
-}
-
 static int rproc_lt(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -302,10 +238,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "rec", 3, rproc_rec);
     runt_word_define_with_copy(vm, "stop", 4, vm->zproc, rproc_stop);
 
-    /* conditionals and comparisons */
-    runt_word_define_with_copy(vm, "if", 2, rproc_if, rproc_if_copy);
-    runt_word_define_with_copy(vm, "endif", 5, vm->zproc, rproc_endif_copy);
-    runt_word_define_with_copy(vm, "else", 4, vm->zproc, rproc_else);
+    /* conditionals */
 
     runt_word_define(vm, "<", 1, rproc_lt);
     runt_word_define(vm, ">", 1, rproc_gt);
