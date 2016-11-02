@@ -258,10 +258,39 @@ static int rproc_goto(runt_vm *vm, runt_ptr p)
 
 static int rproc_decr(runt_vm *vm, runt_ptr p)
 {
+    /*TODO: replace with peak */
     runt_stacklet *s = runt_pop(vm);
     runt_float f = s->f;
     s = runt_push(vm);
     s->f = f - 1;
+    return RUNT_OK;
+}
+
+static int rproc_incr(runt_vm *vm, runt_ptr p)
+{
+    /*TODO: replace with peak */
+    runt_stacklet *s = runt_pop(vm);
+    runt_float f = s->f;
+    s = runt_push(vm);
+    s->f = f + 1;
+    return RUNT_OK;
+}
+
+static int rproc_set(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_float f;
+    runt_uint id;
+    runt_float *ptr;
+
+    s = runt_pop(vm);
+    id =s->f;
+    s = runt_pop(vm);
+    f = s->f;
+
+    ptr = (runt_float *)vm->cell_pool.cells[id].p.ud;
+    *ptr = f;
+
     return RUNT_OK;
 }
 
@@ -303,6 +332,9 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
     runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
     runt_word_define(vm, "dec", 3, rproc_decr);
+    runt_word_define(vm, "inc", 3, rproc_incr);
+
+    runt_word_define(vm, "set", 3, rproc_set);
 
     return RUNT_OK;
 }
