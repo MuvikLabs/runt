@@ -674,12 +674,16 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF);
                     return RUNT_NOT_OK;
                 } 
-                s = runt_push(vm);
-                s->f = entry->cell->id;
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
                     runt_cell_new(vm, &tmp);
+                    s = runt_push(vm);
+                    s->f = entry->cell->id;
                     runt_copy_float(vm, vm->f_cell, tmp);
+                } else {
+                    s = runt_push(vm);
+                    s->f = entry->cell->id;
                 }
+
                 break;
             case RUNT_PROC:
 
