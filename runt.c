@@ -200,6 +200,8 @@ runt_cell * runt_to_cell(runt_ptr p)
     /* TODO: error handling */
     if(p.type == RUNT_CELL) {
         cell = (runt_cell *)p.ud;
+    } else {
+        fprintf(stderr, "Not a cell!\n");
     }
     return cell;
 }
@@ -274,7 +276,7 @@ runt_stacklet * runt_peak(runt_vm *vm)
 {
     /*TODO: error handling for stack underflows */
     if(vm->stack.pos > 0) {
-        return &vm->stack.stack[vm->stack.pos];
+        return &vm->stack.stack[vm->stack.pos - 1];
     }
     
     return &vm->stack.stack[0];
@@ -642,19 +644,25 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     {
         switch(runt_lex(vm, str, pos, word_size)) {
             case RUNT_FLOAT:
+
                 val = runt_atof(str, pos, word_size);
-                s = runt_push(vm);
-                s->f = val;
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
                     runt_cell_new(vm, &tmp);
+                    /* this needs to happen after runt_new_cell */
+                    s = runt_push(vm);
+                    s->f = val;
                     runt_copy_float(vm, vm->f_cell, tmp);
+                } else {
+                    s = runt_push(vm);
+                    s->f = val;
                 }
+
                 break;
             case RUNT_STRING:
 
+                runt_cell_new(vm, &tmp);
                 s = runt_push(vm);
                 s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
-                runt_cell_new(vm, &tmp);
                 runt_copy_string(vm, vm->s_cell, tmp);
 
                 break;
