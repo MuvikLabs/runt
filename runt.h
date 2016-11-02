@@ -11,6 +11,7 @@
 #define RUNT_MODE_RUNNING 8
 #define RUNT_MODE_VERBOSE 16 
 #define RUNT_MODE_LOCK 32
+#define RUNT_MODE_END 64
 
 #define RUNT_DICT_SIZE 128
 
@@ -116,6 +117,7 @@ struct runt_vm {
     runt_cell *s_cell;
 
     runt_uint level;
+    runt_uint pos;
 };
 
 /* Main */

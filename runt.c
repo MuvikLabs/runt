@@ -128,7 +128,7 @@ runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc)
     return RUNT_OK;
 }
 
-runt_int runt_call(runt_vm *vm, runt_cell *cell)
+runt_int runt_cell_call(runt_vm *vm, runt_cell *cell)
 {
     return cell->fun(vm, cell->p);
 }
@@ -159,12 +159,12 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
     runt_int rc = RUNT_OK;
   
     if(cell->psize == 1) {
-        return runt_call(vm, cell);
+        return runt_cell_call(vm, cell);
     }
 
     for(i = 1; i < cell->psize; i++) {
         if(cell[i].psize == 1) {
-            rc = runt_call(vm, &cell[i]);
+            rc = runt_cell_call(vm, &cell[i]);
         } else {
             vm->level++;
             rc = runt_cell_exec(vm, &cell[i]); 

@@ -212,6 +212,59 @@ static int rproc_neq(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_end(runt_vm *vm, runt_ptr p)
+{
+    runt_set_state(vm, RUNT_MODE_END, RUNT_ON);
+    return RUNT_OK;
+}
+
+static int rproc_call_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    dst->fun = src->fun;
+    return RUNT_OK;
+}
+
+static int rproc_call(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s = runt_pop(vm);
+    runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
+    vm->pos = s->f;
+    while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF) {
+        runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
+        vm->pos++;
+    }
+    
+    return RUNT_OK;
+}
+
+static int rproc_goto(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_uint pos;
+    runt_uint jump;
+
+    s = runt_pop(vm);
+    pos = s->f;
+
+    s = runt_pop(vm);
+    jump = s->f;
+
+    if(jump && pos < vm->cell_pool.size + 1) {
+        vm->pos = pos;
+    }
+    
+    return RUNT_OK;
+}
+
+static int rproc_decr(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s = runt_pop(vm);
+    runt_float f = s->f;
+    s = runt_push(vm);
+    s->f = f - 1;
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -235,6 +288,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "dynload", 7, rproc_dynload);
    
     /* recording operations */
+
     runt_word_define(vm, "rec", 3, rproc_rec);
     runt_word_define_with_copy(vm, "stop", 4, vm->zproc, rproc_stop);
 
@@ -244,6 +298,11 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, ">", 1, rproc_gt);
     runt_word_define(vm, "=", 1, rproc_eq);
     runt_word_define(vm, "!=", 2, rproc_neq);
+
+    runt_word_define(vm, "end", 3, rproc_end);
+    runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
+    runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
+    runt_word_define(vm, "dec", 3, rproc_decr);
 
     return RUNT_OK;
 }
