@@ -147,7 +147,6 @@ static int rproc_swap(runt_vm *vm, runt_ptr p)
 static int rproc_if_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
     runt_if_d *if_d;
-    runt_stacklet *s;
 
     runt_malloc(vm, sizeof(runt_if_d), (void **)&if_d);
 
@@ -168,7 +167,6 @@ static int rproc_if(runt_vm *vm, runt_ptr p)
     runt_stacklet *s = runt_pop(vm);
     runt_float val = s->f;
     runt_if_d *if_d = (runt_if_d *)runt_to_cptr(p);
-    runt_print(vm, "are we here?\n");
     if(val != 0) runt_cell_exec(vm, if_d->cell_if);
 
     return RUNT_OK;
