@@ -139,6 +139,38 @@ static int rproc_swap(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_if_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    runt_cell *cell;
+    runt_cell_new(vm, &cell);
+    runt_proc_begin(vm, cell);
+    dst->p = runt_mk_ptr(RUNT_CELL, cell);
+    dst->fun = src->fun;
+    return RUNT_OK;
+}
+
+static int rproc_if(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s = runt_pop(vm);
+    runt_float val = s->f;
+    runt_cell *cell = runt_to_cell(p);
+
+    if(val != 0) runt_cell_exec(vm, cell);
+
+    return RUNT_OK;
+}
+
+static int rproc_endif_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    /* TODO: this is duplicate code from rproc_end */
+    runt_stacklet *s = runt_peak(vm);
+    runt_cell *proc = runt_to_cell(s->p);
+    runt_cell_undo(vm);
+    proc->psize--;
+    return runt_proc_end(vm);
+}
+
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -164,5 +196,10 @@ runt_int runt_load_basic(runt_vm *vm)
     /* recording operations */
     runt_word_define(vm, "rec", 3, rproc_rec);
     runt_word_define_with_copy(vm, "stop", 4, vm->zproc, rproc_stop);
+
+    /* conditionals */
+    runt_word_define_with_copy(vm, "if", 2, rproc_if, rproc_if_copy);
+    runt_word_define_with_copy(vm, "endif", 5, vm->zproc, rproc_endif_copy);
+
     return RUNT_OK;
 }
