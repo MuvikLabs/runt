@@ -109,6 +109,10 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
 
     rc = runt_load_plugin(vm, filename);
 
+    if(rc == RUNT_NOT_OK) {
+        runt_print(vm, "Error loading plugin\n");
+    }
+
     /* mark it so it doesn't get overwritten in memory 
      * NOTE: this will cause the filepath to stay in memory
      * this will be fixed in the future for sure... */
