@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "runt.h"
 
 typedef struct {
@@ -115,7 +117,8 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
 
     /* mark it so it doesn't get overwritten in memory 
      * NOTE: this will cause the filepath to stay in memory
-     * this will be fixed in the future for sure... */
+     * this will be fixed in the future for sure... 
+     * is this fixed actually? */
 
     runt_mark_set(vm);
 
@@ -304,6 +307,86 @@ static int rproc_set(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static void parse(runt_vm *vm, char *str, size_t read)
+{
+    const char *code = str;
+    /* runt_pmark_set(vm); */
+    runt_compile(vm, code);
+    /* runt_pmark_free(vm); */
+}
+
+static runt_int load_dictionary(runt_vm *vm, const char *filename)
+{
+    FILE *fp; 
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    fp = fopen(filename, "r");
+
+    if(fp == NULL) {
+        runt_print(vm, "Could not open file %s\n", filename);
+        return RUNT_NOT_OK;
+    }
+
+    while((read = getline(&line, &len, fp)) != -1) {
+        parse(vm, line, read);
+    }
+
+    free(line);
+    return RUNT_OK;
+}
+
+static int rproc_load(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    const char *str;
+    const char *fname;
+    char buf[1024];
+    int pstate = RUNT_OFF;
+    int rc;
+
+    memset(buf, 0, 1024);
+    s = runt_pop(vm);
+    str = runt_to_string(s->p);
+    pstate = runt_get_state(vm, RUNT_MODE_INTERACTIVE);
+
+    sprintf(buf, "%s.rnt", str);
+
+    /* remove load cell from cell pool */
+    runt_cell_undo(vm);
+
+    if(access(buf, F_OK) != -1) {
+        fname = buf;
+        /* TODO: DRY */
+        /* remove string from cell pool */
+        vm->memory_pool.used = s->p.pos;
+        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+        load_dictionary(vm, fname);
+        runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
+        runt_mark_set(vm);
+        return RUNT_OK;
+    } 
+
+    sprintf(buf, "./%s.so", str);
+
+    if(access(buf, F_OK) != -1) {
+        fname = buf;
+        /* TODO: DRY */
+        /* remove string from cell pool */
+        vm->memory_pool.used = s->p.pos;
+
+        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+        runt_load_plugin(vm, fname);
+        runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
+        runt_mark_set(vm);
+        return RUNT_OK;
+    } 
+
+    runt_print(vm, "Could not find '%s'\n", str);
+    return RUNT_NOT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -326,6 +409,10 @@ runt_int runt_load_basic(runt_vm *vm)
     /* dynamic plugin loading */
 
     runt_word_define(vm, "dynload", 7, rproc_dynload);
+
+    /* regular load */
+
+    runt_word_define(vm, "load", 4, rproc_load);
    
     /* recording operations */
 

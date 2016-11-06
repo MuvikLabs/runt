@@ -646,7 +646,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     float val = 0.0;
 
     /* wait for lock */ 
-    while(runt_get_state(vm, RUNT_MODE_LOCK) == RUNT_ON);
+    /* while(runt_get_state(vm, RUNT_MODE_LOCK) == RUNT_ON); */
 
     runt_set_state(vm, RUNT_MODE_LOCK, RUNT_ON);
     while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
@@ -680,7 +680,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                             &str[pos + 1], 
                             word_size - 1, 
                             &entry) == RUNT_NOT_OK) {
-                    runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF);
                     return RUNT_NOT_OK;
                 } 
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
@@ -725,7 +724,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 runt_print(vm, "UNKOWN TYPE\n");
         }
     }
-    runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF);
+    /* runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF); */
     return RUNT_OK;
 }
 
