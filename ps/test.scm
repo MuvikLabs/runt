@@ -42,3 +42,17 @@
 (runt-compile vm "hi")
 
 (memory_usage vm)
+
+; calling runt procedures from sporth code
+(runt-sporth-dictionary vm)
+
+(runt-rec vm)
+(runt-compile vm ": sporth_push 3.14159 push ; ")
+(runt-compile vm ": sporth_pop pop pop + push ; ")
+(runt-stop vm)
+
+; Pushing and popping values from runt
+(runt-bind vm "sporth_push" "foo")
+(runt-bind vm "sporth_pop" "bar")
+(ps-eval 0 "_foo fe 'pi' print drop 2 2 _bar fe 'pop' print")
+(ps-turnon 0 -1)

@@ -2,7 +2,7 @@
 
 CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips -I.
 
-SPORTH_LIBS = -lsporth
+SPORTH_LIBS = -lsporth -lsoundpipe
 
 LDFLAGS = -ldl
 

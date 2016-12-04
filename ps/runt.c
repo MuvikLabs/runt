@@ -8,6 +8,11 @@
 #include "scheme-private.h"
 #include "runt.h"
 
+typedef struct {
+    runt_vm *vm;
+    runt_cell *cell;
+} ugen_data;
+
 plumber_data * scheme_plumber(scheme *sc);
 /* macros needed for car/cdr operations */
 #define car(p) ((p)->_object._cons._car)
@@ -170,6 +175,109 @@ static pointer ps_runt_float(scheme *sc, pointer args)
     return sc->NIL;
 }
 
+static int run_ugen(plumber_data *pd, sporth_stack *stack, void **ud)
+{
+    ugen_data *ug;
+
+    switch(pd->mode) {
+        case PLUMBER_CREATE:
+            ug = (ugen_data *)*ud;
+            runt_cell_exec(ug->vm, ug->cell);
+            break;
+        case PLUMBER_INIT:
+            ug = (ugen_data *)*ud;
+            runt_cell_exec(ug->vm, ug->cell);
+            break;
+        case PLUMBER_COMPUTE:
+            ug = (ugen_data *)*ud;
+            runt_cell_exec(ug->vm, ug->cell);
+            break;
+        case PLUMBER_DESTROY:
+            break;
+    }
+
+    return PLUMBER_OK;
+}
+
+static pointer ps_bind_function(scheme *sc, pointer args) 
+{
+    const char *func;
+    const char *proc;
+    runt_vm *vm;
+    ugen_data *ug;
+    plumber_data *pd;
+    runt_entry *entry;
+
+    pd = scheme_plumber(sc);
+    ug = malloc(sizeof(ugen_data));
+    vm = (runt_vm *) string_value(car(args));
+    args = cdr(args);
+    proc = string_value(car(args));
+    args = cdr(args);
+    func = string_value(car(args));
+
+    runt_word_search(vm, proc, strlen(proc), &entry); 
+
+    ug->vm = vm;
+    ug->cell = entry->cell;
+
+    plumber_ftmap_add_function(pd, func, run_ugen, ug);
+
+    return sc->NIL;
+}
+
+static void sporth_define(plumber_data *pd, 
+        runt_vm *vm, 
+        const char *word,
+        runt_uint size,
+        runt_proc proc,
+        runt_ptr p) 
+{
+    runt_uint word_id;
+    word_id = runt_word_define(vm, word, size, proc);
+    runt_word_bind_ptr(vm, word_id, p);
+}
+
+static int rproc_sporth_push(runt_vm *vm, runt_ptr p)
+{
+    plumber_data *pd;
+    runt_stacklet *s1;
+
+    pd = runt_to_cptr(p);
+    s1 = runt_pop(vm);
+  
+    sporth_stack_push_float(&pd->sporth.stack, s1->f);
+
+    return RUNT_OK;
+}
+
+static int rproc_sporth_pop(runt_vm *vm, runt_ptr p)
+{
+    plumber_data *pd;
+    runt_stacklet *s1;
+
+    pd = runt_to_cptr(p);
+    s1 = runt_push(vm);
+  
+    s1->f = sporth_stack_pop_float(&pd->sporth.stack);
+
+    return RUNT_OK;
+}
+
+static pointer ps_sporth_dictionary(scheme *sc, pointer args) 
+{
+    runt_vm *vm;
+    plumber_data *pd;
+    runt_ptr p;
+    vm = (runt_vm *) string_value(car(args));
+    pd = scheme_plumber(sc);
+    p = runt_mk_cptr(vm, pd);
+
+    sporth_define(pd, vm, "push", 4, rproc_sporth_push, p);
+    sporth_define(pd, vm, "pop", 3, rproc_sporth_pop, p);
+    return sc->NIL;
+}
+
 void init_runt(scheme *sc) 
 {
     scheme_define(sc, sc->global_env, 
@@ -211,4 +319,12 @@ void init_runt(scheme *sc)
     scheme_define(sc, sc->global_env, 
         mk_symbol(sc, "runt-float"), 
         mk_foreign_func(sc, ps_runt_float));
+
+    scheme_define(sc, sc->global_env, 
+        mk_symbol(sc, "runt-bind"), 
+        mk_foreign_func(sc, ps_bind_function));
+
+    scheme_define(sc, sc->global_env, 
+        mk_symbol(sc, "runt-sporth-dictionary"), 
+        mk_foreign_func(sc, ps_sporth_dictionary));
 }
