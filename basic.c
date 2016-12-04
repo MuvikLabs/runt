@@ -344,7 +344,6 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     const char *fname;
     char buf[1024];
     int pstate = RUNT_OFF;
-    int rc;
 
     memset(buf, 0, 1024);
     s = runt_pop(vm);
