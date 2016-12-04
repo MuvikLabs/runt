@@ -49,10 +49,19 @@
 (runt-rec vm)
 (runt-compile vm ": sporth_push 3.14159 push ; ")
 (runt-compile vm ": sporth_pop pop pop + push ; ")
+(runt-compile vm "
+: push4 4 push end ;
+: blink pop _push4 goto 0 push end ; 
+: blinker _blink call ;
+")
 (runt-stop vm)
 
 ; Pushing and popping values from runt
 (runt-bind vm "sporth_push" "foo")
 (runt-bind vm "sporth_pop" "bar")
-(ps-eval 0 "_foo fe 'pi' print drop 2 2 _bar fe 'pop' print")
+(runt-bind vm "blinker" "blinker")
+;(ps-eval 0 "_foo fe 'pi' print drop 2 2 _bar fe 'pop' print")
+
+; basic trigger based function
+;(ps-eval 0 "1 metro _blinker fe 'val' print")
 (ps-turnon 0 -1)
