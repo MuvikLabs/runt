@@ -261,13 +261,23 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
 
 runt_stacklet * runt_push(runt_vm *vm)
 {
-    /*TODO: error handling for stack overflows */
+    runt_stacklet *s = NULL;
+    runt_ppush(vm, &s);
+    return s;
+}
+
+runt_int runt_ppush(runt_vm *vm, runt_stacklet **s)
+{
+   /*TODO: error handling for stack overflows */
     if(vm->stack.pos == vm->stack.size) {
         runt_print(vm, "stack overflow!\n");
-        return &vm->stack.stack[0];
+        *s = &vm->stack.stack[0];
+        return RUNT_NOT_OK;
     }
+
     vm->stack.pos++;
-    return &vm->stack.stack[vm->stack.pos - 1];
+    *s = &vm->stack.stack[vm->stack.pos - 1];
+    return RUNT_OK;
 }
 
 /* peak just looks at the last item on the stack */
@@ -277,6 +287,8 @@ runt_stacklet * runt_peak(runt_vm *vm)
     /*TODO: error handling for stack underflows */
     if(vm->stack.pos > 0) {
         return &vm->stack.stack[vm->stack.pos - 1];
+    } else {
+        runt_print(vm, "Empty stack.\n");
     }
     
     return &vm->stack.stack[0];
@@ -288,15 +300,31 @@ void runt_unpop(runt_vm *vm)
     vm->stack.pos++;
 }
 
+runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack)
+{
+    return stack->f;
+}
+
 runt_stacklet * runt_pop(runt_vm *vm)
 {
-    /*TODO: error handling for stack underflows */
+    runt_stacklet *s = NULL;
+    runt_ppop(vm, &s);
+    return s;
+}
+
+runt_int  runt_ppop(runt_vm *vm, runt_stacklet **s)
+{
+    *s = &vm->stack.stack[0];
+
     if(vm->stack.pos > 0) {
         vm->stack.pos--;
-        return &vm->stack.stack[vm->stack.pos];
+        *s = &vm->stack.stack[vm->stack.pos];
+    } else {
+        runt_print(vm, "Empty stack.\n");
+        return RUNT_NOT_OK;
     }
     
-    return &vm->stack.stack[0];
+    return RUNT_OK;
 }
 
 runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
@@ -645,6 +673,8 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     runt_entry *entry;
     float val = 0.0;
 
+    runt_int rc = RUNT_OK;
+
     /* wait for lock */ 
     /* while(runt_get_state(vm, RUNT_MODE_LOCK) == RUNT_ON); */
 
@@ -706,7 +736,12 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
                     if(vm->status & RUNT_MODE_INTERACTIVE) {
-                        runt_entry_exec(vm, entry);
+                        if(runt_entry_exec(vm, entry) == RUNT_NOT_OK) {
+                            runt_print(vm, "Error with word '%*.*s'\n", 
+                                    word_size, word_size, &str[pos]);
+                            return RUNT_NOT_OK;
+                        }
+
                     } else {
                         runt_cell_new(vm, &tmp);
                         runt_entry_copy(vm, entry, tmp);
@@ -715,6 +750,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     /*TODO: cleaner error reporting */
                     runt_print(vm, "Error: could not find function '%*.*s'\n",
                             word_size, word_size, str + pos);
+                    return RUNT_NOT_OK;
                 }
                 break;
 
@@ -725,7 +761,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
         }
     }
     /* runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF); */
-    return RUNT_OK;
+    return rc;
 }
 
 static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest)

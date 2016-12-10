@@ -36,11 +36,19 @@ static runt_int rproc_add(runt_vm *vm, runt_ptr p)
     runt_stacklet *s1 = runt_pop(vm);
     runt_stacklet *s2 = runt_pop(vm);
     runt_stacklet *out = runt_push(vm);
+    runt_float v1;
+    runt_float v2;
 
-    runt_float v1 = s1->f;
-    runt_float v2 = s2->f;
+    runt_int rc = RUNT_OK;
+
+    rc = runt_ppop(vm, &s1);
+    rc = runt_ppop(vm, &s2);
+    rc = runt_ppush(vm, &out);
+
+    v1 = runt_stack_float(vm, s1);
+    v2 = runt_stack_float(vm, s2);
     out->f = v1 + v2;
-    return RUNT_OK;
+    return rc;
 }
 
 static runt_int rproc_sub(runt_vm *vm, runt_ptr p)
@@ -82,14 +90,20 @@ static runt_int rproc_mul(runt_vm *vm, runt_ptr p)
 static runt_int rproc_dup(runt_vm *vm, runt_ptr p)
 {
     /* TODO: how do we make this polymorphic? */
-    runt_stacklet *val = runt_pop(vm);
-    runt_stacklet *s1 = runt_push(vm);
-    runt_stacklet *s2 = runt_push(vm);
+    runt_stacklet *val = NULL;
+    runt_stacklet *s1 = NULL;
+    runt_stacklet *s2 = NULL;
+
+    runt_int rc = RUNT_OK;
+
+    rc = runt_ppop(vm, &val);
+    rc = runt_ppush(vm, &s1);
+    rc = runt_ppush(vm, &s2);
 
     s1->f = val->f;
     s2->f = val->f;
 
-    return RUNT_OK;
+    return rc;
 }
 
 static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
@@ -431,3 +445,4 @@ runt_int runt_load_basic(runt_vm *vm)
 
     return RUNT_OK;
 }
+

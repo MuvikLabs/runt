@@ -123,6 +123,7 @@ struct runt_vm {
 /* Main */
 runt_int runt_init(runt_vm *vm);
 runt_int runt_load_stdlib(runt_vm *vm);
+runt_int runt_seppuku(runt_vm *vm);
 runt_int runt_is_alive(runt_vm *vm);
 runt_int runt_load_plugin(runt_vm *vm, const char *filename);
 void runt_print(runt_vm *vm, const char *fmt, ...);
@@ -162,9 +163,12 @@ void runt_cell_clear(runt_vm *vm, runt_cell *cell);
 /* Stack Operations */
 
 runt_stacklet * runt_pop(runt_vm *vm);
+runt_int  runt_ppop(runt_vm *vm, runt_stacklet **s);
 runt_stacklet * runt_push(runt_vm *vm);
+runt_int runt_ppush(runt_vm *vm, runt_stacklet **s);
 runt_stacklet * runt_peak(runt_vm *vm);
 void runt_unpop(runt_vm *vm);
+runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack);
 
 /* Pointers */
 
