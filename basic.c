@@ -271,21 +271,15 @@ static int rproc_goto(runt_vm *vm, runt_ptr p)
 
 static int rproc_decr(runt_vm *vm, runt_ptr p)
 {
-    /*TODO: replace with peak */
-    runt_stacklet *s = runt_pop(vm);
-    runt_float f = s->f;
-    s = runt_push(vm);
-    s->f = f - 1;
+    runt_stacklet *s = runt_peak(vm);
+    s->f -= 1;
     return RUNT_OK;
 }
 
 static int rproc_incr(runt_vm *vm, runt_ptr p)
 {
-    /*TODO: replace with peak */
-    runt_stacklet *s = runt_pop(vm);
-    runt_float f = s->f;
-    s = runt_push(vm);
-    s->f = f + 1;
+    runt_stacklet *s = runt_peak(vm);
+    s->f += 1;
     return RUNT_OK;
 }
 
