@@ -42,8 +42,11 @@ static runt_int rproc_add(runt_vm *vm, runt_ptr p)
     runt_int rc = RUNT_OK;
 
     rc = runt_ppop(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
     rc = runt_ppop(vm, &s2);
+    RUNT_ERROR_CHECK(rc);
     rc = runt_ppush(vm, &out);
+    RUNT_ERROR_CHECK(rc);
 
     v1 = runt_stack_float(vm, s1);
     v2 = runt_stack_float(vm, s2);
@@ -94,11 +97,14 @@ static runt_int rproc_dup(runt_vm *vm, runt_ptr p)
     runt_stacklet *s1 = NULL;
     runt_stacklet *s2 = NULL;
 
-    runt_int rc = RUNT_OK;
+    runt_int rc; 
 
     rc = runt_ppop(vm, &val);
+    RUNT_ERROR_CHECK(rc);
     rc = runt_ppush(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
     rc = runt_ppush(vm, &s2);
+    RUNT_ERROR_CHECK(rc);
 
     s1->f = val->f;
     s2->f = val->f;
@@ -253,11 +259,15 @@ static int rproc_call_copy(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_call(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s = runt_pop(vm);
+    runt_stacklet *s;
+    runt_int rc;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
     runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
     vm->pos = s->f;
     while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF) {
-        runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
+        rc = runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
+        RUNT_ERROR_CHECK(rc); 
         vm->pos++;
     }
     
@@ -269,11 +279,14 @@ static int rproc_goto(runt_vm *vm, runt_ptr p)
     runt_stacklet *s;
     runt_uint pos;
     runt_uint jump;
+    runt_int rc;
 
-    s = runt_pop(vm);
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
     pos = s->f;
 
-    s = runt_pop(vm);
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
     jump = s->f;
 
     if(jump && pos < vm->cell_pool.size + 1) {
@@ -285,7 +298,11 @@ static int rproc_goto(runt_vm *vm, runt_ptr p)
 
 static int rproc_decr(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s = runt_peak(vm);
+    runt_stacklet *s;
+    runt_int rc;
+        
+    rc = runt_ppeak(vm, &s);
+    RUNT_ERROR_CHECK(rc);
     s->f -= 1;
     return RUNT_OK;
 }

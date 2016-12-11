@@ -284,15 +284,25 @@ runt_int runt_ppush(runt_vm *vm, runt_stacklet **s)
 
 runt_stacklet * runt_peak(runt_vm *vm)
 {
+    runt_stacklet *s;
+    runt_ppeak(vm, &s);
+    return s;
+}
+
+runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
+{
     /*TODO: error handling for stack underflows */
     if(vm->stack.pos > 0) {
-        return &vm->stack.stack[vm->stack.pos - 1];
+        *s = &vm->stack.stack[vm->stack.pos - 1];
     } else {
         runt_print(vm, "Empty stack.\n");
+        *s = &vm->stack.stack[0];
+        return RUNT_NOT_OK;
     }
     
-    return &vm->stack.stack[0];
+    return RUNT_OK;
 }
+
 /* undo the last pop */
 
 void runt_unpop(runt_vm *vm)
