@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
     size_t len = 0;
     ssize_t read;
 
-
     runt_init(&vm);
 
     mem = malloc(MEMPOOL_SIZE);
@@ -71,9 +70,7 @@ int main(int argc, char *argv[])
   
     runt_load_stdlib(&vm);
 
-
     if(argc > 1) load_dictionary(&vm, argv[1]);
-
 
     runt_word_define(&vm, "u", 1, rproc_usage);
 
