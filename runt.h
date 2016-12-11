@@ -169,6 +169,7 @@ runt_stacklet * runt_push(runt_vm *vm);
 runt_int runt_ppush(runt_vm *vm, runt_stacklet **s);
 runt_stacklet * runt_peak(runt_vm *vm);
 runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s);
+runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos);
 void runt_unpop(runt_vm *vm);
 runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack);
 

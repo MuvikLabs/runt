@@ -177,6 +177,30 @@ static int rproc_drop(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_peak(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s1;
+    runt_stacklet *s2;
+    runt_stacklet *peak;
+    runt_int rc;
+    runt_int pos;
+
+    rc = runt_ppop(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+
+    pos = s1->f;
+
+    rc = runt_ppeakn(vm, &peak, pos);
+    RUNT_ERROR_CHECK(rc);
+
+    rc = runt_ppush(vm, &s2);
+    RUNT_ERROR_CHECK(rc);
+
+    s2->f = peak->f;
+    
+    return RUNT_OK;
+}
+
 static int rproc_lt(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -429,6 +453,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "dup", 3, rproc_dup);
     runt_word_define(vm, "swap", 4, rproc_swap);
     runt_word_define(vm, "drop", 4, rproc_drop);
+    runt_word_define(vm, "peak", 4, rproc_peak);
 
     /* dynamic plugin loading */
 

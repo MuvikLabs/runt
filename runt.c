@@ -303,6 +303,22 @@ runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
     return RUNT_OK;
 }
 
+runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos)
+{
+    *s = &vm->stack.stack[0];
+    if(abs(pos) > vm->stack.pos) {
+        runt_print(vm, "Invalid range %d\n", pos);
+        return RUNT_NOT_OK;
+    }
+
+    if(pos >= 0) {
+        *s = &vm->stack.stack[pos];
+    } else {
+        *s = &vm->stack.stack[vm->stack.pos + pos];
+    }
+    return RUNT_OK;
+}
+
 /* undo the last pop */
 
 void runt_unpop(runt_vm *vm)
