@@ -85,14 +85,6 @@ int main(int argc, char *argv[])
         parse(&vm, line, read);
     }
 
-    runt_print(&vm, "Cell pool: used %d of %d cells.\n", 
-            runt_cell_pool_used(&vm),
-            runt_cell_pool_size(&vm));
-
-    runt_print(&vm, "Memory pool: used %d of %d bytes.\n", 
-            runt_memory_pool_used(&vm),
-            runt_memory_pool_size(&vm));
-
     free(line);
     free(cells);
     free(mem);
