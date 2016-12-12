@@ -19,7 +19,10 @@ static runt_int rproc_print(runt_vm *vm, runt_ptr p)
 
 static runt_int rproc_say(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s = runt_pop(vm);
+    /* runt_stacklet *s = runt_pop(vm); */
+    runt_stacklet *s;
+
+    runt_ppop(vm, &s);
     const char *str = runt_to_string(s->p);
     runt_print(vm, "%s\n", str);
     return RUNT_OK;
@@ -33,9 +36,9 @@ static runt_int rproc_quit(runt_vm *vm, runt_ptr p)
 
 static runt_int rproc_add(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s1 = runt_pop(vm);
-    runt_stacklet *s2 = runt_pop(vm);
-    runt_stacklet *out = runt_push(vm);
+    runt_stacklet *s1;
+    runt_stacklet *s2;
+    runt_stacklet *out;
     runt_float v1;
     runt_float v2;
 

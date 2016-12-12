@@ -261,8 +261,16 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
 
 runt_stacklet * runt_push(runt_vm *vm)
 {
-    runt_stacklet *s = NULL;
-    runt_ppush(vm, &s);
+    runt_stacklet *s;
+   /*TODO: error handling for stack overflows */
+    if(vm->stack.pos == vm->stack.size) {
+        runt_print(vm, "stack overflow!\n");
+        s = &vm->stack.stack[0];
+        return RUNT_NOT_OK;
+    }
+
+    vm->stack.pos++;
+    s = &vm->stack.stack[vm->stack.pos - 1];
     return s;
 }
 
@@ -725,10 +733,15 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 break;
             case RUNT_STRING:
 
-                runt_cell_new(vm, &tmp);
-                s = runt_push(vm);
-                s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
-                runt_copy_string(vm, vm->s_cell, tmp);
+                if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
+                    runt_cell_new(vm, &tmp);
+                    s = runt_push(vm);
+                    s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
+                    runt_copy_string(vm, vm->s_cell, tmp);
+                } else {
+                    s = runt_push(vm);
+                    s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
+                }
 
                 break;
             case RUNT_WORD:
