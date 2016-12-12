@@ -705,6 +705,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     runt_stacklet *s;
     runt_cell *tmp;
     runt_entry *entry;
+    runt_ptr ptr;
     float val = 0.0;
 
     runt_int rc = RUNT_OK;
@@ -733,16 +734,15 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 break;
             case RUNT_STRING:
 
-                if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
-                    runt_cell_new(vm, &tmp);
+                runt_cell_new(vm, &tmp);
+                s = runt_push(vm);
+                ptr = runt_mk_string(vm, &str[pos + 1], word_size - 2);
+                s->p = ptr;
+                runt_copy_string(vm, vm->s_cell, tmp);
+                if(vm->status & RUNT_MODE_INTERACTIVE) {
                     s = runt_push(vm);
-                    s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
-                    runt_copy_string(vm, vm->s_cell, tmp);
-                } else {
-                    s = runt_push(vm);
-                    s->p = runt_mk_string(vm, &str[pos + 1], word_size - 2);
-                }
-
+                    s->p = ptr;
+                } 
                 break;
             case RUNT_WORD:
                 if(runt_word_search(vm, 
