@@ -21,9 +21,10 @@ static runt_int rproc_say(runt_vm *vm, runt_ptr p)
 {
     /* runt_stacklet *s = runt_pop(vm); */
     runt_stacklet *s;
+    const char *str;
 
     runt_ppop(vm, &s);
-    const char *str = runt_to_string(s->p);
+    str = runt_to_string(s->p);
     runt_print(vm, "%s\n", str);
     return RUNT_OK;
 }
@@ -167,16 +168,64 @@ static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
 
 static int rproc_swap(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s1 = runt_pop(vm);
-    runt_stacklet *s2 = runt_pop(vm);
-    s1->f = s2->f;
-    s2->f = s1->f;
+    runt_stacklet *s1;
+    runt_stacklet *s2;
+    runt_int rc;
+    runt_float a, b;
+
+    rc = runt_ppop(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    a = s1->f;
+
+    rc = runt_ppop(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    b = s1->f;
+
+    rc = runt_ppush(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &s2);
+    RUNT_ERROR_CHECK(rc);
+
+    s1->f = a;
+    s2->f = b;
+
     return RUNT_OK;
 }
 
 static int rproc_drop(runt_vm *vm, runt_ptr p)
 {
     runt_pop(vm);
+    return RUNT_OK;
+}
+
+static int rproc_rot(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_stacklet *push[3];
+    runt_int rc;
+    runt_float a, b, c;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    a = s->f;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    b = s->f;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    c = s->f;
+
+    rc = runt_ppush(vm, &push[0]);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &push[1]);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &push[2]);
+    RUNT_ERROR_CHECK(rc);
+
+    push[0]->f = b;
+    push[1]->f = a;
+    push[2]->f = c;
+    
     return RUNT_OK;
 }
 
@@ -297,7 +346,7 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
         RUNT_ERROR_CHECK(rc); 
         vm->pos++;
     }
-    
+   
     return RUNT_OK;
 }
 
@@ -457,6 +506,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "swap", 4, rproc_swap);
     runt_word_define(vm, "drop", 4, rproc_drop);
     runt_word_define(vm, "peak", 4, rproc_peak);
+    runt_word_define(vm, "rot", 3, rproc_rot);
 
     /* dynamic plugin loading */
 

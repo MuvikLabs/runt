@@ -1,13 +1,23 @@
 : hello "howdy!" say ;
+: foo "foo" say end ;
 : infinite hello 1 _infinite goto end ; 
 : repeat dec dup hello _repeat goto end ; 
+: loopcall dec 
+dup p 
+foo 
+dup _loopcall goto 
+end ;
 
 stop
+
+8 _loopcall call 
+
+#quit
 
 # This will run forever 
 # _infinite call
 
 # Loop 4 times
-4 _repeat call 
+#4 _repeat call 
 
 quit
