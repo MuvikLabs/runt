@@ -337,15 +337,30 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
     runt_int rc;
+    runt_uint level;
+    runt_uint ppos;
+    runt_int pstate;
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
+
+    pstate = runt_get_state(vm, RUNT_MODE_END);
     runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
+    ppos = vm->pos;
     vm->pos = s->f;
-    while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF) {
+
+    vm->level++;
+    level = vm->level; 
+    runt_print(vm, "calling. level is %d \n", vm->level);
+    while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF &&
+            vm->level == level) {
         rc = runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
         RUNT_ERROR_CHECK(rc); 
         vm->pos++;
     }
+    vm->level--;
+    vm->pos = ppos;
+    runt_set_state(vm, RUNT_MODE_END, pstate);
+    runt_print(vm, "done. level is now %d\n", vm->level);
    
     return RUNT_OK;
 }
