@@ -229,6 +229,37 @@ static int rproc_rot(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_rat(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_stacklet *push[3];
+    runt_int rc;
+    runt_float a, b, c;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    a = s->f;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    b = s->f;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    c = s->f;
+
+    rc = runt_ppush(vm, &push[0]);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &push[1]);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &push[2]);
+    RUNT_ERROR_CHECK(rc);
+
+    push[0]->f = a;
+    push[1]->f = c;
+    push[2]->f = b;
+    
+    return RUNT_OK;
+}
+
 static int rproc_peak(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s1;
@@ -350,7 +381,6 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
 
     vm->level++;
     level = vm->level; 
-    runt_print(vm, "calling. level is %d \n", vm->level);
     while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF &&
             vm->level == level) {
         rc = runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
@@ -360,7 +390,6 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
     vm->level--;
     vm->pos = ppos;
     runt_set_state(vm, RUNT_MODE_END, pstate);
-    runt_print(vm, "done. level is now %d\n", vm->level);
    
     return RUNT_OK;
 }
@@ -522,6 +551,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "drop", 4, rproc_drop);
     runt_word_define(vm, "peak", 4, rproc_peak);
     runt_word_define(vm, "rot", 3, rproc_rot);
+    runt_word_define(vm, "rat", 3, rproc_rat);
 
     /* dynamic plugin loading */
 
