@@ -519,6 +519,32 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     return RUNT_NOT_OK;
 }
 
+static int rproc_usage(runt_vm *vm, runt_ptr p)
+{
+    runt_print(vm, "Cell pool: used %d of %d cells.\n", 
+            runt_cell_pool_used(vm),
+            runt_cell_pool_size(vm));
+
+    runt_print(vm, "Memory pool: used %d of %d bytes.\n", 
+            runt_memory_pool_used(vm),
+            runt_memory_pool_size(vm));
+
+    runt_print(vm, "Dictionary: %d words defined.\n", 
+            runt_dictionary_size(vm));
+    return RUNT_OK;
+}
+
+static runt_int rproc_clear(runt_vm *vm, runt_ptr p)
+{
+    runt_cell_pool_clear(vm);
+    runt_memory_pool_clear(vm);
+    runt_dictionary_clear(vm);
+    runt_load_stdlib(vm);
+    /* make memory mark so dead cells can be cleared */
+    runt_mark_set(vm);
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -571,6 +597,12 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* variables */
     runt_word_define(vm, "set", 3, rproc_set);
+
+    /* clear: clears pools and reloads basic library */
+    runt_word_define(vm, "clear", 5, rproc_clear);
+
+    /* get usage */
+    runt_word_define(vm, "u", 1, rproc_usage);
 
     return RUNT_OK;
 }
