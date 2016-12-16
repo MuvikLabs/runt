@@ -229,6 +229,17 @@ static int rproc_rot(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_nitems(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = vm->stack.pos - 1; 
+    return RUNT_OK;
+}
+
+
 static int rproc_peak(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s1;
@@ -507,6 +518,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "drop", 4, rproc_drop);
     runt_word_define(vm, "peak", 4, rproc_peak);
     runt_word_define(vm, "rot", 3, rproc_rot);
+    runt_word_define(vm, "n", 1, rproc_nitems);
 
     /* dynamic plugin loading */
 
@@ -528,7 +540,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "=", 1, rproc_eq);
     runt_word_define(vm, "!=", 2, rproc_neq);
 
-    /* things related to goto */
+    /* control */
     runt_word_define(vm, "end", 3, rproc_end);
     runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
     runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
