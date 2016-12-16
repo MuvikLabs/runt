@@ -401,6 +401,27 @@ static int rproc_incr(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_rep(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint id;
+    runt_uint i, reps;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    id = s->f;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    reps = s->f;
+
+    for(i = 0; i < reps; i++) {
+        runt_cell_id_exec(vm, id);
+    }   
+ 
+    return RUNT_OK;
+}
+
 static int rproc_set(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -546,6 +567,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
     runt_word_define(vm, "dec", 3, rproc_decr);
     runt_word_define(vm, "inc", 3, rproc_incr);
+    runt_word_define(vm, "rep", 3, rproc_rep);
 
     /* variables */
     runt_word_define(vm, "set", 3, rproc_set);
