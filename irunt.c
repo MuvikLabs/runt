@@ -35,19 +35,6 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     free(line);
     return RUNT_OK;
 }
-
-static int rproc_usage(runt_vm *vm, runt_ptr p)
-{
-    runt_print(vm, "Cell pool: used %d of %d cells.\n", 
-            runt_cell_pool_used(vm),
-            runt_cell_pool_size(vm));
-
-    runt_print(vm, "Memory pool: used %d of %d bytes.\n", 
-            runt_memory_pool_used(vm),
-            runt_memory_pool_size(vm));
-    return RUNT_OK;
-}
-
 int main(int argc, char *argv[])
 {
     runt_vm vm;
@@ -71,8 +58,6 @@ int main(int argc, char *argv[])
     runt_load_stdlib(&vm);
 
     if(argc > 1) load_dictionary(&vm, argv[1]);
-
-    runt_word_define(&vm, "u", 1, rproc_usage);
 
     runt_set_state(&vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
 

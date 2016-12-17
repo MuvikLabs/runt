@@ -531,6 +531,18 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     return RUNT_NOT_OK;
 }
 
+static int rproc_usage(runt_vm *vm, runt_ptr p)
+{
+    runt_print(vm, "Cell pool: used %d of %d cells.\n", 
+            runt_cell_pool_used(vm),
+            runt_cell_pool_size(vm));
+
+    runt_print(vm, "Memory pool: used %d of %d bytes.\n", 
+            runt_memory_pool_used(vm),
+            runt_memory_pool_size(vm));
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -582,6 +594,9 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* variables */
     runt_word_define(vm, "set", 3, rproc_set);
+
+    runt_word_define(vm, "u", 1, rproc_usage);
+
 
     return RUNT_OK;
 }
