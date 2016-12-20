@@ -349,7 +349,7 @@ runt_int runt_stack_bias_pos(runt_vm *vm, runt_stack *stack)
 
 void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias)
 {
-   stack->bias += bias; 
+   stack->bias = stack->pos - bias; 
 }
 
 void runt_stack_unbias(runt_vm *vm, runt_stack *stack)
@@ -359,7 +359,12 @@ void runt_stack_unbias(runt_vm *vm, runt_stack *stack)
 
 void runt_stack_dec(runt_vm *vm, runt_stack *stack)
 {
-    stack->pos--;
+    runt_stack_dec_n(vm, stack, 1);
+}
+
+void runt_stack_dec_n(runt_vm *vm, runt_stack *stack, runt_uint n)
+{
+    stack->pos -= n;
 }
 
 void runt_stack_inc(runt_vm *vm, runt_stack *stack)

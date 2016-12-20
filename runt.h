@@ -180,6 +180,7 @@ runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack);
 runt_int runt_stack_bias_pos(runt_vm *vm, runt_stack *stack);
 runt_int runt_stack_pos(runt_vm *vm, runt_stack *stack);
 void runt_stack_dec(runt_vm *vm, runt_stack *stack);
+void runt_stack_dec_n(runt_vm *vm, runt_stack *stack, runt_uint n);
 void runt_stack_inc(runt_vm *vm, runt_stack *stack);
 void runt_stack_init(runt_vm *vm, runt_stack *stack);
 void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias);
