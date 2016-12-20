@@ -66,6 +66,7 @@ typedef struct {
     runt_stacklet stack[RUNT_STACK_SIZE];
     runt_int pos;
     runt_int size;
+    runt_int bias;
 } runt_stack;
 
 typedef struct runt_entry {
@@ -117,7 +118,9 @@ struct runt_vm {
     /* the base cell for strings */ 
     runt_cell *s_cell;
 
+    /* recursion level */
     runt_uint level;
+    /* cell position */
     runt_uint pos;
 };
 
@@ -174,9 +177,12 @@ runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s);
 runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos);
 void runt_unpop(runt_vm *vm);
 runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack);
-runt_uint runt_stack_pos(runt_vm *vm);
-void runt_stack_dec(runt_vm *vm);
-void runt_stack_inc(runt_vm *vm);
+runt_int runt_stack_pos(runt_vm *vm, runt_stack *stack);
+void runt_stack_dec(runt_vm *vm, runt_stack *stack);
+void runt_stack_inc(runt_vm *vm, runt_stack *stack);
+void runt_stack_init(runt_vm *vm, runt_stack *stack);
+void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias);
+void runt_stack_unbias(runt_vm *vm, runt_stack *stack);
 
 /* Pointers */
 

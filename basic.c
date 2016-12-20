@@ -589,6 +589,24 @@ static runt_int rproc_clear(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_bias(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int bias;
+    runt_int rc;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    bias = s->f;
+    runt_stack_bias(vm, &vm->stack, bias);
+    return RUNT_OK;
+}
+
+static runt_int rproc_unbias(runt_vm *vm, runt_ptr p)
+{
+    runt_stack_unbias(vm, &vm->stack);
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -648,6 +666,10 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* get usage */
     runt_word_define(vm, "u", 1, rproc_usage);
+
+    /* stack bias/unbias */
+    runt_word_define(vm, "bias", 4, rproc_bias);
+    runt_word_define(vm, "unbias", 6, rproc_unbias);
 
     return RUNT_OK;
 }

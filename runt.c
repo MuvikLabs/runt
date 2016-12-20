@@ -21,10 +21,9 @@ runt_int runt_init(runt_vm *vm)
     vm->zproc = runt_proc_zero;
     vm->nil = runt_mk_ptr(RUNT_NIL, NULL);
 
-    /* init stack */
+    /* init stack */ 
 
-    vm->stack.pos = 0;
-    vm->stack.size = RUNT_STACK_SIZE;
+    runt_stack_init(vm, &vm->stack);
 
     /* init dictionary */
 
@@ -262,28 +261,28 @@ runt_stacklet * runt_push(runt_vm *vm)
     /*TODO: wrapper for ppush */
     runt_stacklet *s;
    /*TODO: error handling for stack overflows */
-    if(runt_stack_pos(vm) == vm->stack.size) {
+    if(runt_stack_pos(vm, &vm->stack) == vm->stack.size) {
         runt_print(vm, "stack overflow!\n");
         s = &vm->stack.stack[0];
         return RUNT_NOT_OK;
     }
 
-    runt_stack_inc(vm);
-    s = &vm->stack.stack[runt_stack_pos(vm) - 1];
+    runt_stack_inc(vm, &vm->stack);
+    s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack) - 1];
     return s;
 }
 
 runt_int runt_ppush(runt_vm *vm, runt_stacklet **s)
 {
    /*TODO: error handling for stack overflows */
-    if(runt_stack_pos(vm) == vm->stack.size) {
+    if(runt_stack_pos(vm, &vm->stack) == vm->stack.size) {
         runt_print(vm, "stack overflow!\n");
         *s = &vm->stack.stack[0];
         return RUNT_NOT_OK;
     }
 
-    runt_stack_inc(vm);
-    *s = &vm->stack.stack[runt_stack_pos(vm)- 1];
+    runt_stack_inc(vm, &vm->stack);
+    *s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack)- 1];
     return RUNT_OK;
 }
 
@@ -299,8 +298,8 @@ runt_stacklet * runt_peak(runt_vm *vm)
 runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
 {
     /*TODO: error handling for stack underflows */
-    if(runt_stack_pos(vm)> 0) {
-        *s = &vm->stack.stack[runt_stack_pos(vm) - 1];
+    if(runt_stack_pos(vm, &vm->stack)> 0) {
+        *s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack) - 1];
     } else {
         runt_print(vm, "Empty stack.\n");
         *s = &vm->stack.stack[0];
@@ -313,7 +312,7 @@ runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
 runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos)
 {
     *s = &vm->stack.stack[0];
-    if(abs(pos) > runt_stack_pos(vm)) {
+    if(abs(pos) > runt_stack_pos(vm, &vm->stack)) {
         runt_print(vm, "Invalid range %d\n", pos);
         return RUNT_NOT_OK;
     }
@@ -321,7 +320,7 @@ runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos)
     if(pos >= 0) {
         *s = &vm->stack.stack[pos];
     } else {
-        *s = &vm->stack.stack[runt_stack_pos(vm) + pos];
+        *s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack) + pos];
     }
     return RUNT_OK;
 }
@@ -330,7 +329,7 @@ runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos)
 
 void runt_unpop(runt_vm *vm)
 {
-    runt_stack_inc(vm);
+    runt_stack_inc(vm, &vm->stack);
 }
 
 runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack)
@@ -338,19 +337,36 @@ runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack)
     return stack->f;
 }
 
-runt_uint runt_stack_pos(runt_vm *vm)
+runt_int runt_stack_pos(runt_vm *vm, runt_stack *stack)
 {
-    return vm->stack.pos;
+    return stack->pos + stack->bias;
 }
 
-void runt_stack_dec(runt_vm *vm)
+void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias)
 {
-    vm->stack.pos--;
+   stack->bias += bias; 
 }
 
-void runt_stack_inc(runt_vm *vm)
+void runt_stack_unbias(runt_vm *vm, runt_stack *stack)
 {
-    vm->stack.pos++;
+    stack->bias = 0;
+}
+
+void runt_stack_dec(runt_vm *vm, runt_stack *stack)
+{
+    stack->pos--;
+}
+
+void runt_stack_inc(runt_vm *vm, runt_stack *stack)
+{
+    stack->pos++;
+}
+
+void runt_stack_init(runt_vm *vm, runt_stack *stack)
+{
+    stack->pos = 0;
+    stack->size = RUNT_STACK_SIZE;
+    stack->bias = 0;
 }
 
 runt_stacklet * runt_pop(runt_vm *vm)
@@ -364,9 +380,9 @@ runt_int  runt_ppop(runt_vm *vm, runt_stacklet **s)
 {
     *s = &vm->stack.stack[0];
 
-    if(runt_stack_pos(vm) > 0) {
-        runt_stack_dec(vm);
-        *s = &vm->stack.stack[runt_stack_pos(vm)];
+    if(runt_stack_pos(vm, &vm->stack) > 0) {
+        runt_stack_dec(vm, &vm->stack);
+        *s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack)];
     } else {
         runt_print(vm, "Empty stack.\n");
         return RUNT_NOT_OK;
