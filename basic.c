@@ -235,6 +235,7 @@ static int rproc_nitems(runt_vm *vm, runt_ptr p)
     runt_int rc;
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
+    /* subtract one to discount the pushed value itself */
     s->f = runt_stack_pos(vm, &vm->stack) - 1;
     return RUNT_OK;
 }
@@ -607,6 +608,18 @@ static runt_int rproc_unbias(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_drops(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint n;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    n = s->f;
+    runt_stack_dec_n(vm, &vm->stack, n);
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -629,6 +642,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "rot", 3, rproc_rot);
     runt_word_define(vm, "n", 1, rproc_nitems);
     runt_word_define(vm, "rat", 3, rproc_rat);
+    runt_word_define(vm, "drops", 5, rproc_drops);
 
     /* dynamic plugin loading */
 
