@@ -177,6 +177,7 @@ runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s);
 runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos);
 void runt_unpop(runt_vm *vm);
 runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack);
+runt_int runt_stack_bias_pos(runt_vm *vm, runt_stack *stack);
 runt_int runt_stack_pos(runt_vm *vm, runt_stack *stack);
 void runt_stack_dec(runt_vm *vm, runt_stack *stack);
 void runt_stack_inc(runt_vm *vm, runt_stack *stack);

@@ -298,7 +298,7 @@ runt_stacklet * runt_peak(runt_vm *vm)
 runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
 {
     /*TODO: error handling for stack underflows */
-    if(runt_stack_pos(vm, &vm->stack)> 0) {
+    if(runt_stack_pos(vm, &vm->stack) > 0) {
         *s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack) - 1];
     } else {
         runt_print(vm, "Empty stack.\n");
@@ -312,15 +312,15 @@ runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
 runt_int runt_ppeakn(runt_vm *vm, runt_stacklet **s, runt_int pos)
 {
     *s = &vm->stack.stack[0];
-    if(abs(pos) > runt_stack_pos(vm, &vm->stack)) {
+    if(abs(pos) > runt_stack_bias_pos(vm, &vm->stack)) {
         runt_print(vm, "Invalid range %d\n", pos);
         return RUNT_NOT_OK;
     }
 
     if(pos >= 0) {
-        *s = &vm->stack.stack[pos];
+        *s = &vm->stack.stack[pos + vm->stack.bias];
     } else {
-        *s = &vm->stack.stack[runt_stack_pos(vm, &vm->stack) + pos];
+        *s = &vm->stack.stack[runt_stack_bias_pos(vm, &vm->stack) + pos];
     }
     return RUNT_OK;
 }
@@ -338,6 +338,11 @@ runt_float runt_stack_float(runt_vm *vm, runt_stacklet *stack)
 }
 
 runt_int runt_stack_pos(runt_vm *vm, runt_stack *stack)
+{
+    return stack->pos;
+}
+
+runt_int runt_stack_bias_pos(runt_vm *vm, runt_stack *stack)
 {
     return stack->pos + stack->bias;
 }

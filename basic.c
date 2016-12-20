@@ -235,7 +235,7 @@ static int rproc_nitems(runt_vm *vm, runt_ptr p)
     runt_int rc;
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    s->f = vm->stack.pos - 1; 
+    s->f = runt_stack_pos(vm, &vm->stack) - 1;
     return RUNT_OK;
 }
 
