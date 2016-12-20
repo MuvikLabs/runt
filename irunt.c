@@ -35,6 +35,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     free(line);
     return RUNT_OK;
 }
+
 int main(int argc, char *argv[])
 {
     runt_vm vm;

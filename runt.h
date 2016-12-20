@@ -136,6 +136,7 @@ runt_int runt_cell_pool_init(runt_vm *vm);
 
 runt_uint runt_cell_pool_size(runt_vm *vm);
 runt_uint runt_cell_pool_used(runt_vm *vm);
+void runt_cell_pool_clear(runt_vm *vm);
 
 void runt_cell_pool_list(runt_vm *vm);
 
@@ -144,6 +145,7 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud);
 
 runt_uint runt_memory_pool_size(runt_vm *vm);
 runt_uint runt_memory_pool_used(runt_vm *vm);
+void runt_memory_pool_clear(runt_vm *vm);
 
 void runt_mark_set(runt_vm *vm);
 void runt_pmark_set(runt_vm *vm);
@@ -218,6 +220,8 @@ void runt_list_init(runt_list *lst);
 runt_int runt_list_append(runt_list *lst, runt_entry *ent);
 
 void runt_dictionary_init(runt_vm *vm);
+runt_int runt_dictionary_clear(runt_vm *vm);
+runt_uint runt_dictionary_size(runt_vm *vm);
 
 runt_uint runt_word_define(runt_vm *vm, 
         const char *name, 
@@ -231,6 +235,7 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
         runt_copy_proc copy);
 
 runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p);
+
 
 /* Lexing, Parsing, and Compiling */
 

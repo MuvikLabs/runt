@@ -229,6 +229,17 @@ static int rproc_rot(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_nitems(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = vm->stack.pos - 1; 
+    return RUNT_OK;
+}
+
+
 static int rproc_rat(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -434,6 +445,27 @@ static int rproc_incr(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_rep(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint id;
+    runt_uint i, reps;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    id = s->f;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    reps = s->f;
+
+    for(i = 0; i < reps; i++) {
+        runt_cell_id_exec(vm, id);
+    }   
+ 
+    return RUNT_OK;
+}
+
 static int rproc_set(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -540,6 +572,20 @@ static int rproc_usage(runt_vm *vm, runt_ptr p)
     runt_print(vm, "Memory pool: used %d of %d bytes.\n", 
             runt_memory_pool_used(vm),
             runt_memory_pool_size(vm));
+
+    runt_print(vm, "Dictionary: %d words defined.\n", 
+            runt_dictionary_size(vm));
+    return RUNT_OK;
+}
+
+static runt_int rproc_clear(runt_vm *vm, runt_ptr p)
+{
+    runt_cell_pool_clear(vm);
+    runt_memory_pool_clear(vm);
+    runt_dictionary_clear(vm);
+    runt_load_stdlib(vm);
+    /* make memory mark so dead cells can be cleared */
+    runt_mark_set(vm);
     return RUNT_OK;
 }
 
@@ -563,6 +609,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "drop", 4, rproc_drop);
     runt_word_define(vm, "peak", 4, rproc_peak);
     runt_word_define(vm, "rot", 3, rproc_rot);
+    runt_word_define(vm, "n", 1, rproc_nitems);
     runt_word_define(vm, "rat", 3, rproc_rat);
 
     /* dynamic plugin loading */
@@ -585,18 +632,22 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "=", 1, rproc_eq);
     runt_word_define(vm, "!=", 2, rproc_neq);
 
-    /* things related to goto */
+    /* control */
     runt_word_define(vm, "end", 3, rproc_end);
     runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
     runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
     runt_word_define(vm, "dec", 3, rproc_decr);
     runt_word_define(vm, "inc", 3, rproc_incr);
+    runt_word_define(vm, "rep", 3, rproc_rep);
 
     /* variables */
     runt_word_define(vm, "set", 3, rproc_set);
 
-    runt_word_define(vm, "u", 1, rproc_usage);
+    /* clear: clears pools and reloads basic library */
+    runt_word_define(vm, "clear", 5, rproc_clear);
 
+    /* get usage */
+    runt_word_define(vm, "u", 1, rproc_usage);
 
     return RUNT_OK;
 }
