@@ -240,7 +240,6 @@ static int rproc_nitems(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-
 static int rproc_rat(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
