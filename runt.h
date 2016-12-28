@@ -83,7 +83,7 @@ typedef struct runt_list {
 } runt_list;
 
 typedef struct {
-    runt_int size;
+    runt_int nwords;
     runt_list list[RUNT_DICT_SIZE];
 } runt_dict;
 

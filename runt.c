@@ -473,7 +473,7 @@ runt_int runt_word(runt_vm *vm,
 
     runt_list_append(list, entry);
 
-    vm->dict.size++;
+    vm->dict.nwords++;
     return RUNT_NOT_OK;
 }
 
@@ -525,7 +525,7 @@ void runt_dictionary_init(runt_vm *vm)
 {
     runt_uint i;
     runt_dict *dict = &vm->dict;
-    vm->dict.size = 0;
+    vm->dict.nwords = 0;
     for(i = 0; i < RUNT_DICT_SIZE; i++) {
         runt_list_init(&dict->list[i]);
     }
@@ -533,14 +533,14 @@ void runt_dictionary_init(runt_vm *vm)
 
 runt_int runt_dictionary_clear(runt_vm *vm)
 {
-    vm->dict.size = 0;
+    vm->dict.nwords = 0;
     runt_dictionary_init(vm);
     return RUNT_OK;
 }
 
 runt_uint runt_dictionary_size(runt_vm *vm)
 {
-    return vm->dict.size;
+    return vm->dict.nwords;
 }
 
 runt_uint runt_memory_pool_size(runt_vm *vm)
