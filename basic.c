@@ -619,6 +619,25 @@ static runt_int rproc_drops(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
+{
+    runt_int w, e;
+    runt_entry *entry;
+    runt_int nentry = 0;
+    runt_list *list = vm->dict.list;
+    
+    for(w = 0; w < RUNT_DICT_SIZE; w++) {
+        entry = list[w].root.next;
+        nentry = list[w].size;
+        for(e = 0; e < nentry ; e++) {
+            runt_print(vm, "%s\n", runt_to_string(entry->str));
+            entry = entry->next;
+        }
+    }
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -683,6 +702,9 @@ runt_int runt_load_basic(runt_vm *vm)
     /* stack bias/unbias */
     runt_word_define(vm, "bias", 4, rproc_bias);
     runt_word_define(vm, "unbias", 6, rproc_unbias);
+    
+    /* list words in dictionary */
+    runt_word_define(vm, "w", 1, rproc_wordlist);
 
     return RUNT_OK;
 }
