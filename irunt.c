@@ -89,7 +89,6 @@ void irunt_init(irunt_data *irunt)
 
 int main(int argc, char *argv[])
 {
-
     irunt_data irunt;
     char  *line = NULL;
     size_t len = 0;
@@ -117,11 +116,16 @@ int main(int argc, char *argv[])
   
     runt_load_stdlib(vm);
 
+
+    if(irunt.batch_mode) {
+        runt_print(vm, "TURNING IT ON!\n");
+        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+    }
+
     if(argc > 1) load_dictionary(vm, argv[1]);
 
     if(!irunt.batch_mode) {
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
-
         while(runt_is_alive(vm) == RUNT_OK) {
             printf("> ");
             read = getline(&line, &len, stdin);

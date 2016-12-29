@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 #include "runt.h"
 
 typedef struct {
@@ -734,6 +735,9 @@ runt_int runt_load_basic(runt_vm *vm)
     
     /* list words in dictionary */
     runt_word_define(vm, "w", 1, rproc_wordlist);
+
+    /* random number generator */
+    srand(time(NULL));
 
     return RUNT_OK;
 }
