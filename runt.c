@@ -573,6 +573,17 @@ void runt_cell_pool_clear(runt_vm *vm)
     vm->cell_pool.used = 0;
 }
 
+runt_int runt_cell_pool_get_cell(runt_vm *vm, runt_uint id, runt_cell **cell)
+{
+    runt_cell_pool *cell_pool = &vm->cell_pool;
+    if(id > runt_cell_pool_size(vm) || id <= 0) {
+        runt_print(vm, "psize: invalid id %d\n", id); 
+        return RUNT_NOT_OK;
+    }
+    *cell = &cell_pool->cells[id - 1];
+    return RUNT_OK;
+}
+
 runt_int runt_tokenize(runt_vm *vm, 
         const char *str,
         runt_uint size,

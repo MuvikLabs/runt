@@ -143,6 +143,8 @@ void runt_cell_pool_clear(runt_vm *vm);
 
 void runt_cell_pool_list(runt_vm *vm);
 
+runt_int runt_cell_pool_get_cell(runt_vm *vm, runt_uint id, runt_cell **cell);
+
 runt_int runt_memory_pool_set(runt_vm *vm, unsigned char *buf, runt_uint size);
 runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud);
 
@@ -165,6 +167,7 @@ runt_int runt_cell_id_exec(runt_vm *vm, runt_uint id);
 /*TODO: rename to runt_cell_pool_undo */
 runt_int runt_cell_undo(runt_vm *vm);
 void runt_cell_clear(runt_vm *vm, runt_cell *cell);
+runt_int runt_cell_get_psize(runt_vm *vm, runt_cell *cell);
 
 /* Stack Operations */
 

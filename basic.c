@@ -697,6 +697,28 @@ static int rproc_rand(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_psize(runt_vm *vm, runt_ptr p)
+{
+    runt_uint id;
+    runt_stacklet *s;
+    runt_int rc;
+    runt_cell *cell;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    id = s->f;
+
+    rc = runt_cell_pool_get_cell(vm, id, &cell);
+    RUNT_ERROR_CHECK(rc);
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+   
+    s->f = cell->psize;
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -771,6 +793,9 @@ runt_int runt_load_basic(runt_vm *vm)
     /* random number generator */
     srand(time(NULL));
     runt_word_define(vm, "rnd", 3, rproc_rand);
+
+    /* proc size */
+    runt_word_define(vm, "psize", 5, rproc_psize);
 
     return RUNT_OK;
 }
