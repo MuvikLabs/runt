@@ -157,12 +157,12 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
     runt_uint i;
     runt_int rc = RUNT_OK;
   
-    if(cell->psize == 1) {
+    if(cell->psize == 0) {
         return runt_cell_call(vm, cell);
     }
 
-    for(i = 1; i < cell->psize; i++) {
-        if(cell[i].psize == 1) {
+    for(i = 1; i <= cell->psize; i++) {
+        if(cell[i].psize == 0) {
             rc = runt_cell_call(vm, &cell[i]);
         } else {
             rc = runt_cell_exec(vm, &cell[i]); 
@@ -1075,7 +1075,7 @@ runt_uint runt_pmark_free(runt_vm *vm)
 void runt_cell_clear(runt_vm *vm, runt_cell *cell)
 {
    runt_cell_bind(vm, cell, runt_proc_zero);
-   cell->psize = 1;
+   cell->psize = 0;
 }
 
 void * runt_to_cptr(runt_ptr p)
