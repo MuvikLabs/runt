@@ -153,13 +153,11 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
 
 static int rproc_rec(runt_vm *vm, runt_ptr p)
 {
-    runt_print(vm, "Recording.\n");
     return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
 }
 
 static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
-    runt_print(vm, "Stopping.\n");
     runt_cell_undo(vm);
     runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
     runt_mark_set(vm);
@@ -438,12 +436,41 @@ static int rproc_decr(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_decrn(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_int pos;
+    runt_stacklet *s;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos = s->f;
+    rc = runt_ppeakn(vm, &s, pos);
+    RUNT_ERROR_CHECK(rc);
+    s->f -= 1;
+    return RUNT_OK;
+}
+
 static int rproc_incr(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s = runt_peak(vm);
     s->f += 1;
     return RUNT_OK;
 }
+
+static int rproc_incrn(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_int pos;
+    runt_stacklet *s;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos = s->f;
+    rc = runt_ppeakn(vm, &s, pos);
+    RUNT_ERROR_CHECK(rc);
+    s->f += 1;
+    return RUNT_OK;
+}
+
 
 static int rproc_rep(runt_vm *vm, runt_ptr p)
 {
@@ -687,7 +714,9 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
     runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
     runt_word_define(vm, "dec", 3, rproc_decr);
+    runt_word_define(vm, "decn", 4, rproc_decrn);
     runt_word_define(vm, "inc", 3, rproc_incr);
+    runt_word_define(vm, "incn", 4, rproc_incrn);
     runt_word_define(vm, "rep", 3, rproc_rep);
 
     /* variables */
