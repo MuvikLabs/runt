@@ -828,10 +828,20 @@ runt_int runt_compile(runt_vm *vm, const char *str)
             case RUNT_PROC:
 
                 if(vm->status & RUNT_MODE_KEYWORD) {
+                    rc = runt_word_search(vm, &str[pos], word_size, &entry);
+
                     s = runt_peak(vm);
                     tmp = runt_to_cell(s->p);
-                    runt_entry_create(vm, tmp, &entry);
-                    runt_word(vm, &str[pos], word_size, entry);
+
+                    if(rc == RUNT_OK) {
+                        runt_print(vm, 
+                            "Error: word '%*.*s' previously defined\n",
+                            word_size, word_size, &str[pos]);
+                    } else {
+                        runt_entry_create(vm, tmp, &entry);
+                        runt_word(vm, &str[pos], word_size, entry);
+                    }
+
                     runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
                     break;
                 } 
