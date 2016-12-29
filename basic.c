@@ -404,6 +404,20 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_ex(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint pos;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos = s->f;
+
+    runt_cell_id_exec(vm, pos);
+   
+    return RUNT_OK;
+}
+
 static int rproc_goto(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -666,6 +680,23 @@ static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_rand(runt_vm *vm, runt_ptr p)
+{
+    runt_uint max;
+    runt_stacklet *s;
+    runt_int rc; 
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    max = s->f;
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = rand() % max;
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -714,6 +745,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "end", 3, rproc_end);
     runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
     runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
+    runt_word_define_with_copy(vm, "ex", 2, rproc_ex, rproc_call_copy);
     runt_word_define(vm, "dec", 3, rproc_decr);
     runt_word_define(vm, "decn", 4, rproc_decrn);
     runt_word_define(vm, "inc", 3, rproc_incr);
@@ -738,6 +770,7 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* random number generator */
     srand(time(NULL));
+    runt_word_define(vm, "rnd", 3, rproc_rand);
 
     return RUNT_OK;
 }
