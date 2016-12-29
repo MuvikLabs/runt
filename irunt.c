@@ -118,7 +118,6 @@ int main(int argc, char *argv[])
 
 
     if(irunt.batch_mode) {
-        runt_print(vm, "TURNING IT ON!\n");
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
     }
 
