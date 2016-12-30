@@ -29,7 +29,8 @@ RUNT_STRING,
 RUNT_CPTR,
 RUNT_WORD,
 RUNT_PROC,
-RUNT_CELL
+RUNT_CELL,
+RUNT_LIST
 };
 
 typedef struct runt_vm runt_vm;
@@ -202,6 +203,9 @@ const char * runt_to_string(runt_ptr p);
 runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size);
 void * runt_to_cptr(runt_ptr p);
 runt_ptr runt_mk_cptr(runt_vm *vm, void *cptr);
+runt_list * runt_to_list(runt_ptr p);
+runt_ptr runt_mk_list(runt_vm *vm, runt_list *lst);
+
 runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr);
 runt_uint runt_mk_float_cell(runt_vm *vm, 
         const char *name,

@@ -48,7 +48,7 @@ runt_int runt_load_stdlib(runt_vm *vm)
     /* create string type */
     runt_cell_new(vm, &vm->s_cell);
     runt_cell_bind(vm, vm->s_cell, rproc_string);
-   
+
     /* ability to create procedures by default */
     runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
     runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
@@ -1104,6 +1104,22 @@ static int rproc_cptr(runt_vm *vm, runt_ptr p)
     runt_stacklet *s = runt_push(vm);
     s->p = p;
     return RUNT_OK;
+}
+
+
+runt_list * runt_to_list(runt_ptr p)
+{
+    runt_list *lst = NULL;
+    /*TODO: error handling */
+    if(p.type == RUNT_LIST) {
+        lst = p.ud;
+    } 
+    return lst;
+}
+
+runt_ptr runt_mk_list(runt_vm *vm, runt_list *lst)
+{
+    return runt_mk_ptr(RUNT_LIST, lst);
 }
 
 runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr)
