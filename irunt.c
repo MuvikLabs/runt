@@ -40,6 +40,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
         parse(vm, line, read);
     }
 
+    fclose(fp);
     free(line);
     return RUNT_OK;
 }

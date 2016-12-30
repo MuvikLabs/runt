@@ -1038,7 +1038,7 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     *(void **) (&fun) = dlsym(handle, "runt_plugin_init");
 
     fun(vm);
-    
+   
     return RUNT_OK;
 }
 
