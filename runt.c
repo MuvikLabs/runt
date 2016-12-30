@@ -167,6 +167,7 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
         } else {
             rc = runt_cell_exec(vm, &cell[i]); 
         }
+        RUNT_ERROR_CHECK(rc);
     }
 
     return rc;
@@ -901,9 +902,12 @@ static int rproc_float(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
     runt_float *f;
+    runt_int rc;
 
     f = runt_to_float(p);
-    s = runt_push(vm);
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+
     s->f = *f;
     return RUNT_OK;
 }

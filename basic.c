@@ -502,7 +502,8 @@ static int rproc_rep(runt_vm *vm, runt_ptr p)
     reps = s->f;
 
     for(i = 0; i < reps; i++) {
-        runt_cell_id_exec(vm, id);
+        rc = runt_cell_id_exec(vm, id);
+        RUNT_ERROR_CHECK(rc);
     }   
  
     return RUNT_OK;
