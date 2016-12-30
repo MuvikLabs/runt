@@ -123,6 +123,9 @@ struct runt_vm {
     runt_uint level;
     /* cell position */
     runt_uint pos;
+
+    /* list of plugin handles */
+    runt_list plugins;
 };
 
 /* Main */
@@ -131,6 +134,7 @@ runt_int runt_load_stdlib(runt_vm *vm);
 runt_int runt_seppuku(runt_vm *vm);
 runt_int runt_is_alive(runt_vm *vm);
 runt_int runt_load_plugin(runt_vm *vm, const char *filename);
+runt_int runt_close_plugins(runt_vm *vm);
 void runt_print(runt_vm *vm, const char *fmt, ...);
 
 /* Pools */
@@ -233,6 +237,9 @@ runt_int runt_word_search(runt_vm *vm,
 
 void runt_list_init(runt_list *lst);
 runt_int runt_list_append(runt_list *lst, runt_entry *ent);
+runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p);
+runt_int runt_list_size(runt_list *lst);
+runt_entry * runt_list_top(runt_list *lst);
 
 void runt_dictionary_init(runt_vm *vm);
 runt_int runt_dictionary_clear(runt_vm *vm);

@@ -53,6 +53,10 @@ runt_int runt_load_stdlib(runt_vm *vm)
     runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
     runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
 
+    /* set up plugin handle list */
+    runt_list_init(&vm->plugins);    
+
+    /* load basic library */
     runt_load_basic(vm);
 
     return RUNT_OK;
@@ -520,6 +524,28 @@ runt_int runt_list_append(runt_list *lst, runt_entry *ent)
     lst->last = ent;
     lst->size++;
     return RUNT_OK;
+}
+
+runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p)
+{
+    runt_entry *entry;
+    /* make entry, using float cell as dummy */
+    runt_entry_create(vm, vm->f_cell, &entry);
+    /* set ptr to "string" entry in struct. works better than it looks */
+    entry->str = p;
+
+    runt_list_append(lst, entry);
+    return RUNT_OK;
+}
+
+runt_int runt_list_size(runt_list *lst)
+{
+    return lst->size;
+}
+
+runt_entry * runt_list_top(runt_list *lst)
+{
+    return lst->root.next;
 }
 
 void runt_dictionary_init(runt_vm *vm)
@@ -1029,6 +1055,7 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 {
     void *handle = dlopen(filename, RTLD_NOW);
     void (*fun)(runt_vm *);
+    runt_ptr p;
 
     if(handle == NULL) {
         dlerror();
@@ -1038,7 +1065,12 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     *(void **) (&fun) = dlsym(handle, "runt_plugin_init");
 
     fun(vm);
-   
+  
+    /* add handle to plugin list */
+  
+    p = runt_mk_cptr(vm, handle);
+    runt_list_append_ptr(vm, &vm->plugins, p);
+
     return RUNT_OK;
 }
 
@@ -1156,5 +1188,26 @@ runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p)
     runt_cell *pool = vm->cell_pool.cells;
     if(id == 0) return RUNT_NOT_OK;
     pool[id - 1].p = p;
+    return RUNT_OK;
+}
+
+runt_int runt_close_plugins(runt_vm *vm)
+{
+    runt_uint i;
+    runt_entry *ent;
+    runt_list *plugins;
+    runt_uint size;
+    void *handle;
+
+    plugins = &vm->plugins;
+    size = runt_list_size(plugins);
+    ent = runt_list_top(plugins);
+
+    for(i = 0; i < size; i++) {
+        handle = runt_to_cptr(ent->str);
+        dlclose(handle);
+        ent = ent->next;
+    }
+
     return RUNT_OK;
 }

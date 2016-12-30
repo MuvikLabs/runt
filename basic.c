@@ -561,6 +561,7 @@ static runt_int load_dictionary(runt_vm *vm, const char *filename)
 static int rproc_load(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
+    runt_int rc;
     const char *str;
     const char *fname;
     char buf[1024];
@@ -597,7 +598,8 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
             vm->memory_pool.used = s->p.pos;
 
             runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-            runt_load_plugin(vm, fname);
+            rc = runt_load_plugin(vm, fname);
+            RUNT_ERROR_CHECK(rc);
             runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
             runt_mark_set(vm);
             return RUNT_OK;
@@ -613,7 +615,8 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
         vm->memory_pool.used = s->p.pos;
 
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-        runt_load_plugin(vm, fname);
+        rc = runt_load_plugin(vm, fname);
+        RUNT_ERROR_CHECK(rc);
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
         runt_mark_set(vm);
         return RUNT_OK;

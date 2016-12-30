@@ -133,6 +133,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    runt_close_plugins(vm);
+
     free(line);
     free(irunt.cells);
     free(irunt.mem);
