@@ -587,6 +587,22 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
         return RUNT_OK;
     } 
 
+    if(getenv("RUNT_PLUGIN_PATH") != NULL && str[0] != '.' ) {
+        sprintf(buf, "%s/%s.so", getenv("RUNT_PLUGIN_PATH"), str);
+        if(access(buf, F_OK) != -1) {
+            fname = buf;
+            /* TODO: DRY */
+            /* remove string from cell pool */
+            vm->memory_pool.used = s->p.pos;
+
+            runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+            runt_load_plugin(vm, fname);
+            runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
+            runt_mark_set(vm);
+            return RUNT_OK;
+        }
+    }
+
     sprintf(buf, "./%s.so", str);
 
     if(access(buf, F_OK) != -1) {
