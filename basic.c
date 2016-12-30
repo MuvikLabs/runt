@@ -606,7 +606,7 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
         }
     }
 
-    sprintf(buf, "./%s.so", str);
+    sprintf(buf, "%s.so", str);
 
     if(access(buf, F_OK) != -1) {
         fname = buf;
