@@ -2,13 +2,15 @@
 
 CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips -I.
 
-SPORTH_LIBS = -lsporth -lsoundpipe
+SPORTH_LIBS = -lsporth -lsoundpipe -lsndfile -lm
 
-LDFLAGS = -ldl
+LDFLAGS = -ldl -L/usr/local/lib
 
 OBJ = runt.o basic.o
 
-default: irunt librunt.a ps/runt.so
+default: irunt librunt.a 
+
+all: default ps/runt.so
 
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
@@ -28,7 +30,7 @@ ps/runt.so: ps/runt.c
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
-install: irunt librunt.a ps/runt.so
+install: default
 	mkdir -p /usr/local/share/sporth/polysporth
 	install irunt /usr/local/bin
 	install librunt.a /usr/local/lib
