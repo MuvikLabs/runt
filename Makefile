@@ -10,8 +10,6 @@ OBJ = runt.o basic.o
 
 default: irunt librunt.a 
 
-all: default ps/runt.so
-
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
 
@@ -24,19 +22,14 @@ librunt.a: $(OBJ)
 plugin.so: plugin.c 
 	$(CC) plugin.c -shared -fPIC -o $@ librunt.a
 
-ps/runt.so: ps/runt.c 
-	$(CC) $(CFLAGS) ps/runt.c -shared -fPIC -o $@ $(OBJ) $(LDFLAGS) $(SPORTH_LIBS)
-
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
 install: default
-	mkdir -p /usr/local/share/sporth/polysporth
 	install irunt /usr/local/bin
 	install librunt.a /usr/local/lib
 	install runt.h /usr/local/include
-	install ps/runt.so /usr/local/share/sporth/polysporth
 
 clean:
-	rm -rf playground runt.o plugin.so irunt librunt.a ps/runt.so
+	rm -rf playground runt.o plugin.so irunt librunt.a 
 	rm -rf $(OBJ)
