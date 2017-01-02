@@ -14,12 +14,14 @@ typedef struct {
 } irunt_data;
 
 
-static void parse(runt_vm *vm, char *str, size_t read)
+static runt_int parse(runt_vm *vm, char *str, size_t read)
 {
     const char *code = str;
+    runt_int rc;
     runt_pmark_set(vm);
-    runt_compile(vm, code);
+    rc = runt_compile(vm, code);
     runt_pmark_free(vm);
+    return rc;
 }
 
 static runt_int load_dictionary(runt_vm *vm, char *filename)
@@ -28,6 +30,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
+    runt_int rc = RUNT_OK;
 
     fp = fopen(filename, "r");
 
@@ -37,7 +40,8 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     }
 
     while((read = getline(&line, &len, fp)) != -1) {
-        parse(vm, line, read);
+        rc = parse(vm, line, read);
+        if(rc == RUNT_NOT_OK) break;
     }
 
     fclose(fp);
