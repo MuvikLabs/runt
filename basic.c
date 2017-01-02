@@ -589,8 +589,13 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
         return RUNT_OK;
     } 
 
-    if(getenv("RUNT_PLUGIN_PATH") != NULL && str[0] != '.' ) {
-        sprintf(buf, "%s/%s.so", getenv("RUNT_PLUGIN_PATH"), str);
+    if(str[0] != '.' ) {
+        if(getenv("RUNT_PLUGIN_PATH") != NULL) {
+            sprintf(buf, "%s/%s.so", getenv("RUNT_PLUGIN_PATH"), str);
+        } else {
+            /* default path */
+            sprintf(buf, "/usr/local/share/runt/%s.so", str);
+        }
         if(access(buf, F_OK) != -1) {
             fname = buf;
             /* TODO: DRY */
