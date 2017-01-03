@@ -17,11 +17,10 @@ typedef struct {
 static runt_int parse(runt_vm *vm, char *str, size_t read)
 {
     const char *code = str;
-    runt_int rc;
     runt_pmark_set(vm);
-    rc = runt_compile(vm, code);
+    runt_compile(vm, code);
     runt_pmark_free(vm);
-    return rc;
+    return RUNT_OK;
 }
 
 static runt_int load_dictionary(runt_vm *vm, char *filename)
