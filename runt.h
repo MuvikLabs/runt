@@ -152,6 +152,7 @@ runt_int runt_cell_pool_get_cell(runt_vm *vm, runt_uint id, runt_cell **cell);
 
 runt_int runt_memory_pool_set(runt_vm *vm, unsigned char *buf, runt_uint size);
 runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud);
+runt_int runt_memory_pool_get(runt_vm *vm, runt_uint id, void **ud);
 
 runt_uint runt_memory_pool_size(runt_vm *vm);
 runt_uint runt_memory_pool_used(runt_vm *vm);

@@ -230,6 +230,20 @@ runt_ptr runt_mk_float(runt_vm *vm, runt_float ival)
     return p;
 }
 
+runt_int runt_memory_pool_get(runt_vm *vm, runt_uint id, void **ud)
+{
+    if(id > runt_memory_pool_size(vm)) {
+        runt_print(vm, "Memory ID out of bounds!\n");
+        return RUNT_NOT_OK;
+    }
+    if(id == 0) {
+        runt_print(vm, "Memory ID has illegal value of zero.\n");
+        return RUNT_NOT_OK;
+    }
+    *ud = &vm->memory_pool.data[id - 1];
+    return RUNT_OK;
+}
+
 const char * runt_to_string(runt_ptr p)
 {
     const char *str;
