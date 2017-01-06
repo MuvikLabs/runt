@@ -782,6 +782,10 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "rec", 3, rproc_rec);
     runt_word_define_with_copy(vm, "stop", 4, vm->zproc, rproc_stop);
 
+    /* [ and ] for rec, stop */
+    runt_word_define(vm, "[", 1, rproc_rec);
+    runt_word_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop);
+
     /* conditionals */
 
     runt_word_define(vm, "<", 1, rproc_lt);
