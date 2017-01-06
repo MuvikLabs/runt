@@ -126,6 +126,9 @@ struct runt_vm {
 
     /* list of plugin handles */
     runt_list plugins;
+
+    /* what to write output to */
+    FILE *fp;
 };
 
 /* Main */
@@ -136,6 +139,7 @@ runt_int runt_is_alive(runt_vm *vm);
 runt_int runt_load_plugin(runt_vm *vm, const char *filename);
 runt_int runt_close_plugins(runt_vm *vm);
 void runt_print(runt_vm *vm, const char *fmt, ...);
+void runt_filehandle(runt_vm *vm, FILE *handle);
 
 /* Pools */
 

@@ -14,7 +14,7 @@ typedef struct {
 static runt_int rproc_print(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s = runt_pop(vm);
-    printf("%g\n", s->f);
+    runt_print(vm, "%g\n", s->f);
     return RUNT_OK;
 }
 
@@ -706,7 +706,7 @@ static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_rand(runt_vm *vm, runt_ptr p)
+static runt_int rproc_rand(runt_vm *vm, runt_ptr p)
 {
     runt_uint max;
     runt_stacklet *s;
@@ -723,7 +723,7 @@ static int rproc_rand(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static int rproc_psize(runt_vm *vm, runt_ptr p)
+static runt_int rproc_psize(runt_vm *vm, runt_ptr p)
 {
     runt_uint id;
     runt_stacklet *s;
@@ -742,6 +742,19 @@ static int rproc_psize(runt_vm *vm, runt_ptr p)
    
     s->f = cell->psize;
 
+    return RUNT_OK;
+}
+
+static runt_int rproc_over(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *peak;
+    runt_stacklet *s;
+    rc = runt_ppeakn(vm, &peak, -2);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = peak->f;
     return RUNT_OK;
 }
 
@@ -768,6 +781,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "n", 1, rproc_nitems);
     runt_word_define(vm, "rat", 3, rproc_rat);
     runt_word_define(vm, "drops", 5, rproc_drops);
+    runt_word_define(vm, "over", 4, rproc_over);
 
     /* dynamic plugin loading */
 

@@ -36,6 +36,9 @@ runt_int runt_init(runt_vm *vm)
 
     vm->level = 0;
 
+    /* set print output to STDERR by default */
+    vm->fp = stderr;
+
     return RUNT_OK;
 }
 
@@ -1193,8 +1196,13 @@ void runt_print(runt_vm *vm, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
+    vfprintf(vm->fp, fmt, args);
     va_end(args);
+}
+
+void runt_filehandle(runt_vm *vm, FILE *handle)
+{
+    vm->fp = handle;
 }
 
 runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p)

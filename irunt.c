@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
     argc = argpos;
     vm = &irunt.vm;
 
-
     irunt.mem = malloc(MEMPOOL_SIZE);
     irunt.cells = malloc(sizeof(runt_cell) * CELLPOOL_SIZE);
 
