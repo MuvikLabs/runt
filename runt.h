@@ -73,7 +73,7 @@ typedef struct {
 typedef struct runt_entry {
     runt_cell *cell;
     runt_copy_proc copy;
-    runt_ptr str;
+    runt_ptr p;
     struct runt_entry *next;
 } runt_entry;
 

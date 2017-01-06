@@ -698,7 +698,7 @@ static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
         entry = list[w].root.next;
         nentry = list[w].size;
         for(e = 0; e < nentry ; e++) {
-            runt_print(vm, "%s\n", runt_to_string(entry->str));
+            runt_print(vm, "%s\n", runt_to_string(entry->p));
             entry = entry->next;
         }
     }

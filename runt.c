@@ -448,7 +448,7 @@ runt_uint runt_entry_create(runt_vm *vm,
     e = *entry;
     e->copy = runt_cell_link;
     e->cell = cell;
-    e->str = vm->nil;
+    e->p = vm->nil;
     return 0;
 }
 
@@ -488,7 +488,7 @@ runt_int runt_word(runt_vm *vm,
     runt_uint pos = runt_hash(name, size);
     runt_list *list = &vm->dict.list[pos]; 
 
-    entry->str = runt_mk_string(vm, name, size);
+    entry->p = runt_mk_string(vm, name, size);
 
     runt_list_append(list, entry);
 
@@ -516,7 +516,7 @@ runt_int runt_word_search(runt_vm *vm,
 
     for(i = 0; i < list->size; i++) {
         next = ent->next;
-        if(runt_strncmp(name, ent->str, size) == 0) {
+        if(runt_strncmp(name, ent->p, size) == 0) {
             *entry = ent;
             return RUNT_OK;
         }
@@ -546,7 +546,7 @@ runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p)
     /* make entry, using float cell as dummy */
     runt_entry_create(vm, vm->f_cell, &entry);
     /* set ptr to "string" entry in struct. works better than it looks */
-    entry->str = p;
+    entry->p = p;
 
     runt_list_append(lst, entry);
     return RUNT_OK;
@@ -1218,7 +1218,7 @@ runt_int runt_close_plugins(runt_vm *vm)
     ent = runt_list_top(plugins);
 
     for(i = 0; i < size; i++) {
-        handle = runt_to_cptr(ent->str);
+        handle = runt_to_cptr(ent->p);
         dlclose(handle);
         ent = ent->next;
     }
