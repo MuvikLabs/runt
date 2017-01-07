@@ -650,6 +650,7 @@ static runt_int rproc_clear(runt_vm *vm, runt_ptr p)
 {
     runt_cell_pool_clear(vm);
     runt_memory_pool_clear(vm);
+    runt_close_plugins(vm);
     runt_dictionary_clear(vm);
     runt_load_stdlib(vm);
     /* make memory mark so dead cells can be cleared */
