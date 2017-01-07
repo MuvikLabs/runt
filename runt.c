@@ -543,10 +543,17 @@ runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size)
         next = ent->next;
         if(runt_strncmp(name, ent->p, size) == 0) {
             if(list->size > 1) {
+                /* TODO this is ugly. fix */
                 if(i == 0) {
+                    /* when at the top, set the next as the top*/
                     list->root.next = next;
-                } else {
+                } else if( i < list->size - 1) {
+                    /* when in between, make sure the previous is set to the
+                     * next in line */
                     prev->next = next;
+                } else {
+                    /* if at the bottom, make sure last is set */
+                    list->last = prev;
                 }
             }
             vm->dict.nwords--;
