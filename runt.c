@@ -529,6 +529,37 @@ runt_int runt_word_search(runt_vm *vm,
     return RUNT_NOT_OK;
 }
 
+runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size)
+{
+    runt_uint pos = runt_hash(name, size);
+    runt_list *list = &vm->dict.list[pos]; 
+
+    runt_uint i;
+    runt_entry *ent = list->root.next;
+    runt_entry *next, *prev;
+
+
+    for(i = 0; i < list->size; i++) {
+        next = ent->next;
+        if(runt_strncmp(name, ent->p, size) == 0) {
+            if(list->size > 1) {
+                if(i == 0) {
+                    list->root.next = next;
+                } else {
+                    prev->next = next;
+                }
+            }
+            vm->dict.nwords--;
+            list->size--;
+            return RUNT_OK;
+        }
+
+        prev = ent;
+        ent = next;
+    }
+    return RUNT_NOT_OK;
+}
+
 void runt_list_init(runt_list *lst)
 {
     lst->size = 0;

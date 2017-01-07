@@ -240,6 +240,8 @@ runt_int runt_word_search(runt_vm *vm,
         runt_int size,
         runt_entry **entry);
 
+runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size);
+
 void runt_list_init(runt_list *lst);
 runt_int runt_list_append(runt_list *lst, runt_entry *ent);
 runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p);

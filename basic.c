@@ -646,6 +646,28 @@ static int rproc_usage(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_mem(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = runt_memory_pool_used(vm);
+    return RUNT_OK;
+}
+
+static int rproc_cells(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = runt_cell_pool_used(vm);
+    return RUNT_OK;
+}
+
 static runt_int rproc_clear(runt_vm *vm, runt_ptr p)
 {
     runt_cell_pool_clear(vm);
@@ -759,6 +781,44 @@ static runt_int rproc_over(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_restore(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint mem;
+    runt_uint cell;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    mem = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    cell = s->f;
+   
+    vm->cell_pool.used = cell;
+    vm->memory_pool.used = mem;
+
+    runt_cell_undo(vm);
+    runt_mark_set(vm);
+    return RUNT_OK;
+}
+
+static runt_int rproc_undef(runt_vm *vm, runt_ptr p)
+{
+    const char *str;
+    runt_int rc;
+    runt_stacklet *s;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    str = runt_to_string(s->p);
+
+    runt_word_undefine(vm, str, strlen(str));
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -825,8 +885,12 @@ runt_int runt_load_basic(runt_vm *vm)
     /* clear: clears pools and reloads basic library */
     runt_word_define(vm, "clear", 5, rproc_clear);
 
-    /* get usage */
+    /* print usage */
     runt_word_define(vm, "u", 1, rproc_usage);
+    /* get memory usage */
+    runt_word_define(vm, "m", 1, rproc_mem);
+    /* get cell usage */
+    runt_word_define(vm, "c", 1, rproc_cells);
 
     /* stack bias/unbias */
     runt_word_define(vm, "bias", 4, rproc_bias);
@@ -841,6 +905,12 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* proc size */
     runt_word_define(vm, "psize", 5, rproc_psize);
+    
+    /* restore returns the cell + memory pools to a given position */
+    runt_word_define(vm, "restore", 7, rproc_restore);
+
+    /* undefine a word in the dictionary */
+    runt_word_define(vm, "undef", 5, rproc_undef);
 
     return RUNT_OK;
 }
