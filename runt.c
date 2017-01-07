@@ -648,6 +648,11 @@ runt_int runt_tokenize(runt_vm *vm,
 
     if(*pos > size) return RUNT_OK;
 
+    if(*pos == size) {
+        *next = size + 1;
+        return RUNT_CONTINUE;
+    }
+
     for(s = p; s < size; s++) {
         if(str[s] == '#') return  RUNT_OK;
 
@@ -693,10 +698,12 @@ runt_int runt_tokenize(runt_vm *vm,
 
     /* if we are at the end, make next larger than the size */
     if(s == size) {
-        *next = size + 1;
         if(mode == 1) {
             *wsize = (s - *pos);
+        } if(mode == 2 && *next == size - 1) {
+            return RUNT_CONTINUE;
         }
+        *next = size + 1;
     }
     return RUNT_CONTINUE;
 }
