@@ -590,12 +590,15 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     } 
 
     if(str[0] != '.' ) {
+        /* try to find a .so native plugin */
+
         if(getenv("RUNT_PLUGIN_PATH") != NULL) {
             sprintf(buf, "%s/%s.so", getenv("RUNT_PLUGIN_PATH"), str);
         } else {
             /* default path */
             sprintf(buf, "/usr/local/share/runt/%s.so", str);
         }
+
         if(access(buf, F_OK) != -1) {
             fname = buf;
             /* TODO: DRY */
@@ -608,7 +611,27 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
             runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
             runt_mark_set(vm);
             return RUNT_OK;
+        } 
+
+        /* finally, try to find a .rnt file */
+        if(getenv("RUNT_PLUGIN_PATH") != NULL) {
+            sprintf(buf, "%s/%s.rnt", getenv("RUNT_PLUGIN_PATH"), str);
+        } else {
+            /* default path */
+            sprintf(buf, "/usr/local/share/runt/%s.rnt", str);
         }
+
+        if(access(buf, F_OK) != -1) {
+            fname = buf;
+            /* TODO: DRY */
+            /* remove string from cell pool */
+            vm->memory_pool.used = s->p.pos;
+            runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+            load_dictionary(vm, fname);
+            runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
+            runt_mark_set(vm);
+            return RUNT_OK;
+        } 
     }
 
     sprintf(buf, "%s.so", str);
