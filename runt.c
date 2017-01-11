@@ -147,7 +147,7 @@ static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p)
 runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc)
 {
     runt_stacklet *s = runt_push(vm);
-    vm->status |= RUNT_MODE_PROC;
+    runt_set_state(vm, RUNT_MODE_PROC, RUNT_ON);
     s->p = runt_mk_ptr(RUNT_CELL, (void *)proc);
     return RUNT_OK;
 }

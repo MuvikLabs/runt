@@ -842,6 +842,23 @@ static runt_int rproc_undef(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rcopy_block_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    return runt_proc_begin(vm, dst);
+}
+
+static runt_int rcopy_block_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_cell *proc;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    proc = runt_to_cell(s->p);
+    proc->psize--;
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -934,6 +951,10 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* undefine a word in the dictionary */
     runt_word_define(vm, "undef", 5, rproc_undef);
+
+    /* blocks */
+    runt_word_define_with_copy(vm, "{", 1, vm->zproc, rcopy_block_begin);
+    runt_word_define_with_copy(vm, "}", 1, vm->zproc, rcopy_block_end);
 
     return RUNT_OK;
 }
