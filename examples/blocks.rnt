@@ -7,13 +7,15 @@ dup 3 = { "value is 3. 3 apples." say drop end } goto
 end ;
 
 : nested
+
 dup 5 < { 
-"the value is less than 5" say 
-2 > {
-"the value is greater than 2" say end
+    "the value is less than 5" say 
+    2 > {
+        "the value is greater than 2" say end
+    } goto
+    end 
 } goto
-end 
-} goto
+
 "the value is greater than 5" say end ;
 
 : cflanders

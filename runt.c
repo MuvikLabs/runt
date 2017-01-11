@@ -697,7 +697,6 @@ runt_int runt_tokenize(runt_vm *vm,
         if(stop != 0) {
             break;
         }
-
         switch (mode) {
             case 3:
                 if(str[s] == m) {
@@ -728,12 +727,12 @@ runt_int runt_tokenize(runt_vm *vm,
                         *pos = s;
                     }
                 }
+                *pos = s;
                 continue;
             default: break;
         }
 
     }
-
     /* if we are at the end, make next larger than the size */
     if(s == size) {
         if(mode == 1) {
