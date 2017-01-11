@@ -7,9 +7,9 @@
 #include "runt.h"
 
 typedef struct {
-    runt_cell *cell_if;
-    runt_cell *cell_else;
-} runt_if_d;
+    runt_uint start;
+    runt_uint end;
+} runt_block;
 
 static runt_int rproc_print(runt_vm *vm, runt_ptr p)
 {
@@ -842,8 +842,33 @@ static runt_int rproc_undef(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_block_begin(runt_vm *vm, runt_ptr p)
+{
+    runt_block *blk;
+    blk = (runt_block *)runt_to_cptr(p);
+    vm->pos = blk->end;
+    return RUNT_OK;
+}
+
+static runt_int rproc_block_end(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_block *blk;
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    blk = (runt_block *)runt_to_cptr(p);
+    s->f = blk->start;
+    return RUNT_OK;
+}
+
 static runt_int rcopy_block_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
+    runt_block *blk;
+    runt_malloc(vm, sizeof(runt_block), (void **)&blk);
+    blk->start = dst->id;
+    blk->end = dst->id;
+    dst->p = runt_mk_cptr(vm, (void *)blk);
     return runt_proc_begin(vm, dst);
 }
 
@@ -851,11 +876,12 @@ static runt_int rcopy_block_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
     runt_int rc;
     runt_stacklet *s;
-    runt_cell *proc;
+    runt_block *blk;
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    proc = runt_to_cell(s->p);
-    proc->psize--;
+    blk = (runt_block *) runt_to_cptr(s->p);
+    blk->end = dst->id;
+    dst->p = s->p;
     return RUNT_OK;
 }
 
@@ -953,8 +979,10 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "undef", 5, rproc_undef);
 
     /* blocks */
-    runt_word_define_with_copy(vm, "{", 1, vm->zproc, rcopy_block_begin);
-    runt_word_define_with_copy(vm, "}", 1, vm->zproc, rcopy_block_end);
+    runt_word_define_with_copy(vm, "{", 1, 
+        rproc_block_begin, rcopy_block_begin);
+    runt_word_define_with_copy(vm, "}", 1, 
+        rproc_block_end, rcopy_block_end);
 
     return RUNT_OK;
 }
