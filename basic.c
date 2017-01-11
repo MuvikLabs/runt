@@ -844,20 +844,13 @@ static runt_int rproc_undef(runt_vm *vm, runt_ptr p)
 
 static runt_int rproc_block_begin(runt_vm *vm, runt_ptr p)
 {
-    runt_block *blk;
-    blk = (runt_block *)runt_to_cptr(p);
-    vm->pos = blk->end;
-    return RUNT_OK;
-}
-
-static runt_int rproc_block_end(runt_vm *vm, runt_ptr p)
-{
     runt_int rc;
     runt_stacklet *s;
     runt_block *blk;
+    blk = (runt_block *)runt_to_cptr(p);
+    vm->pos = blk->end;
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    blk = (runt_block *)runt_to_cptr(p);
     s->f = blk->start;
     return RUNT_OK;
 }
@@ -868,7 +861,8 @@ static runt_int rcopy_block_begin(runt_vm *vm, runt_cell *src, runt_cell *dst)
     runt_malloc(vm, sizeof(runt_block), (void **)&blk);
     blk->start = dst->id;
     blk->end = dst->id;
-    dst->p = runt_mk_cptr(vm, (void *)blk);
+    dst->p = runt_mk_cptr(vm, blk);
+    dst->fun = src->fun;
     return runt_proc_begin(vm, dst);
 }
 
@@ -876,12 +870,15 @@ static runt_int rcopy_block_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
 {
     runt_int rc;
     runt_stacklet *s;
+    runt_cell *cell;
     runt_block *blk;
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    blk = (runt_block *) runt_to_cptr(s->p);
-    blk->end = dst->id;
-    dst->p = s->p;
+    cell = runt_to_cell(s->p);
+    blk = (runt_block *) runt_to_cptr(cell->p);
+    blk->end = dst->id - 1;
+    runt_cell_undo(vm);
+    cell->psize--;
     return RUNT_OK;
 }
 
@@ -982,7 +979,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define_with_copy(vm, "{", 1, 
         rproc_block_begin, rcopy_block_begin);
     runt_word_define_with_copy(vm, "}", 1, 
-        rproc_block_end, rcopy_block_end);
+        vm->zproc, rcopy_block_end);
 
     return RUNT_OK;
 }

@@ -1,0 +1,41 @@
+[
+: block_test 
+"what is the value?" say
+dup 1 = { "value is 1. 1 dinosaur!" say drop end } goto 
+dup 2 = { "value is 2. 2 dogs." say drop end } goto 
+dup 3 = { "value is 3. 3 apples." say drop end } goto 
+end ;
+
+
+: cflanders
+"here is a block that repeats 8 times" say
+"It's like nothing at all..." say 
+0 { 
+# n addr
+# addr n--
+swap inc
+swap 
+"nothing at all..." say 
+}  
+# n addr
+# n addr n
+over 
+# n addr ?
+8 < 
+# n addr ? addr
+over
+goto 
+2 drops
+end ;
+
+: flanders _cflanders call ;
+
+]
+
+# conditionals
+1 _block_test call
+2 _block_test call
+3 _block_test call
+
+# block repeat
+flanders
