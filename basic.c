@@ -803,7 +803,7 @@ static runt_int rproc_over(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    s->f = peak->f;
+    runt_stacklet_copy(vm, peak, s);
     return RUNT_OK;
 }
 
