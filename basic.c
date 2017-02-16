@@ -201,17 +201,19 @@ static int rproc_rot(runt_vm *vm, runt_ptr p)
     runt_stacklet *s;
     runt_stacklet *push[3];
     runt_int rc;
-    runt_float a, b, c;
+    runt_stacklet a, b, c;
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    a = s->f;
+    runt_stacklet_copy(vm, s, &a);
+
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    b = s->f;
+    runt_stacklet_copy(vm, s, &b);
+
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    c = s->f;
+    runt_stacklet_copy(vm, s, &c);
 
     rc = runt_ppush(vm, &push[0]);
     RUNT_ERROR_CHECK(rc);
@@ -220,9 +222,9 @@ static int rproc_rot(runt_vm *vm, runt_ptr p)
     rc = runt_ppush(vm, &push[2]);
     RUNT_ERROR_CHECK(rc);
 
-    push[0]->f = b;
-    push[1]->f = a;
-    push[2]->f = c;
+    runt_stacklet_copy(vm, &b, push[0]);
+    runt_stacklet_copy(vm, &a, push[1]);
+    runt_stacklet_copy(vm, &c, push[2]);
     
     return RUNT_OK;
 }
