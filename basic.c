@@ -169,23 +169,23 @@ static int rproc_swap(runt_vm *vm, runt_ptr p)
     runt_stacklet *s1;
     runt_stacklet *s2;
     runt_int rc;
-    runt_float a, b;
+    runt_stacklet a, b;
 
     rc = runt_ppop(vm, &s1);
     RUNT_ERROR_CHECK(rc);
-    a = s1->f;
+    runt_stacklet_copy(vm, s1, &a);
 
     rc = runt_ppop(vm, &s1);
     RUNT_ERROR_CHECK(rc);
-    b = s1->f;
+    runt_stacklet_copy(vm, s1, &b);
 
     rc = runt_ppush(vm, &s1);
     RUNT_ERROR_CHECK(rc);
     rc = runt_ppush(vm, &s2);
     RUNT_ERROR_CHECK(rc);
 
-    s1->f = a;
-    s2->f = b;
+    runt_stacklet_copy(vm, &a, s1);
+    runt_stacklet_copy(vm, &b, s2);
 
     return RUNT_OK;
 }
