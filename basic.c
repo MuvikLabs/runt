@@ -292,7 +292,7 @@ static int rproc_peak(runt_vm *vm, runt_ptr p)
     rc = runt_ppush(vm, &s2);
     RUNT_ERROR_CHECK(rc);
 
-    s2->f = peak->f;
+    runt_stacklet_copy(vm, peak, s2);
     
     return RUNT_OK;
 }
