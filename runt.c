@@ -1277,3 +1277,10 @@ runt_int runt_close_plugins(runt_vm *vm)
 
     return RUNT_OK;
 }
+
+void runt_stacklet_copy(runt_vm *vm, runt_stacklet *src, runt_stacklet *dst)
+{
+    dst->f = src->f;
+    dst->p = src->p;
+    dst->t = src->t;
+}
