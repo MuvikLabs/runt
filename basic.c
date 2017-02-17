@@ -885,6 +885,41 @@ static runt_int rcopy_block_end(runt_vm *vm, runt_cell *src, runt_cell *dst)
     return RUNT_OK;
 }
 
+static runt_int rproc_ptr(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+
+    s->p = p;
+    return RUNT_OK;
+}
+
+static runt_int rproc_setptr(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint id;
+    runt_ptr ptr;
+    runt_cell *cell;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    id = s->f;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    ptr = s->p;
+
+    rc = runt_cell_pool_get_cell(vm, id + 1, &cell);
+    RUNT_ERROR_CHECK(rc);
+    cell->p = ptr;
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -947,6 +982,8 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* variables */
     runt_word_define(vm, "set", 3, rproc_set);
+    runt_word_define_with_copy(vm, "ptr", 3, rproc_ptr, rproc_call_copy);
+    runt_word_define_with_copy(vm, "setptr", 6, rproc_setptr, rproc_call_copy);
 
     /* clear: clears pools and reloads basic library */
     runt_word_define(vm, "clear", 5, rproc_clear);
