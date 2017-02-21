@@ -297,4 +297,5 @@ runt_int runt_proc_end(runt_vm *vm);
 
 runt_int runt_load_basic(runt_vm *vm);
 
+runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *));
 #endif

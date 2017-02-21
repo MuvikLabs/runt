@@ -48,7 +48,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     return RUNT_OK;
 }
 
-int irunt_get_flag(irunt_data *irunt, 
+static int irunt_get_flag(irunt_data *irunt, 
         char *argv[], 
         runt_int pos, 
         runt_int nargs)
@@ -66,7 +66,7 @@ int irunt_get_flag(irunt_data *irunt,
     return RUNT_NOT_OK;
 }
 
-int irunt_parse_args(irunt_data *irunt, int argc, char *argv[])
+static int irunt_parse_args(irunt_data *irunt, int argc, char *argv[])
 {
     runt_int a;
     runt_int argpos = argc;
@@ -85,13 +85,13 @@ int irunt_parse_args(irunt_data *irunt, int argc, char *argv[])
     return argpos;
 }
 
-void irunt_init(irunt_data *irunt)
+static void irunt_init(irunt_data *irunt)
 {
     runt_init(&irunt->vm);
     irunt->batch_mode = 0;
 }
 
-int main(int argc, char *argv[])
+runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
 {
     irunt_data irunt;
     char  *line = NULL;
@@ -116,9 +116,8 @@ int main(int argc, char *argv[])
     runt_cell_pool_init(vm);
 
     runt_memory_pool_set(vm, irunt.mem, MEMPOOL_SIZE);
-  
-    runt_load_stdlib(vm);
 
+    loader(vm);
 
     if(irunt.batch_mode) {
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);

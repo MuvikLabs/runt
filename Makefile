@@ -6,15 +6,15 @@ SPORTH_LIBS = -lsporth -lsoundpipe -lsndfile -lm
 
 LDFLAGS = -ldl -L/usr/local/lib
 
-OBJ = runt.o basic.o
+OBJ = runt.o basic.o irunt.o
 
 default: irunt librunt.a 
 
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
 
-irunt: irunt.c $(OBJ)
-	$(CC) $(LDFLAGS) $(CFLAGS) irunt.c $(OBJ) -o $@
+irunt: main.c $(OBJ)
+	$(CC) $(LDFLAGS) $(CFLAGS) main.c $(OBJ) -o $@
 
 librunt.a: $(OBJ)
 	ar rcs $@ $(OBJ)
