@@ -59,6 +59,9 @@ static int irunt_get_flag(irunt_data *irunt,
         case 'b':
             irunt->batch_mode = 1;
             return RUNT_OK;
+        case 'i':
+            irunt->batch_mode = 0;
+            return RUNT_OK;
         default:
             runt_print(vm, "Error: Couldn't find flag %s\n", argv[pos]);
             break;
@@ -88,7 +91,7 @@ static int irunt_parse_args(irunt_data *irunt, int argc, char *argv[])
 static void irunt_init(irunt_data *irunt)
 {
     runt_init(&irunt->vm);
-    irunt->batch_mode = 0;
+    irunt->batch_mode = 1;
 }
 
 runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
