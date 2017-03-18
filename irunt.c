@@ -48,6 +48,31 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     return RUNT_OK;
 }
 
+runt_int runt_load_dictionary(runt_vm *vm, const char *filename)
+{
+    FILE *fp; 
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    runt_int rc = RUNT_OK;
+
+    fp = fopen(filename, "r");
+
+    if(fp == NULL) {
+        runt_print(vm, "Could not open file %s\n", filename);
+        return RUNT_NOT_OK;
+    }
+
+    while((read = getline(&line, &len, fp)) != -1) {
+        rc = parse(vm, line, read);
+        if(rc == RUNT_NOT_OK) break;
+    }
+
+    fclose(fp);
+    free(line);
+    return rc;
+}
+
 static int irunt_get_flag(irunt_data *irunt, 
         char *argv[], 
         runt_int pos, 
@@ -121,6 +146,7 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     runt_memory_pool_set(vm, irunt.mem, MEMPOOL_SIZE);
 
     loader(vm);
+    runt_pmark_set(vm);
 
     if(irunt.batch_mode) {
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
