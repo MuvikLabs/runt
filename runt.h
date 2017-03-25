@@ -133,6 +133,7 @@ struct runt_vm {
 
 /* Main */
 runt_int runt_init(runt_vm *vm);
+runt_int runt_load_minimal(runt_vm *vm);
 runt_int runt_load_stdlib(runt_vm *vm);
 runt_int runt_seppuku(runt_vm *vm);
 runt_int runt_is_alive(runt_vm *vm);

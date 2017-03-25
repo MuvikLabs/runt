@@ -14,6 +14,8 @@ static int rproc_string(runt_vm *vm, runt_ptr p);
 static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_cptr(runt_vm *vm, runt_ptr p);
+static int rproc_rec(runt_vm *vm, runt_ptr p);
+static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -42,7 +44,7 @@ runt_int runt_init(runt_vm *vm)
     return RUNT_OK;
 }
 
-runt_int runt_load_stdlib(runt_vm *vm)
+runt_int runt_load_minimal(runt_vm *vm)
 {
     /* create float type */
     runt_cell_new(vm, &vm->f_cell);
@@ -55,13 +57,21 @@ runt_int runt_load_stdlib(runt_vm *vm)
     /* ability to create procedures by default */
     runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
     runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
+   
+    /* [ and ] for rec, stop */
+    runt_word_define(vm, "[", 1, rproc_rec);
+    runt_word_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop);
 
+    return RUNT_OK;
+}
+
+runt_int runt_load_stdlib(runt_vm *vm)
+{
+    runt_load_minimal(vm);
     /* set up plugin handle list */
     runt_list_init(&vm->plugins);    
-
     /* load basic library */
     runt_load_basic(vm);
-
     return RUNT_OK;
 }
 
@@ -1284,3 +1294,17 @@ void runt_stacklet_copy(runt_vm *vm, runt_stacklet *src, runt_stacklet *dst)
     dst->p = src->p;
     dst->t = src->t;
 }
+
+static int rproc_rec(runt_vm *vm, runt_ptr p)
+{
+    return runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+}
+
+static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
+{
+    runt_cell_undo(vm);
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+    runt_mark_set(vm);
+    return RUNT_OK;
+}
+
