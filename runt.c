@@ -61,6 +61,9 @@ runt_int runt_load_minimal(runt_vm *vm)
     /* [ and ] for rec, stop */
     runt_word_define(vm, "[", 1, rproc_rec);
     runt_word_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop);
+    
+    /* set up plugin handle list */
+    runt_list_init(&vm->plugins);    
 
     return RUNT_OK;
 }
@@ -68,8 +71,6 @@ runt_int runt_load_minimal(runt_vm *vm)
 runt_int runt_load_stdlib(runt_vm *vm)
 {
     runt_load_minimal(vm);
-    /* set up plugin handle list */
-    runt_list_init(&vm->plugins);    
     /* load basic library */
     runt_load_basic(vm);
     return RUNT_OK;
