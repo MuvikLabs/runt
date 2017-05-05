@@ -441,6 +441,12 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
     runt_memory_pool *pool = &vm->memory_pool;
     runt_uint id = 0;
 
+#ifdef ALIGNED_MALLOC
+    if(size % 4 != 0) {
+        size = ((size/4) + 1) * 4;
+    }
+#endif
+
     /* TODO: overload error handling */
     if(pool->used + size >= pool->size) {
         return 0;

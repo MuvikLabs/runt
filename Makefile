@@ -10,6 +10,10 @@ OBJ = runt.o basic.o irunt.o
 
 default: irunt librunt.a 
 
+ifdef ALIGNED_MALLOC
+CFLAGS += -DALIGNED_MALLOC
+endif
+
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
 
