@@ -41,6 +41,31 @@ end ;
 
 : flanders _cflanders call ;
 
+: recursion 
+inc dup "hello world" say 
+dup 8 < 
+_recursion goto
+end ;
+
+# infinite loop: call with "_looper call"
+: looper
+1 dup { "are we here?" say } over over goto end
+;
+
+# reproduces "rep" functionality
+: my_rep
+0 dup { swap inc swap -4 peak ex } 
+# n addr n addr
+over -6 peak < over
+goto 
+5 drops
+end
+;
+
+: cditdot 2 rnd { "dit" say end } goto "dot" say end ;
+
+: ditdot _cditdot call ;
+
 ]
 
 # conditionals
@@ -52,3 +77,11 @@ end ;
 flanders
 
 4 _nested call
+
+0 _recursion call
+
+"using rep" say
+4 _ditdot rep
+
+"using my rep" say
+4 _ditdot _my_rep call

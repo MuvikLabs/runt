@@ -48,7 +48,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
     return RUNT_OK;
 }
 
-runt_int runt_load_dictionary(runt_vm *vm, const char *filename)
+runt_int runt_parse_file(runt_vm *vm, const char *filename)
 {
     FILE *fp; 
     char *line = NULL;
