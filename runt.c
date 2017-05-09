@@ -224,7 +224,7 @@ runt_cell * runt_to_cell(runt_ptr p)
 
 runt_float * runt_to_float(runt_ptr p)
 {
-    runt_float *f;
+    runt_float *f = NULL;
 
     /* TODO: error handling */
     if(p.type == RUNT_FLOAT) {
@@ -265,9 +265,11 @@ const char * runt_to_string(runt_ptr p)
     /*TODO: error handling */
     if(p.type == RUNT_STRING) {
         str = p.ud;
+        return str;
+    } else {
+        return NULL;
     }
 
-    return str;
 }
 
 runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
@@ -297,7 +299,7 @@ runt_stacklet * runt_push(runt_vm *vm)
     if(runt_stack_pos(vm, &vm->stack) == vm->stack.size) {
         runt_print(vm, "stack overflow!\n");
         s = &vm->stack.stack[0];
-        return RUNT_NOT_OK;
+        return NULL;
     }
 
     runt_stack_inc(vm, &vm->stack);
@@ -439,6 +441,12 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
 
     runt_memory_pool *pool = &vm->memory_pool;
     runt_uint id = 0;
+
+#ifdef ALIGNED_MALLOC
+    if(size % 4 != 0) {
+        size = ((size/4) + 1) * 4;
+    }
+#endif
 
     /* TODO: overload error handling */
     if(pool->used + size >= pool->size) {
