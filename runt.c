@@ -1317,3 +1317,13 @@ static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst)
     return RUNT_OK;
 }
 
+runt_int runt_cell_id_get(runt_vm *vm, runt_uint id, runt_cell **cell)
+{
+    if(id == 0) {
+        *cell = vm->f_cell;
+        return RUNT_NOT_OK;
+    } else  {
+        *cell = &vm->cell_pool.cells[id - 1]; 
+        return RUNT_OK;
+    }
+}
