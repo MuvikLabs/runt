@@ -955,6 +955,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                         runt_print(vm, 
                             "Error: word '%*.*s' previously defined\n",
                             word_size, word_size, &str[pos]);
+                        return RUNT_NOT_OK;
                     } else {
                         runt_entry_create(vm, tmp, &entry);
                         runt_word(vm, &str[pos], word_size, entry);
@@ -991,7 +992,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
         }
     }
     /* runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF); */
-    return rc;
+    return RUNT_OK;
 }
 
 static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest)
