@@ -26,9 +26,11 @@ librunt):
     make irunt 
 
 
-To install:
+To install run:
 
-    sudo make install
+    make install
+
+Note that you do NOTE need sudo, since the files will be installed in ~/.runt/
 
 To clean:
 
