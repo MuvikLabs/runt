@@ -1139,14 +1139,14 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     runt_ptr p;
 
     if(handle == NULL) {
-        dlerror();
+        runt_print(vm, "%s\n", dlerror());
         return RUNT_NOT_OK;
     }
 
     *(void **) (&fun) = dlsym(handle, "runt_plugin_init");
 
     fun(vm);
-  
+
     /* add handle to plugin list */
   
     p = runt_mk_cptr(vm, handle);
