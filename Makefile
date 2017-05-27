@@ -30,9 +30,12 @@ plugin.so: plugin.c
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
 install: default
-	install irunt /usr/local/bin
-	install librunt.a /usr/local/lib
-	install runt.h /usr/local/include
+	mkdir -p $(HOME)/.runt/lib
+	mkdir -p $(HOME)/.runt/bin
+	mkdir -p $(HOME)/.runt/include
+	install irunt $(HOME)/.runt/bin
+	install librunt.a $(HOME)/.runt/lib
+	install runt.h $(HOME)/.runt/include
 
 clean:
 	rm -rf playground runt.o plugin.so irunt librunt.a 
