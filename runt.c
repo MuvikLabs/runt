@@ -114,10 +114,13 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
     runt_stacklet *s;
 
     pool->used++;
-    
-    if(pool->used >= pool->size) {
+   
+    if(runt_get_state(vm, RUNT_MODE_PANIC) == RUNT_ON) {
+        return 0; 
+    }else if(pool->used >= pool->size) {
         runt_print(vm, "Oh dear. Runt cell pool space at maximum.\n");
         runt_set_state(vm, RUNT_MODE_PANIC, RUNT_ON);
+        runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
         return 0;
     }
 
@@ -1126,7 +1129,8 @@ runt_int runt_cell_undo(runt_vm *vm)
 
 runt_int runt_is_alive(runt_vm *vm)
 {
-    if(vm->status & RUNT_MODE_RUNNING) {
+    if(runt_get_state(vm, RUNT_MODE_RUNNING) == RUNT_ON && 
+        runt_get_state(vm, RUNT_MODE_PANIC) == RUNT_OFF) {
         return RUNT_OK;
     } else {
         return RUNT_NOT_OK;
