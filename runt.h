@@ -10,12 +10,13 @@
 #define RUNT_MODE_KEYWORD 4
 #define RUNT_MODE_RUNNING 8
 #define RUNT_MODE_VERBOSE 16 
-#define RUNT_MODE_LOCK 32
+#define RUNT_MODE_PANIC 32
 #define RUNT_MODE_END 64
 
 #define RUNT_DICT_SIZE 128
 
 #define RUNT_ERROR_CHECK(A) if(A == RUNT_NOT_OK) return RUNT_NOT_OK;
+
 
 enum {
 RUNT_NOT_OK = 0,

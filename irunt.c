@@ -11,6 +11,8 @@ typedef struct {
     unsigned char *mem;
     runt_cell *cells;
     int batch_mode;
+    unsigned int ncells;
+    size_t memsize;
 } irunt_data;
 
 
@@ -80,16 +82,35 @@ runt_int runt_parse_file(runt_vm *vm, const char *filename)
 static int irunt_get_flag(irunt_data *irunt, 
         char *argv[], 
         runt_int pos, 
-        runt_int nargs)
+        runt_int nargs,
+        runt_int *n)
 {
     char flag = *(argv[pos] + 1);
     runt_vm *vm = &irunt->vm;
     switch(flag) {
         case 'b':
             irunt->batch_mode = 1;
+            *n = 1;
             return RUNT_OK;
         case 'i':
             irunt->batch_mode = 0;
+            *n = 1;
+            return RUNT_OK;
+        case 'c':
+            if(pos + 1 <= nargs) {
+                irunt->ncells = atoi(argv[pos + 1]);
+            } else {
+                runt_print(vm, "Not enough arguments for -c\n");
+            }
+            *n = 2;
+            return RUNT_OK;
+        case 'm':
+            if(pos + 1 <= nargs) {
+                irunt->memsize = atol(argv[pos + 1]);
+            } else {
+                runt_print(vm, "Not enough arguments for -c\n");
+            }
+            *n = 2;
             return RUNT_OK;
         default:
             runt_print(vm, "Error: Couldn't find flag %s\n", argv[pos]);
@@ -98,17 +119,21 @@ static int irunt_get_flag(irunt_data *irunt,
     return RUNT_NOT_OK;
 }
 
+/*TODO: simplify arg parsing function. Too many "clever" hacks. */
 static int irunt_parse_args(irunt_data *irunt, int argc, char *argv[])
 {
     runt_int a;
     runt_int argpos = argc;
+    runt_int n;
 
     if(argc == 1) return 0;
 
     for(a = 1; a < argc; a++) {
+        n = 0;
         if(argv[a][0] == '-') {
-            argpos--; 
-            if(irunt_get_flag(irunt, argv, a, argc) != RUNT_OK) return -1;
+            if(irunt_get_flag(irunt, argv, a, argc, &n) != RUNT_OK) return -1;
+            argpos -= n; 
+            a += (n - 1);
         } else {
             break;
         }
@@ -121,6 +146,8 @@ static void irunt_init(irunt_data *irunt)
 {
     runt_init(&irunt->vm);
     irunt->batch_mode = 1;
+    irunt->ncells = 512;
+    irunt->memsize = 4 * RUNT_MEGABYTE; 
 }
 
 runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
@@ -141,13 +168,13 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     argc = argpos;
     vm = &irunt.vm;
 
-    irunt.mem = malloc(MEMPOOL_SIZE);
-    irunt.cells = malloc(sizeof(runt_cell) * CELLPOOL_SIZE);
+    irunt.mem = malloc(irunt.memsize);
+    irunt.cells = malloc(sizeof(runt_cell) * irunt.ncells);
 
-    runt_cell_pool_set(vm, irunt.cells, CELLPOOL_SIZE);
+    runt_cell_pool_set(vm, irunt.cells, irunt.ncells);
     runt_cell_pool_init(vm);
 
-    runt_memory_pool_set(vm, irunt.mem, MEMPOOL_SIZE);
+    runt_memory_pool_set(vm, irunt.mem, irunt.memsize);
 
     loader(vm);
     runt_pmark_set(vm);

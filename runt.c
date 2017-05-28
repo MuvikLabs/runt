@@ -113,10 +113,16 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
     runt_cell *proc;
     runt_stacklet *s;
 
-    if(pool->used >= pool->size) {
+    pool->used++;
+   
+    if(runt_get_state(vm, RUNT_MODE_PANIC) == RUNT_ON) {
+        return 0; 
+    }else if(pool->used >= pool->size) {
+        runt_print(vm, "Oh dear. Runt cell pool space at maximum.\n");
+        runt_set_state(vm, RUNT_MODE_PANIC, RUNT_ON);
+        runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
         return 0;
     }
-    pool->used++;
 
     if(vm->status & RUNT_MODE_PROC) {
         s = runt_peak(vm);
@@ -891,10 +897,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
     runt_int rc = RUNT_OK;
 
-    /* wait for lock */ 
-    /* while(runt_get_state(vm, RUNT_MODE_LOCK) == RUNT_ON); */
-
-    runt_set_state(vm, RUNT_MODE_LOCK, RUNT_ON);
     while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
     {
         switch(runt_lex(vm, str, pos, word_size)) {
@@ -902,7 +904,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 val = runt_atof(str, pos, word_size);
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
-                    runt_cell_new(vm, &tmp);
+                    if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                     /* this needs to happen after runt_new_cell */
                     s = runt_push(vm);
                     s->f = val;
@@ -915,7 +917,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 break;
             case RUNT_STRING:
 
-                runt_cell_new(vm, &tmp);
+                if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                 s = runt_push(vm);
                 ptr = runt_mk_string(vm, &str[pos + 1], word_size - 2);
                 s->p = ptr;
@@ -933,7 +935,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     return RUNT_NOT_OK;
                 } 
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
-                    runt_cell_new(vm, &tmp);
+                    if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                     s = runt_push(vm);
                     s->f = entry->cell->id;
                     runt_copy_float(vm, vm->f_cell, tmp);
@@ -974,7 +976,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                         }
 
                     } else {
-                        runt_cell_new(vm, &tmp);
+                        if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                         runt_entry_copy(vm, entry, tmp);
                     }
                 } else {
@@ -991,7 +993,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 runt_print(vm, "UNKOWN TYPE\n");
         }
     }
-    /* runt_set_state(vm, RUNT_MODE_LOCK, RUNT_OFF); */
     return RUNT_OK;
 }
 
@@ -1062,6 +1063,9 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
     runt_uint id;
 
     id = runt_cell_new(vm, &cell);
+    if(id == 0) {
+        return 0;
+    }
     runt_cell_bind(vm, cell, proc);
     runt_entry_create(vm, cell, &entry);
     runt_entry_set_copy_proc(entry, copy);
@@ -1125,7 +1129,8 @@ runt_int runt_cell_undo(runt_vm *vm)
 
 runt_int runt_is_alive(runt_vm *vm)
 {
-    if(vm->status & RUNT_MODE_RUNNING) {
+    if(runt_get_state(vm, RUNT_MODE_RUNNING) == RUNT_ON && 
+        runt_get_state(vm, RUNT_MODE_PANIC) == RUNT_OFF) {
         return RUNT_OK;
     } else {
         return RUNT_NOT_OK;

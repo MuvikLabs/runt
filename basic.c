@@ -998,6 +998,6 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define_with_copy(vm, "}", 1, 
         vm->zproc, rcopy_block_end);
 
-    return RUNT_OK;
+    return runt_is_alive(vm);
 }
 
