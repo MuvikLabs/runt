@@ -1,0 +1,54 @@
+# The Runt Memory Pool
+
+# Runt implements a very elementary incremental memory pool. 
+# When Runt gets instantiated, it allocates a huge chunk of memory and and
+# sets a pointer to 0. When runt_malloc gets called, it simply moves the
+# that pointer down. The memory pool is used internally for things like
+# storing strings and runt dictionary entries. 
+
+# To see a printout of both the cell and string usage, the word "u" can be
+# used.
+u
+
+# To get just the memory usage pushed to the stack as a number, the word
+# "m" can be used.
+m p
+
+# When strings are used, the memory pool is used to allocate space for it.
+# When the line is done being parsed, the memory pool "frees" the string.
+
+"hello world" m p
+m p drop
+
+# As a consequence of this setup, one could build an adhoc "strlen" function 
+# by getting the memory usage before and after pushing the string on the stack,
+# finding the difference, and subtracting one to account for the null 
+# terminator:
+
+m "hello" m rot - dec p
+
+# After each line is read, runt releases anything allocated by runt_malloc,
+# unless one of the words explicitely holds on to it. This causes some weird
+# things to happen... 
+
+# Consider this bit of code below:
+
+"this string should be displayed" 
+"should be dropped"
+drop
+say
+
+# What happens? The expected result is to see "this string should be displayed"
+# However, what is seen instead is the string that should have been dropped. 
+# Why? Since they are on two lines, the second string overwrites the first.
+# To avoid this release, strings should be kept on the same line:
+"foo" "bar" drop say 
+
+# In the stack data structure, pointers and numbers share the same position
+# in the stacklet. 
+
+# For this reason, the following code will print "3" even though the number
+# was dropped from the stack. The value is still stored in the stacklet
+# contains the string. 
+
+3 drop "hello world" p
