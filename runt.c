@@ -1078,10 +1078,8 @@ static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest)
 {
     runt_stacklet *s = runt_pop(vm);
 
-    const char *str = runt_to_string(s->p);
-
     dest->fun = src->fun;
-    dest->p = runt_mk_string(vm, str, strlen(str));
+    dest->p = s->p;
 
     return RUNT_OK;
 }
