@@ -644,6 +644,25 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     return RUNT_NOT_OK;
 }
 
+static int rproc_eval(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    const char *str;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    str = runt_to_string(s->p);
+
+    /* remove load cell from cell pool */
+    runt_cell_undo(vm);
+
+    /* remove string from cell pool */
+    vm->memory_pool.used = s->p.pos;
+    rc = runt_parse_file(vm, str);
+    return rc;
+}
+
 static int rproc_usage(runt_vm *vm, runt_ptr p)
 {
     runt_print(vm, "Cell pool: used %d of %d cells.\n", 
@@ -936,9 +955,12 @@ runt_int runt_load_basic(runt_vm *vm)
 
     runt_word_define(vm, "dynload", 7, rproc_dynload);
 
-    /* regular load */
-
+    /* regular dictionary load */
     runt_word_define(vm, "load", 4, rproc_load);
+
+    /* evaluates a file */
+    runt_word_define(vm, "eval", 4, rproc_eval);
+
     /* conditionals */
 
     runt_word_define(vm, "<", 1, rproc_lt);
