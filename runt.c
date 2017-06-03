@@ -1331,3 +1331,11 @@ runt_int runt_cell_id_get(runt_vm *vm, runt_uint id, runt_cell **cell)
         return RUNT_OK;
     }
 }
+
+/* Stop Runt */
+void runt_seppuku(runt_vm *vm)
+{
+    runt_print(vm, "Runt is committing seppuku...\n");
+    runt_set_state(vm, RUNT_MODE_PANIC, RUNT_ON);
+    runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
+}
