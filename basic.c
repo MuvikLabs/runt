@@ -926,6 +926,41 @@ static runt_int rproc_setptr(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_argv(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_int pos;
+    const char *str;
+    runt_uint len;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos = s->f;
+
+    if(pos <= 0 || pos >= vm->argc) {
+        runt_print(vm, "argv: invalid position %d\n", pos);
+        return RUNT_NOT_OK;
+    }
+   
+    rc = runt_ppush(vm, &s);
+    str = vm->argv[pos];
+    len = strlen(str);
+    s->p = runt_mk_string(vm, str, len);
+
+    return RUNT_OK;
+}
+
+static runt_int rproc_argc(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = vm->argc;
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -1020,6 +1055,9 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define_with_copy(vm, "}", 1, 
         vm->zproc, rcopy_block_end);
 
+    /* command line arguments */
+    runt_word_define(vm, "argv", 4, rproc_argv);
+    runt_word_define(vm, "argc", 4, rproc_argc);
     return runt_is_alive(vm);
 }
 

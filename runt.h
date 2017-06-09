@@ -130,6 +130,11 @@ struct runt_vm {
 
     /* what to write output to */
     FILE *fp;
+
+    /* command line arguments */
+    char **argv;
+    int argc;
+    int argpos;
 };
 
 /* Main */

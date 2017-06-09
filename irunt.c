@@ -168,6 +168,10 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     argc = argpos;
     vm = &irunt.vm;
 
+    vm->argc = argc;
+    vm->argv = argv;
+    vm->argpos = argpos;
+
     irunt.mem = malloc(irunt.memsize);
     irunt.cells = malloc(sizeof(runt_cell) * irunt.ncells);
 
@@ -184,7 +188,6 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     }
 
     if(argc > 1) load_dictionary(vm, argv[1]);
-
     if(!irunt.batch_mode) {
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
         while(runt_is_alive(vm) == RUNT_OK) {
