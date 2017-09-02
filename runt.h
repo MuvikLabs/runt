@@ -260,9 +260,12 @@ runt_entry * runt_list_top(runt_list *lst);
 
 void runt_dictionary_init(runt_vm *vm);
 void runt_dict_init(runt_vm *vm, runt_dict *dict);
+
 runt_int runt_dictionary_clear(runt_vm *vm);
-runt_int runt_dictionary_clear(runt_vm *vm);
+runt_int runt_dict_clear(runt_vm *vm, runt_dict *dict);
+
 runt_uint runt_dictionary_size(runt_vm *vm);
+runt_uint runt_dict_size(runt_vm *vm, runt_dict *dict);
 
 runt_uint runt_word_define(runt_vm *vm, 
         const char *name, 

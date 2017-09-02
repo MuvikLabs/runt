@@ -645,14 +645,24 @@ void runt_dict_init(runt_vm *vm, runt_dict *dict)
 
 runt_int runt_dictionary_clear(runt_vm *vm)
 {
-    vm->dict.nwords = 0;
+    return runt_dict_clear(vm, &vm->dict);
+}
+
+runt_int runt_dict_clear(runt_vm *vm, runt_dict *dict)
+{
+    dict->nwords = 0;
     runt_dictionary_init(vm);
     return RUNT_OK;
 }
 
 runt_uint runt_dictionary_size(runt_vm *vm)
 {
-    return vm->dict.nwords;
+    return runt_dict_size(vm, &vm->dict);
+}
+
+runt_uint runt_dict_size(runt_vm *vm, runt_dict *dict)
+{
+    return dict->nwords;
 }
 
 runt_uint runt_memory_pool_size(runt_vm *vm)
