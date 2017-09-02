@@ -636,6 +636,7 @@ void runt_dictionary_init(runt_vm *vm)
     for(i = 0; i < RUNT_DICT_SIZE; i++) {
         runt_list_init(&dict->list[i]);
     }
+    dict->last = dict;
 }
 
 runt_int runt_dictionary_clear(runt_vm *vm)

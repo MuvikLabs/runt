@@ -84,9 +84,10 @@ typedef struct runt_list {
     runt_entry *last;
 } runt_list;
 
-typedef struct {
+typedef struct runt_dict {
     runt_int nwords;
     runt_list list[RUNT_DICT_SIZE];
+    struct runt_dict *last;
 } runt_dict;
 
 typedef struct {
