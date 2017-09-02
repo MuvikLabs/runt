@@ -630,9 +630,13 @@ runt_entry * runt_list_top(runt_list *lst)
 
 void runt_dictionary_init(runt_vm *vm)
 {
+    runt_dictionary_init_local(vm, &vm->dict);
+}
+
+void runt_dictionary_init_local(runt_vm *vm, runt_dict *dict)
+{
     runt_uint i;
-    runt_dict *dict = &vm->dict;
-    vm->dict.nwords = 0;
+    dict->nwords = 0;
     for(i = 0; i < RUNT_DICT_SIZE; i++) {
         runt_list_init(&dict->list[i]);
     }
