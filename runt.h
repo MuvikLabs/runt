@@ -108,7 +108,8 @@ struct runt_vm {
     runt_stack stack;
     runt_cell_pool cell_pool;
     runt_memory_pool memory_pool;
-    runt_dict dict;
+    runt_dict *dict;
+    runt_dict idict;
 
     runt_uint status;
     /* runt_cell *proc; */
@@ -260,6 +261,8 @@ runt_entry * runt_list_top(runt_list *lst);
 
 void runt_dictionary_init(runt_vm *vm);
 void runt_dict_init(runt_vm *vm, runt_dict *dict);
+runt_dict * runt_dictionary_get(runt_vm *vm);
+void runt_dictionary_set(runt_vm *vm, runt_dict *dict);
 
 runt_int runt_dictionary_clear(runt_vm *vm);
 runt_int runt_dict_clear(runt_vm *vm, runt_dict *dict);

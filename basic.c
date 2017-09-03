@@ -747,8 +747,11 @@ static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
     runt_int w, e;
     runt_entry *entry;
     runt_int nentry = 0;
-    runt_list *list = vm->dict.list;
-    
+    runt_dict *dict;
+    runt_list *list;
+    dict = runt_dictionary_get(vm); 
+
+    list = dict->list;
     for(w = 0; w < RUNT_DICT_SIZE; w++) {
         entry = list[w].root.next;
         nentry = list[w].size;

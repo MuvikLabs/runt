@@ -513,14 +513,19 @@ runt_int runt_word(runt_vm *vm,
         runt_int size,
         runt_entry *entry)
 {
-    runt_uint pos = runt_hash(name, size);
-    runt_list *list = &vm->dict.list[pos]; 
+    runt_dict *dict;
+    runt_uint pos; 
+    runt_list *list;
+   
+    dict = runt_dictionary_get(vm);
+    pos = runt_hash(name, size);
+    list = &dict->list[pos]; 
 
     entry->p = runt_mk_string(vm, name, size);
 
     runt_list_append(list, entry);
 
-    vm->dict.nwords++;
+    dict->nwords++;
     return RUNT_NOT_OK;
 }
 
@@ -534,13 +539,19 @@ runt_int runt_word_search(runt_vm *vm,
         runt_int size,
         runt_entry **entry)
 {
-    runt_uint pos = runt_hash(name, size);
-    runt_list *list = &vm->dict.list[pos]; 
-
+    runt_uint pos;
+    runt_list *list;
+    runt_dict *dict;
+    
     runt_uint i;
-    runt_entry *ent = list->root.next;
+    runt_entry *ent;
     runt_entry *next;
+   
+    dict = runt_dictionary_get(vm);
+    pos = runt_hash(name, size);
+    list = &dict->list[pos]; 
 
+    ent = list->root.next;
 
     for(i = 0; i < list->size; i++) {
         next = ent->next;
@@ -556,13 +567,18 @@ runt_int runt_word_search(runt_vm *vm,
 
 runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size)
 {
-    runt_uint pos = runt_hash(name, size);
-    runt_list *list = &vm->dict.list[pos]; 
-
+    runt_uint pos;
+    runt_list *list;
+    runt_dict *dict;
     runt_uint i;
-    runt_entry *ent = list->root.next;
+    runt_entry *ent;
     runt_entry *next, *prev;
+   
+    dict = runt_dictionary_get(vm);
+    pos = runt_hash(name, size);
+    list = &dict->list[pos]; 
 
+    ent = list->root.next;
 
     for(i = 0; i < list->size; i++) {
         next = ent->next;
@@ -581,7 +597,7 @@ runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size)
                     list->last = prev;
                 }
             }
-            vm->dict.nwords--;
+            dict->nwords--;
             list->size--;
             return RUNT_OK;
         }
@@ -630,7 +646,8 @@ runt_entry * runt_list_top(runt_list *lst)
 
 void runt_dictionary_init(runt_vm *vm)
 {
-    runt_dict_init(vm, &vm->dict);
+    runt_dictionary_set(vm, &vm->idict);
+    runt_dict_init(vm, &vm->idict);
 }
 
 void runt_dict_init(runt_vm *vm, runt_dict *dict)
@@ -645,7 +662,7 @@ void runt_dict_init(runt_vm *vm, runt_dict *dict)
 
 runt_int runt_dictionary_clear(runt_vm *vm)
 {
-    return runt_dict_clear(vm, &vm->dict);
+    return runt_dict_clear(vm, &vm->idict);
 }
 
 runt_int runt_dict_clear(runt_vm *vm, runt_dict *dict)
@@ -657,7 +674,7 @@ runt_int runt_dict_clear(runt_vm *vm, runt_dict *dict)
 
 runt_uint runt_dictionary_size(runt_vm *vm)
 {
-    return runt_dict_size(vm, &vm->dict);
+    return runt_dict_size(vm, &vm->idict);
 }
 
 runt_uint runt_dict_size(runt_vm *vm, runt_dict *dict)
@@ -1353,4 +1370,14 @@ void runt_seppuku(runt_vm *vm)
     runt_print(vm, "Runt is committing seppuku...\n");
     runt_set_state(vm, RUNT_MODE_PANIC, RUNT_ON);
     runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_OFF);
+}
+
+runt_dict * runt_dictionary_get(runt_vm *vm)
+{
+    return vm->dict;
+}
+
+void runt_dictionary_set(runt_vm *vm, runt_dict *dict)
+{
+    vm->dict = dict;
 }
