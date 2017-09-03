@@ -40,6 +40,9 @@ runt_int runt_init(runt_vm *vm)
 
     /* set print output to STDERR by default */
     vm->fp = stderr;
+   
+    /* set up plugin handle list */
+    runt_list_init(&vm->plugins);    
 
     return RUNT_OK;
 }
@@ -61,9 +64,6 @@ runt_int runt_load_minimal(runt_vm *vm)
     /* [ and ] for rec, stop */
     runt_word_define(vm, "[", 1, rproc_rec);
     runt_word_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop);
-    
-    /* set up plugin handle list */
-    runt_list_init(&vm->plugins);    
 
     return RUNT_OK;
 }
@@ -1379,5 +1379,26 @@ runt_dict * runt_dictionary_get(runt_vm *vm)
 
 void runt_dictionary_set(runt_vm *vm, runt_dict *dict)
 {
+    dict->last = vm->dict;
     vm->dict = dict;
 }
+
+runt_dict * runt_dictionary_swap(runt_vm *vm)
+{
+    runt_dict *last;
+
+    last = vm->dict->last;
+    last->last = vm->dict;
+    vm->dict = last;
+
+    return last;
+}
+
+runt_uint runt_dictionary_new(runt_vm *vm, runt_dict **pdict)
+{
+    runt_uint rc;
+    rc = runt_malloc(vm, sizeof(runt_dict), (void **)pdict);
+    runt_dict_init(vm, *pdict);
+    return rc;
+}
+

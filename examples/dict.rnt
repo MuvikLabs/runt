@@ -1,0 +1,48 @@
+# Dictionaries are a way of grouping words and creating lexical scope. 
+# The example below shows how to make a "shell" dictionary with the standard
+# library and two dictionaries. 
+
+# first create a "shell" dictionary called main
+[ : main 0 ; ]
+
+# dnew creates a new dictionary and pushes the integer value onto the stack 
+dnew 
+# this value is then saved to the variable "main"
+_main set 
+
+# the main dictionary is loaded
+main dset
+
+# by default, dictionaries have a very limited vocabulary. The word "basic" 
+# loads the basic dictionary. This creates the shell. 
+basic
+
+# Next, a new dictionary called "dict1" is made inside of "main" and loaded.
+[ : dict1 0 ; ] dnew _dict1 set dict1 dset
+
+# The two dictionaries can be swapped between with dswap. 
+
+# In the function hihi, swap is used for the word "say", then swapped back
+[ : hihi "hello hello" ] dswap [ say ; ] dswap
+
+# Swap back into the "main" dictionary 
+dswap
+
+# add a new dictionary to the "main" dictionary called "dict2"
+[ : dict2 0 ; ] dnew _dict2 set dict2 dset
+
+# create a word for this dictionary called "foo" the same way "hihi" 
+# was created
+[ : foo "foo bar" ] dswap [ say ; ] dswap
+
+# Go to the top (default) dictionary with an id of 0
+0 dset
+
+# switch into the "main" dictionary stored in the top level
+main dset 
+
+# call hihi from dict1 
+dict1 dset hihi 
+
+# go back to main, then call dict2 to foo
+dswap dict2 dset foo

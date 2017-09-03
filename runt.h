@@ -270,6 +270,10 @@ runt_int runt_dict_clear(runt_vm *vm, runt_dict *dict);
 runt_uint runt_dictionary_size(runt_vm *vm);
 runt_uint runt_dict_size(runt_vm *vm, runt_dict *dict);
 
+runt_dict * runt_dictionary_swap(runt_vm *vm);
+
+runt_uint runt_dictionary_new(runt_vm *vm, runt_dict **pdict);
+
 runt_uint runt_word_define(runt_vm *vm, 
         const char *name, 
         runt_uint size,

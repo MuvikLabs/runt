@@ -505,11 +505,21 @@ static int rproc_set(runt_vm *vm, runt_ptr p)
     runt_float f;
     runt_uint id;
     runt_float *ptr;
+    runt_cell *cell;
 
     s = runt_pop(vm);
     id =s->f;
     s = runt_pop(vm);
     f = s->f;
+
+    runt_cell_pool_get_cell(vm, id, &cell);
+
+    if(cell->psize < 1) {
+        runt_print(vm, 
+            "set: procedure %d needs at least one item to be a variable.\n", 
+            id);
+        return RUNT_NOT_OK;
+    }
 
     ptr = (runt_float *)vm->cell_pool.cells[id].p.ud;
     *ptr = f;
@@ -964,6 +974,73 @@ static runt_int rproc_argc(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_basic(runt_vm *vm, runt_ptr p)
+{
+    runt_load_basic(vm);
+    runt_mark_set(vm);
+    return RUNT_OK;
+}
+
+static runt_int rproc_dset(runt_vm *vm, runt_ptr p)
+{
+    runt_uint ptr;
+    runt_int rc;
+    runt_stacklet *s;
+    runt_dict *dict;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    ptr = s->f;
+
+    if(ptr == 0) { 
+        dict = &vm->idict;
+    } else {
+        runt_memory_pool_get(vm, ptr, (void **)&dict);
+    }
+
+    runt_dictionary_set(vm, dict);
+
+    return RUNT_OK;
+}
+
+static runt_int rproc_dswap(runt_vm *vm, runt_ptr p)
+{
+    runt_dictionary_swap(vm);
+    return RUNT_OK;
+}
+
+static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
+{
+    runt_uint ptr;
+    runt_int rc;
+    runt_stacklet *s;
+    runt_dict *dict;
+
+    ptr = runt_dictionary_new(vm, &dict);
+    if(ptr == 0) return RUNT_NOT_OK;
+
+  
+    /* load minimal set */
+    runt_dictionary_set(vm, dict);
+    runt_load_minimal(vm);
+    /* load dictionary routines to swap out */
+    runt_word_define(vm, "basic", 5, rproc_basic);
+    runt_word_define(vm, "dnew", 4, rproc_dnew);
+    runt_word_define(vm, "dset", 4, rproc_dset);
+    runt_word_define(vm, "dswap", 5, rproc_dswap);
+    runt_dictionary_swap(vm);
+    
+    /* preserve memory */
+    runt_mark_set(vm);
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+
+    s->f = ptr;
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -1061,6 +1138,12 @@ runt_int runt_load_basic(runt_vm *vm)
     /* command line arguments */
     runt_word_define(vm, "argv", 4, rproc_argv);
     runt_word_define(vm, "argc", 4, rproc_argc);
+
+    /* dictionary swaps */
+    runt_word_define(vm, "dnew", 4, rproc_dnew);
+    runt_word_define(vm, "dset", 4, rproc_dset);
+    runt_word_define(vm, "dswap", 5, rproc_dswap);
+
     return runt_is_alive(vm);
 }
 
