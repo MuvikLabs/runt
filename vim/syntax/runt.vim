@@ -3,7 +3,7 @@ if exists('b:current_syntax') | finish| endif
 
 syntax region potionString start=/\v"/ skip=/\v\\./ end=/\v"/
 syntax match potionComment "\v#.*$" 
-syntax match potionNumber "\<[0-9]\.\?"
+syntax match potionNumber "\<[0-9]*\.\?"
 syntax match bracket "\[\|\]"
 
 highlight link potionString String
