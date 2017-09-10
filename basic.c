@@ -514,13 +514,6 @@ static int rproc_set(runt_vm *vm, runt_ptr p)
 
     runt_cell_pool_get_cell(vm, id, &cell);
 
-    if(cell->psize < 1) {
-        runt_print(vm, 
-            "set: procedure %d needs at least one item to be a variable.\n", 
-            id);
-        return RUNT_NOT_OK;
-    }
-
     ptr = (runt_float *)vm->cell_pool.cells[id].p.ud;
     *ptr = f;
 
