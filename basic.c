@@ -549,7 +549,7 @@ static runt_int load_dictionary(runt_vm *vm, const char *filename)
         return RUNT_NOT_OK;
     }
 
-    while((read = getline(&line, &len, fp)) != -1) {
+    while((read = runt_getline(&line, &len, fp)) != -1) {
         parse(vm, line, read);
     }
 

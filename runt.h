@@ -320,4 +320,6 @@ runt_int runt_proc_end(runt_vm *vm);
 runt_int runt_load_basic(runt_vm *vm);
 
 runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *));
+
+size_t runt_getline(char **lineptr, size_t *n, FILE *stream);
 #endif

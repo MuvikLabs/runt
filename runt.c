@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <dlfcn.h>
+#ifdef RUNT_PLUGINS
+#include <dlfcn.h> 
+#endif
 #include <stdarg.h>
 #include "runt.h"
 
@@ -1169,6 +1171,7 @@ runt_int runt_is_alive(runt_vm *vm)
 
 runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 {
+#ifdef RUNT_PLUGINS
     void *handle = dlopen(filename, RTLD_NOW);
     void (*fun)(runt_vm *);
     runt_ptr p;
@@ -1186,7 +1189,7 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
   
     p = runt_mk_cptr(vm, handle);
     runt_list_append_ptr(vm, &vm->plugins, p);
-
+#endif
     return RUNT_OK;
 }
 
@@ -1314,6 +1317,7 @@ runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p)
 
 runt_int runt_close_plugins(runt_vm *vm)
 {
+#ifdef RUNT_PLUGINS
     runt_uint i;
     runt_entry *ent;
     runt_list *plugins;
@@ -1329,7 +1333,7 @@ runt_int runt_close_plugins(runt_vm *vm)
         dlclose(handle);
         ent = ent->next;
     }
-
+#endif
     return RUNT_OK;
 }
 
@@ -1402,3 +1406,54 @@ runt_uint runt_dictionary_new(runt_vm *vm, runt_dict **pdict)
     return rc;
 }
 
+size_t runt_getline(char **lineptr, size_t *n, FILE *stream) {
+    char *bufptr = NULL;
+    char *p = bufptr;
+    size_t size;
+    int c;
+
+    if (lineptr == NULL) {
+        return -1;
+    }
+    if (stream == NULL) {
+        return -1;
+    }
+    if (n == NULL) {
+        return -1;
+    }
+    bufptr = *lineptr;
+    size = *n;
+
+    c = fgetc(stream);
+    if (c == EOF) {
+        return -1;
+    }
+    if (bufptr == NULL) {
+        bufptr = malloc(128);
+        if (bufptr == NULL) {
+            return -1;
+        }
+        size = 128;
+    }
+    p = bufptr;
+    while(c != EOF) {
+        if ((p - bufptr) > (size - 1)) {
+            size = size + 128;
+            bufptr = realloc(bufptr, size);
+            if (bufptr == NULL) {
+                return -1;
+            }
+        }
+        *p++ = c;
+        if (c == '\n') {
+            break;
+        }
+        c = fgetc(stream);
+    }
+
+    *p++ = '\0';
+    *lineptr = bufptr;
+    *n = size;
+
+    return p - bufptr - 1;
+}

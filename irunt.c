@@ -41,7 +41,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
         return RUNT_NOT_OK;
     }
 
-    while((read = getline(&line, &len, fp)) != -1) {
+    while((read = runt_getline(&line, &len, fp)) != -1) {
         rc = parse(vm, line, read);
         if(rc == RUNT_NOT_OK) {
             runt_print(vm, "Bad return value. Dipping out.\n");    
@@ -69,7 +69,7 @@ runt_int runt_parse_file(runt_vm *vm, const char *filename)
         return RUNT_NOT_OK;
     }
 
-    while((read = getline(&line, &len, fp)) != -1) {
+    while((read = runt_getline(&line, &len, fp)) != -1) {
         rc = parse(vm, line, read);
         if(rc == RUNT_NOT_OK) break;
     }
@@ -192,7 +192,7 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
         while(runt_is_alive(vm) == RUNT_OK) {
             printf("> ");
-            read = getline(&line, &len, stdin);
+            read = runt_getline(&line, &len, stdin);
             parse(vm, line, read);
         }
     }
