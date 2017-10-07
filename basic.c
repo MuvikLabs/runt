@@ -6,6 +6,8 @@
 #include <time.h>
 #include "runt.h"
 
+static runt_int load_control(runt_vm *vm);
+
 typedef struct {
     runt_uint start;
     runt_uint end;
@@ -1021,6 +1023,7 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
     runt_word_define(vm, "dnew", 4, rproc_dnew);
     runt_word_define(vm, "dset", 4, rproc_dset);
     runt_word_define(vm, "dswap", 5, rproc_dswap);
+    load_control(vm);
     runt_dictionary_swap(vm);
     
     /* preserve memory */
@@ -1032,6 +1035,15 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
     s->f = ptr;
 
     return RUNT_OK;
+}
+
+static runt_int load_control(runt_vm *vm)
+{
+    runt_word_define(vm, "end", 3, rproc_end);
+    runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
+    runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
+    runt_word_define_with_copy(vm, "ex", 2, rproc_ex, rproc_call_copy);
+    return runt_is_alive(vm);
 }
 
 runt_int runt_load_basic(runt_vm *vm)
@@ -1077,10 +1089,9 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_word_define(vm, "!=", 2, rproc_neq);
 
     /* control */
-    runt_word_define(vm, "end", 3, rproc_end);
-    runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
-    runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
-    runt_word_define_with_copy(vm, "ex", 2, rproc_ex, rproc_call_copy);
+    
+    load_control(vm);
+
     runt_word_define(vm, "dec", 3, rproc_decr);
     runt_word_define(vm, "decn", 4, rproc_decrn);
     runt_word_define(vm, "inc", 3, rproc_incr);
