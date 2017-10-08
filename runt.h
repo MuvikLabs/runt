@@ -178,6 +178,7 @@ runt_uint runt_pmark_free(runt_vm *vm);
 
 /* Cell Operations */
 runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell);
+runt_int runt_cell_malloc(runt_vm *vm, runt_cell **cell);
 runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest);
 runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
 runt_int runt_cell_call(runt_vm *vm, runt_cell *cell);

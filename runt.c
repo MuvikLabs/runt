@@ -52,11 +52,11 @@ runt_int runt_init(runt_vm *vm)
 runt_int runt_load_minimal(runt_vm *vm)
 {
     /* create float type */
-    runt_cell_new(vm, &vm->f_cell);
+    runt_cell_malloc(vm, &vm->f_cell);
     runt_cell_bind(vm, vm->f_cell, rproc_float);
 
     /* create string type */
-    runt_cell_new(vm, &vm->s_cell);
+    runt_cell_malloc(vm, &vm->s_cell);
     runt_cell_bind(vm, vm->s_cell, rproc_string);
 
     /* ability to create procedures by default */
@@ -136,6 +136,15 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
     *cell = &pool->cells[id - 1];
     (*cell)->id = id;
     return id;
+}
+
+runt_int runt_cell_malloc(runt_vm *vm, runt_cell **cell)
+{
+    runt_uint id;
+    id = runt_malloc(vm, sizeof(runt_cell), (void **)cell);
+    if(id == 0) return RUNT_NOT_OK;
+    runt_cell_clear(vm, *cell);
+    return RUNT_OK;
 }
 
 runt_ptr runt_mk_ptr(runt_type type, void *ud)
@@ -1129,12 +1138,10 @@ runt_int runt_keyword_define_with_copy(runt_vm *vm,
 {
     runt_cell *cell;
     runt_entry *entry;
-    runt_uint id;
+    runt_int rc;
 
-    id = runt_malloc(vm, sizeof(runt_cell), (void **)&cell);
-    if(id == 0) {
-        return RUNT_NOT_OK;
-    }
+    rc = runt_cell_malloc(vm, &cell);
+    RUNT_ERROR_CHECK(rc);
     runt_cell_bind(vm, cell, proc);
     runt_entry_create(vm, cell, &entry);
     runt_entry_set_copy_proc(entry, copy);
