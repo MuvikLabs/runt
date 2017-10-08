@@ -1026,10 +1026,10 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
     runt_dictionary_set(vm, dict);
     runt_load_minimal(vm);
     /* load dictionary routines to swap out */
-    runt_word_define(vm, "basic", 5, rproc_basic);
-    runt_word_define(vm, "dnew", 4, rproc_dnew);
-    runt_word_define(vm, "dset", 4, rproc_dset);
-    runt_word_define(vm, "dswap", 5, rproc_dswap);
+    runt_keyword_define(vm, "basic", 5, rproc_basic, NULL);
+    runt_keyword_define(vm, "dnew", 4, rproc_dnew, NULL);
+    runt_keyword_define(vm, "dset", 4, rproc_dset, NULL);
+    runt_keyword_define(vm, "dswap", 5, rproc_dswap, NULL);
     load_control(vm);
     runt_dictionary_swap(vm);
     
@@ -1046,114 +1046,117 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
 
 static runt_int load_control(runt_vm *vm)
 {
-    runt_word_define(vm, "end", 3, rproc_end);
-    runt_word_define_with_copy(vm, "call", 4, rproc_call, rproc_call_copy);
-    runt_word_define_with_copy(vm, "goto", 4, rproc_goto, rproc_call_copy);
-    runt_word_define_with_copy(vm, "ex", 2, rproc_ex, rproc_call_copy);
+    runt_keyword_define(vm, "end", 3, rproc_end, NULL);
+    runt_keyword_define_with_copy(vm, "call", 4, 
+            rproc_call, rproc_call_copy, NULL);
+    runt_keyword_define_with_copy(vm, "goto", 4, 
+            rproc_goto, rproc_call_copy, NULL);
+    runt_keyword_define_with_copy(vm, "ex", 2, 
+            rproc_ex, rproc_call_copy, NULL);
     return runt_is_alive(vm);
 }
 
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
-    runt_word_define(vm, "quit", 4, rproc_quit);
+    runt_keyword_define(vm, "quit", 4, rproc_quit, NULL);
     /* say: prints string */
-    runt_word_define(vm, "say", 3, rproc_say);
+    runt_keyword_define(vm, "say", 3, rproc_say, NULL);
     /* p: prints float*/
-    runt_word_define(vm, "p", 1, rproc_print);
+    runt_keyword_define(vm, "p", 1, rproc_print, NULL);
     /* arithmetic */
-    runt_word_define(vm, "+", 1, rproc_add);
-    runt_word_define(vm, "-", 1, rproc_sub);
-    runt_word_define(vm, "*", 1, rproc_mul);
-    runt_word_define(vm, "/", 1, rproc_div);
+    runt_keyword_define(vm, "+", 1, rproc_add, NULL);
+    runt_keyword_define(vm, "-", 1, rproc_sub, NULL);
+    runt_keyword_define(vm, "*", 1, rproc_mul, NULL);
+    runt_keyword_define(vm, "/", 1, rproc_div, NULL);
 
     /* stack operations */
-    runt_word_define(vm, "dup", 3, rproc_dup);
-    runt_word_define(vm, "swap", 4, rproc_swap);
-    runt_word_define(vm, "drop", 4, rproc_drop);
-    runt_word_define(vm, "peak", 4, rproc_peak);
-    runt_word_define(vm, "rot", 3, rproc_rot);
-    runt_word_define(vm, "n", 1, rproc_nitems);
-    runt_word_define(vm, "rat", 3, rproc_rat);
-    runt_word_define(vm, "drops", 5, rproc_drops);
-    runt_word_define(vm, "over", 4, rproc_over);
+    runt_keyword_define(vm, "dup", 3, rproc_dup, NULL);
+    runt_keyword_define(vm, "swap", 4, rproc_swap, NULL);
+    runt_keyword_define(vm, "drop", 4, rproc_drop, NULL);
+    runt_keyword_define(vm, "peak", 4, rproc_peak, NULL);
+    runt_keyword_define(vm, "rot", 3, rproc_rot, NULL);
+    runt_keyword_define(vm, "n", 1, rproc_nitems, NULL);
+    runt_keyword_define(vm, "rat", 3, rproc_rat, NULL);
+    runt_keyword_define(vm, "drops", 5, rproc_drops, NULL);
+    runt_keyword_define(vm, "over", 4, rproc_over, NULL);
 
     /* dynamic plugin loading */
 
-    runt_word_define(vm, "dynload", 7, rproc_dynload);
+    runt_keyword_define(vm, "dynload", 7, rproc_dynload, NULL);
 
     /* regular dictionary load */
-    runt_word_define(vm, "load", 4, rproc_load);
+    runt_keyword_define(vm, "load", 4, rproc_load, NULL);
 
     /* evaluates a file */
-    runt_word_define(vm, "eval", 4, rproc_eval);
+    runt_keyword_define(vm, "eval", 4, rproc_eval, NULL);
 
     /* conditionals */
 
-    runt_word_define(vm, "<", 1, rproc_lt);
-    runt_word_define(vm, ">", 1, rproc_gt);
-    runt_word_define(vm, "=", 1, rproc_eq);
-    runt_word_define(vm, "!=", 2, rproc_neq);
+    runt_keyword_define(vm, "<", 1, rproc_lt, NULL);
+    runt_keyword_define(vm, ">", 1, rproc_gt, NULL);
+    runt_keyword_define(vm, "=", 1, rproc_eq, NULL);
+    runt_keyword_define(vm, "!=", 2, rproc_neq, NULL);
 
     /* control */
     
     load_control(vm);
 
-    runt_word_define(vm, "dec", 3, rproc_decr);
-    runt_word_define(vm, "decn", 4, rproc_decrn);
-    runt_word_define(vm, "inc", 3, rproc_incr);
-    runt_word_define(vm, "incn", 4, rproc_incrn);
-    runt_word_define(vm, "rep", 3, rproc_rep);
+    runt_keyword_define(vm, "dec", 3, rproc_decr, NULL);
+    runt_keyword_define(vm, "decn", 4, rproc_decrn, NULL);
+    runt_keyword_define(vm, "inc", 3, rproc_incr, NULL);
+    runt_keyword_define(vm, "incn", 4, rproc_incrn, NULL);
+    runt_keyword_define(vm, "rep", 3, rproc_rep, NULL);
 
     /* variables */
-    runt_word_define(vm, "set", 3, rproc_set);
-    runt_word_define_with_copy(vm, "ptr", 3, rproc_ptr, rproc_call_copy);
-    runt_word_define_with_copy(vm, "setptr", 6, rproc_setptr, rproc_call_copy);
+    runt_keyword_define(vm, "set", 3, rproc_set, NULL);
+    runt_keyword_define_with_copy(vm, "ptr", 3, rproc_ptr, rproc_call_copy, NULL);
+    runt_keyword_define_with_copy(vm, "setptr", 6, rproc_setptr, rproc_call_copy, NULL);
 
     /* clear: clears pools and reloads basic library */
-    runt_word_define(vm, "clear", 5, rproc_clear);
+    runt_keyword_define(vm, "clear", 5, rproc_clear, NULL);
 
     /* print usage */
-    runt_word_define(vm, "u", 1, rproc_usage);
+    runt_keyword_define(vm, "u", 1, rproc_usage, NULL);
     /* get memory usage */
-    runt_word_define(vm, "m", 1, rproc_mem);
+    runt_keyword_define(vm, "m", 1, rproc_mem, NULL);
     /* get cell usage */
-    runt_word_define(vm, "c", 1, rproc_cells);
+    runt_keyword_define(vm, "c", 1, rproc_cells, NULL);
 
     /* stack bias/unbias */
-    runt_word_define(vm, "bias", 4, rproc_bias);
-    runt_word_define(vm, "unbias", 6, rproc_unbias);
+    runt_keyword_define(vm, "bias", 4, rproc_bias, NULL);
+    runt_keyword_define(vm, "unbias", 6, rproc_unbias, NULL);
     
     /* list words in dictionary */
-    runt_word_define(vm, "w", 1, rproc_wordlist);
+    runt_keyword_define(vm, "w", 1, rproc_wordlist, NULL);
 
     /* random number generator */
     srand(time(NULL));
-    runt_word_define(vm, "rnd", 3, rproc_rand);
+    runt_keyword_define(vm, "rnd", 3, rproc_rand, NULL);
 
     /* proc size */
-    runt_word_define(vm, "psize", 5, rproc_psize);
+    runt_keyword_define(vm, "psize", 5, rproc_psize, NULL);
     
     /* restore returns the cell + memory pools to a given position */
-    runt_word_define(vm, "restore", 7, rproc_restore);
+    runt_keyword_define(vm, "restore", 7, rproc_restore, NULL);
 
     /* undefine a word in the dictionary */
-    runt_word_define(vm, "undef", 5, rproc_undef);
+    runt_keyword_define(vm, "undef", 5, rproc_undef, NULL);
 
     /* blocks */
-    runt_word_define_with_copy(vm, "{", 1, 
-        rproc_block_begin, rcopy_block_begin);
-    runt_word_define_with_copy(vm, "}", 1, 
-        vm->zproc, rcopy_block_end);
+    runt_keyword_define_with_copy(vm, "{", 1, 
+        rproc_block_begin, rcopy_block_begin, NULL);
+    runt_keyword_define_with_copy(vm, "}", 1, 
+        vm->zproc, rcopy_block_end, NULL);
 
     /* command line arguments */
-    runt_word_define(vm, "argv", 4, rproc_argv);
-    runt_word_define(vm, "argc", 4, rproc_argc);
+    runt_keyword_define(vm, "argv", 4, rproc_argv, NULL);
+    runt_keyword_define(vm, "argc", 4, rproc_argc, NULL);
 
     /* dictionary swaps */
-    runt_word_define(vm, "dnew", 4, rproc_dnew);
-    runt_word_define(vm, "dset", 4, rproc_dset);
-    runt_word_define(vm, "dswap", 5, rproc_dswap);
+    runt_keyword_define(vm, "dnew", 4, rproc_dnew, NULL);
+    runt_keyword_define(vm, "dset", 4, rproc_dset, NULL);
+    runt_keyword_define(vm, "dswap", 5, rproc_dswap, NULL);
 
     return runt_is_alive(vm);
 }

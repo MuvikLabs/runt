@@ -60,12 +60,12 @@ runt_int runt_load_minimal(runt_vm *vm)
     runt_cell_bind(vm, vm->s_cell, rproc_string);
 
     /* ability to create procedures by default */
-    runt_word_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin);
-    runt_word_define_with_copy(vm, ";", 1, vm->zproc, rproc_end);
+    runt_keyword_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin, NULL);
+    runt_keyword_define_with_copy(vm, ";", 1, vm->zproc, rproc_end, NULL);
    
     /* [ and ] for rec, stop */
-    runt_word_define(vm, "[", 1, rproc_rec);
-    runt_word_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop);
+    runt_keyword_define(vm, "[", 1, rproc_rec, NULL);
+    runt_keyword_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop, NULL);
 
     return RUNT_OK;
 }
@@ -1139,7 +1139,7 @@ runt_int runt_keyword_define_with_copy(runt_vm *vm,
     runt_entry_create(vm, cell, &entry);
     runt_entry_set_copy_proc(entry, copy);
     runt_word(vm, name, size, entry);
-    if(*pcell != NULL) *pcell = cell;
+    if(pcell != NULL) *pcell = cell;
     return RUNT_OK;
 }
 
