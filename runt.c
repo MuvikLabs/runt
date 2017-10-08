@@ -977,6 +977,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     s = runt_push(vm);
                     s->f = entry->cell->id;
                 }
+                s->p = runt_mk_cptr(vm, entry->cell);
 
                 break;
             case RUNT_PROC:
@@ -1106,6 +1107,40 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
     runt_word(vm, name, size, entry);
 
     return id;
+}
+
+runt_int runt_keyword_define(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc,
+        runt_cell **pcell)
+{
+    return runt_keyword_define_with_copy(
+        vm, name, size, proc, runt_cell_link, pcell
+    );
+}
+
+runt_int runt_keyword_define_with_copy(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc,
+        runt_copy_proc copy,
+        runt_cell **pcell)
+{
+    runt_cell *cell;
+    runt_entry *entry;
+    runt_uint id;
+
+    id = runt_malloc(vm, sizeof(runt_cell), (void **)&cell);
+    if(id == 0) {
+        return RUNT_NOT_OK;
+    }
+    runt_cell_bind(vm, cell, proc);
+    runt_entry_create(vm, cell, &entry);
+    runt_entry_set_copy_proc(entry, copy);
+    runt_word(vm, name, size, entry);
+    if(*pcell != NULL) *pcell = cell;
+    return RUNT_OK;
 }
 
 static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest)

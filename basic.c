@@ -379,6 +379,7 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
     pstate = runt_get_state(vm, RUNT_MODE_END);
     runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
     ppos = vm->pos;
+    if(ppos == 0) return RUNT_NOT_OK;
     vm->pos = s->f;
 
     vm->level++;
@@ -401,11 +402,17 @@ static int rproc_ex(runt_vm *vm, runt_ptr p)
     runt_stacklet *s;
     runt_int rc;
     runt_uint pos;
+    runt_cell *cell;
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     pos = s->f;
 
-    runt_cell_id_exec(vm, pos);
+    if(pos > 0) {
+        runt_cell_id_exec(vm, pos);
+    } else {
+        cell = runt_to_cptr(s->p);
+        runt_cell_exec(vm, cell);
+    }
    
     return RUNT_OK;
 }

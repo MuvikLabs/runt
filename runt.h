@@ -285,9 +285,23 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
         runt_proc proc,
         runt_copy_proc copy);
 
+runt_int runt_keyword_define(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc, 
+        runt_cell **pcell);
+
+runt_int runt_keyword_define_with_copy(runt_vm *vm, 
+        const char *name, 
+        runt_uint size,
+        runt_proc proc,
+        runt_copy_proc copy,
+        runt_cell **pcell);
+
 runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p);
 
 runt_int runt_parse_file(runt_vm *vm, const char *filename);
+
 
 /* Lexing, Parsing, and Compiling */
 
