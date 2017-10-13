@@ -943,7 +943,7 @@ runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
     return total * sign;
 }
 
-static runt_float hex2flt(runt_vm *vm, const char *str, int size)
+static runt_float hex2flt(runt_vm *vm, const char *str, runt_uint pos, int size)
 {
     runt_uint i;
     runt_uint sz;
@@ -953,7 +953,7 @@ static runt_float hex2flt(runt_vm *vm, const char *str, int size)
     runt_int m;
 
     sz = size - 2;
-    p = str + 2;
+    p = str + 2 + pos;
     val = 0;
     m = 1 << ((sz - 1) * 4);
     for(i = 0; i < sz; i++) {
@@ -1048,7 +1048,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 break;
             case RUNT_HEX:
-                val = hex2flt(vm, str, word_size);
+                val = hex2flt(vm, str, pos, word_size);
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
                     if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                     /* this needs to happen after runt_new_cell */
