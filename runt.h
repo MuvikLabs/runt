@@ -31,7 +31,8 @@ RUNT_CPTR,
 RUNT_WORD,
 RUNT_PROC,
 RUNT_CELL,
-RUNT_LIST
+RUNT_LIST,
+RUNT_HEX
 };
 
 typedef struct runt_vm runt_vm;

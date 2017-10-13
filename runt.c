@@ -819,35 +819,52 @@ runt_type runt_lex(runt_vm *vm,
         runt_uint size)
 {
     runt_uint c;
+    runt_int off;
+    runt_int lvl;
 
-    for(c = pos; c < pos + size; c++) {
-        switch(str[c]) {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                return RUNT_FLOAT;
-            case '-':
-                if(size == 1) {
-                    return RUNT_PROC;
-                } else {
-                    return RUNT_FLOAT;
+    lvl = 0;
+    off = pos + size;
+    for(c = pos; c < off; c++) {
+        switch(lvl) {
+            case 0:
+                switch(str[c]) {
+                    case '0':
+                        lvl = 1;
+                        break;
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        return RUNT_FLOAT;
+                    case '-':
+                        if(size == 1) {
+                            return RUNT_PROC;
+                        } else {
+                            return RUNT_FLOAT;
+                        }
+                    case '"':
+                    case '\'':
+                        return RUNT_STRING;
+                    case '_':
+                        return RUNT_WORD;
+                    case '\n':
+                        return RUNT_NIL;
+                    default:
+                        return RUNT_PROC;
                 }
-            case '"':
-            case '\'':
-                return RUNT_STRING;
-            case '_':
-                return RUNT_WORD;
-            case '\n':
-                return RUNT_NIL;
-            default:
-                return RUNT_PROC;
+                break;
+            case 1:
+                switch(str[c]) {
+                    case 'x':
+                        return RUNT_HEX;
+                    default:
+                        return RUNT_NIL;
+                }
         }
     }
 
@@ -926,6 +943,78 @@ runt_float runt_atof(const char *str, runt_uint pos, runt_uint size)
     return total * sign;
 }
 
+static runt_float hex2flt(runt_vm *vm, const char *str, int size)
+{
+    runt_uint i;
+    runt_uint sz;
+    const char *p;
+    runt_float val;
+    runt_int b;
+    runt_int m;
+
+    sz = size - 2;
+    p = str + 2;
+    val = 0;
+    m = 1 << ((sz - 1) * 4);
+    for(i = 0; i < sz; i++) {
+        b = 0;
+        switch(p[i]) {
+            case ' ':
+            case '0':
+                b = 0;
+                break;
+            case '1':
+                b = 1;
+                break;
+            case '2':
+                b = 2;
+                break;
+            case '3':
+                b = 3;
+                break;
+            case '4':
+                b = 4;
+                break;
+            case '5':
+                b = 5;
+                break;
+            case '6':
+                b = 6;
+                break;
+            case '7':
+                b = 7;
+                break;
+            case '8':
+                b = 8;
+                break;
+            case '9':
+                b = 9;
+                break;
+            case 'a':
+                b = 10;
+                break;
+            case 'b':
+                b = 11;
+                break;
+            case 'c':
+                b = 12;
+                break;
+            case 'd':
+                b = 13;
+                break;
+            case 'e':
+                b = 14;
+                break;
+            case 'f':
+                b = 15;
+                break;
+        }
+        val += m * b;
+        m >>= 4;
+    }
+    return val;
+}
+
 runt_int runt_compile(runt_vm *vm, const char *str)
 {
     runt_uint size = strlen(str);
@@ -957,6 +1046,19 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     s->f = val;
                 }
 
+                break;
+            case RUNT_HEX:
+                val = hex2flt(vm, str, word_size);
+                if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
+                    if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
+                    /* this needs to happen after runt_new_cell */
+                    s = runt_push(vm);
+                    s->f = val;
+                    runt_copy_float(vm, vm->f_cell, tmp);
+                } else {
+                    s = runt_push(vm);
+                    s->f = val;
+                }
                 break;
             case RUNT_STRING:
 
