@@ -15,7 +15,10 @@ typedef struct {
 
 static runt_int rproc_print(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s = runt_pop(vm);
+    runt_stacklet *s;
+    runt_int rc;
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
     runt_print(vm, "%g\n", s->f);
     return RUNT_OK;
 }
