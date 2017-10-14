@@ -918,6 +918,7 @@ static runt_int rproc_ptr(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
 
     s->p = p;
+    s->t = p.type;
     return RUNT_OK;
 }
 

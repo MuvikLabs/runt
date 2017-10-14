@@ -1163,6 +1163,7 @@ static int rproc_float(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
 
     s->f = *f;
+    s->t = RUNT_FLOAT;
     return RUNT_OK;
 }
 
@@ -1268,6 +1269,7 @@ static int rproc_string(runt_vm *vm, runt_ptr p)
 
     s = runt_push(vm);
     s->p = p;
+    s->t = RUNT_STRING;
     return RUNT_OK;
 }
 
