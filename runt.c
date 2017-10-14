@@ -1040,10 +1040,12 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     /* this needs to happen after runt_new_cell */
                     s = runt_push(vm);
                     s->f = val;
+                    s->t = RUNT_FLOAT;
                     runt_copy_float(vm, vm->f_cell, tmp);
                 } else {
                     s = runt_push(vm);
                     s->f = val;
+                    s->t = RUNT_FLOAT;
                 }
 
                 break;
