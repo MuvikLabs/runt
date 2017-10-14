@@ -192,6 +192,7 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
         while(runt_is_alive(vm) == RUNT_OK) {
             printf("> ");
+            fflush(stdout);
             read = runt_getline(&line, &len, stdin);
             parse(vm, line, read);
         }
