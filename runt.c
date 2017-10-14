@@ -863,7 +863,7 @@ runt_type runt_lex(runt_vm *vm,
                     case 'x':
                         return RUNT_HEX;
                     default:
-                        return RUNT_NIL;
+                        return RUNT_FLOAT;
                 }
         }
     }
