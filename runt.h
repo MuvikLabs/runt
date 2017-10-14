@@ -32,7 +32,8 @@ RUNT_WORD,
 RUNT_PROC,
 RUNT_CELL,
 RUNT_LIST,
-RUNT_HEX
+RUNT_HEX,
+RUNT_END = 100 /* custom types can be numbered starting after RUNT_END */
 };
 
 typedef struct runt_vm runt_vm;
