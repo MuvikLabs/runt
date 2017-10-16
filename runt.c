@@ -829,8 +829,10 @@ runt_type runt_lex(runt_vm *vm,
             case 0:
                 switch(str[c]) {
                     case '0':
-                        lvl = 1;
-                        break;
+                        if(size > 1) {
+                            lvl = 1;
+                            break;
+                        }
                     case '1':
                     case '2':
                     case '3':
@@ -865,6 +867,7 @@ runt_type runt_lex(runt_vm *vm,
                     default:
                         return RUNT_FLOAT;
                 }
+                break;
         }
     }
 
