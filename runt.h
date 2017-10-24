@@ -150,6 +150,7 @@ void runt_seppuku(runt_vm *vm);
 runt_int runt_is_alive(runt_vm *vm);
 runt_int runt_load_plugin(runt_vm *vm, const char *filename);
 runt_int runt_close_plugins(runt_vm *vm);
+runt_int runt_append_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr);
 void runt_print(runt_vm *vm, const char *fmt, ...);
 void runt_filehandle(runt_vm *vm, FILE *handle);
 
@@ -184,6 +185,7 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell);
 runt_int runt_cell_malloc(runt_vm *vm, runt_cell **cell);
 runt_int runt_cell_link(runt_vm *vm, runt_cell *src, runt_cell *dest);
 runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc);
+runt_int runt_cell_data(runt_vm *vm, runt_cell *cell, runt_ptr p);
 runt_int runt_cell_call(runt_vm *vm, runt_cell *cell);
 runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell);
 runt_int runt_cell_id_exec(runt_vm *vm, runt_uint id);
@@ -260,6 +262,7 @@ runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size);
 void runt_list_init(runt_list *lst);
 runt_int runt_list_append(runt_list *lst, runt_entry *ent);
 runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p);
+runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell);
 runt_int runt_list_size(runt_list *lst);
 runt_entry * runt_list_top(runt_list *lst);
 

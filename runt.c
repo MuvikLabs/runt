@@ -162,6 +162,12 @@ runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc)
     return RUNT_OK;
 }
 
+runt_int runt_cell_data(runt_vm *vm, runt_cell *cell, runt_ptr p)
+{
+    cell->p = p;
+    return RUNT_OK;
+}
+
 runt_int runt_cell_call(runt_vm *vm, runt_cell *cell)
 {
     return cell->fun(vm, cell->p);
@@ -641,6 +647,14 @@ runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p)
     /* set ptr to "string" entry in struct. works better than it looks */
     entry->p = p;
 
+    runt_list_append(lst, entry);
+    return RUNT_OK;
+}
+
+runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell)
+{
+    runt_entry *entry;
+    runt_entry_create(vm, cell, &entry);
     runt_list_append(lst, entry);
     return RUNT_OK;
 }
@@ -1469,23 +1483,32 @@ runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p)
 
 runt_int runt_close_plugins(runt_vm *vm)
 {
-#ifdef RUNT_PLUGINS
     runt_uint i;
     runt_entry *ent;
     runt_list *plugins;
     runt_uint size;
+
+#ifdef RUNT_PLUGINS
     void *handle;
+#endif
 
     plugins = &vm->plugins;
     size = runt_list_size(plugins);
     ent = runt_list_top(plugins);
 
     for(i = 0; i < size; i++) {
-        handle = runt_to_cptr(ent->p);
-        dlclose(handle);
+#ifdef RUNT_PLUGINS
+        if(ent->p.type == RUNT_PLUGIN) {
+            handle = runt_to_cptr(ent->p);
+            dlclose(handle);
+        } else {
+#endif
+        runt_cell_call(vm, ent->cell);
+#ifdef RUNT_PLUGINS
+        }
+#endif
         ent = ent->next;
     }
-#endif
     return RUNT_OK;
 }
 
@@ -1608,4 +1631,19 @@ size_t runt_getline(char **lineptr, size_t *n, FILE *stream) {
     *n = size;
 
     return p - bufptr - 1;
+}
+
+runt_int runt_append_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
+{
+    runt_cell *cell;
+    runt_int rc;
+
+    rc = runt_cell_malloc(vm, &cell);
+    RUNT_ERROR_CHECK(rc);
+    
+    runt_cell_bind(vm, cell, proc);
+    runt_cell_data(vm, cell, ptr);
+
+    runt_list_append_cell(vm, &vm->plugins, cell);
+    return RUNT_OK;
 }
