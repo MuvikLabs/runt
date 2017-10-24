@@ -1,0 +1,18 @@
+[
+: peakaboo 
+"printing from first to last" say
+0 peak p 
+1 peak p 
+2 peak p 
+;
+
+: justpopit
+"Printing items from last to first" say
+p p p
+;
+]
+
+1 2 3 
+peakaboo
+# items remain on stack
+justpopit
