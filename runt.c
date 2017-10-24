@@ -1339,6 +1339,7 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     /* add handle to plugin list */
   
     p = runt_mk_cptr(vm, handle);
+    p->t = RUNT_PLUGIN;
     runt_list_append_ptr(vm, &vm->plugins, p);
 #endif
     return RUNT_OK;

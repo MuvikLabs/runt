@@ -33,6 +33,7 @@ RUNT_PROC,
 RUNT_CELL,
 RUNT_LIST,
 RUNT_HEX,
+RUNT_PLUGIN,
 RUNT_END = 100 /* custom types can be numbered starting after RUNT_END */
 };
 

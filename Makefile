@@ -1,4 +1,4 @@
-.PHONY: default install clean
+.PHONY: default install clean plugin
 
 CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips -I.
 
@@ -14,6 +14,10 @@ ifdef ALIGNED_MALLOC
 CFLAGS += -DALIGNED_MALLOC
 endif
 
+ifdef RUNT_PLUGINS
+CFLAGS +=-DRUNT_PLUGINS
+endif
+
 playground: playground.c $(OBJ) plugin.so
 	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
 
@@ -22,6 +26,8 @@ irunt: main.c $(OBJ)
 
 librunt.a: $(OBJ)
 	ar rcs $@ $(OBJ)
+
+plugin: plugin.so
 
 plugin.so: plugin.c 
 	$(CC) plugin.c -shared -fPIC -o $@ librunt.a
