@@ -601,8 +601,10 @@ runt_int runt_list_append(runt_list *lst, runt_entry *ent)
 
 runt_int runt_list_prepend(runt_list *lst, runt_entry *ent)
 {
-    lst->last->next = ent;
-    lst->last = ent;
+    if(lst->size > 0) {
+        ent->next = lst->top;
+    }
+    lst->top = ent;
     lst->size++;
     return RUNT_OK;
 }
@@ -1620,6 +1622,6 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
     runt_cell_bind(vm, cell, proc);
     runt_cell_data(vm, cell, ptr);
 
-    runt_list_append_cell(vm, &vm->plugins, cell);
+    runt_list_prepend_cell(vm, &vm->plugins, cell);
     return RUNT_OK;
 }
