@@ -26,20 +26,12 @@ static runt_int parse(runt_vm *vm, char *str, size_t read)
     return rc;
 }
 
-static runt_int load_dictionary(runt_vm *vm, char *filename)
+static runt_int load_dictionary_handle(runt_vm *vm, FILE *fp)
 {
-    FILE *fp; 
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
     runt_int rc = RUNT_OK;
-
-    fp = fopen(filename, "r");
-
-    if(fp == NULL) {
-        runt_print(vm, "Could not open file %s\n", filename);
-        return RUNT_NOT_OK;
-    }
 
     while((read = runt_getline(&line, &len, fp)) != -1) {
         rc = parse(vm, line, read);
@@ -49,8 +41,24 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
         }
     }
 
-    fclose(fp);
     free(line);
+    return rc;
+}
+
+static runt_int load_dictionary(runt_vm *vm, char *filename)
+{
+    FILE *fp; 
+
+    fp = fopen(filename, "r");
+
+    if(fp == NULL) {
+        runt_print(vm, "Could not open file %s\n", filename);
+        return RUNT_NOT_OK;
+    }
+
+    load_dictionary_handle(vm, fp);
+
+    fclose(fp);
     return RUNT_OK;
 }
 
@@ -188,6 +196,7 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     }
 
     if(argc > 1) load_dictionary(vm, argv[1]);
+    if(irunt.batch_mode && argc == 0) load_dictionary_handle(vm, stdin);
     if(!irunt.batch_mode) {
         runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
         while(runt_is_alive(vm) == RUNT_OK) {
