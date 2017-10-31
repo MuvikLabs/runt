@@ -150,7 +150,7 @@ void runt_seppuku(runt_vm *vm);
 runt_int runt_is_alive(runt_vm *vm);
 runt_int runt_load_plugin(runt_vm *vm, const char *filename);
 runt_int runt_close_plugins(runt_vm *vm);
-runt_int runt_append_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr);
+runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr);
 void runt_print(runt_vm *vm, const char *fmt, ...);
 void runt_filehandle(runt_vm *vm, FILE *handle);
 

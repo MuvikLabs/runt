@@ -1633,7 +1633,7 @@ size_t runt_getline(char **lineptr, size_t *n, FILE *stream) {
     return p - bufptr - 1;
 }
 
-runt_int runt_append_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
+runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
 {
     runt_cell *cell;
     runt_int rc;
