@@ -83,7 +83,7 @@ typedef struct runt_entry {
 
 typedef struct runt_list {
     runt_int size;
-    runt_entry root;
+    runt_entry *top;
     runt_entry *last;
 } runt_list;
 
@@ -261,8 +261,10 @@ runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size);
 
 void runt_list_init(runt_list *lst);
 runt_int runt_list_append(runt_list *lst, runt_entry *ent);
+runt_int runt_list_prepend(runt_list *lst, runt_entry *ent);
 runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p);
 runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell);
+runt_int runt_list_prepend_cell(runt_vm *vm, runt_list *lst, runt_cell *cell);
 runt_int runt_list_size(runt_list *lst);
 runt_entry * runt_list_top(runt_list *lst);
 

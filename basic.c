@@ -768,7 +768,7 @@ static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
 
     list = dict->list;
     for(w = 0; w < RUNT_DICT_SIZE; w++) {
-        entry = list[w].root.next;
+        entry = runt_list_top(&list[w]);
         nentry = list[w].size;
         for(e = 0; e < nentry ; e++) {
             runt_print(vm, "%s\n", runt_to_string(entry->p));
@@ -851,21 +851,6 @@ static runt_int rproc_restore(runt_vm *vm, runt_ptr p)
 
     runt_cell_undo(vm);
     runt_mark_set(vm);
-    return RUNT_OK;
-}
-
-static runt_int rproc_undef(runt_vm *vm, runt_ptr p)
-{
-    const char *str;
-    runt_int rc;
-    runt_stacklet *s;
-
-    rc = runt_ppop(vm, &s);
-    RUNT_ERROR_CHECK(rc);
-    str = runt_to_string(s->p);
-
-    runt_word_undefine(vm, str, strlen(str));
-
     return RUNT_OK;
 }
 
@@ -1143,9 +1128,6 @@ runt_int runt_load_basic(runt_vm *vm)
     
     /* restore returns the cell + memory pools to a given position */
     runt_keyword_define(vm, "restore", 7, rproc_restore, NULL);
-
-    /* undefine a word in the dictionary */
-    runt_keyword_define(vm, "undef", 5, rproc_undef, NULL);
 
     /* blocks */
     runt_keyword_define_with_copy(vm, "{", 1, 

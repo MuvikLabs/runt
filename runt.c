@@ -568,7 +568,7 @@ runt_int runt_word_search(runt_vm *vm,
     pos = runt_hash(name, size);
     list = &dict->list[pos]; 
 
-    ent = list->root.next;
+    ent = runt_list_top(list);
 
     for(i = 0; i < list->size; i++) {
         next = ent->next;
@@ -582,56 +582,24 @@ runt_int runt_word_search(runt_vm *vm,
     return RUNT_NOT_OK;
 }
 
-runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size)
-{
-    runt_uint pos;
-    runt_list *list;
-    runt_dict *dict;
-    runt_uint i;
-    runt_entry *ent;
-    runt_entry *next, *prev;
-   
-    dict = runt_dictionary_get(vm);
-    pos = runt_hash(name, size);
-    list = &dict->list[pos]; 
-
-    ent = list->root.next;
-
-    for(i = 0; i < list->size; i++) {
-        next = ent->next;
-        if(runt_strncmp(name, ent->p, size) == 0) {
-            if(list->size > 1) {
-                /* TODO this is ugly. fix */
-                if(i == 0) {
-                    /* when at the top, set the next as the top*/
-                    list->root.next = next;
-                } else if( i < list->size - 1) {
-                    /* when in between, make sure the previous is set to the
-                     * next in line */
-                    prev->next = next;
-                } else {
-                    /* if at the bottom, make sure last is set */
-                    list->last = prev;
-                }
-            }
-            dict->nwords--;
-            list->size--;
-            return RUNT_OK;
-        }
-
-        prev = ent;
-        ent = next;
-    }
-    return RUNT_NOT_OK;
-}
-
 void runt_list_init(runt_list *lst)
 {
     lst->size = 0;
-    lst->last = &lst->root;
 }
 
 runt_int runt_list_append(runt_list *lst, runt_entry *ent)
+{
+    if(lst->size == 0) {
+        lst->top = ent;
+    } else {
+        lst->last->next = ent;
+    }
+    lst->last = ent;
+    lst->size++;
+    return RUNT_OK;
+}
+
+runt_int runt_list_prepend(runt_list *lst, runt_entry *ent)
 {
     lst->last->next = ent;
     lst->last = ent;
@@ -659,6 +627,14 @@ runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell)
     return RUNT_OK;
 }
 
+runt_int runt_list_prepend_cell(runt_vm *vm, runt_list *lst, runt_cell *cell)
+{
+    runt_entry *entry;
+    runt_entry_create(vm, cell, &entry);
+    runt_list_prepend(lst, entry);
+    return RUNT_OK;
+}
+
 runt_int runt_list_size(runt_list *lst)
 {
     return lst->size;
@@ -666,7 +642,7 @@ runt_int runt_list_size(runt_list *lst)
 
 runt_entry * runt_list_top(runt_list *lst)
 {
-    return lst->root.next;
+    return lst->top;
 }
 
 void runt_dictionary_init(runt_vm *vm)
