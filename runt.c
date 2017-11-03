@@ -1485,7 +1485,7 @@ runt_int runt_close_plugins(runt_vm *vm)
     ent = runt_list_top(plugins);
 
     for(i = 0; i < size; i++) {
-        runt_cell_call(vm, ent->cell);
+        runt_cell_exec(vm, ent->cell);
         ent = ent->next;
     }
     return RUNT_OK;
@@ -1623,6 +1623,10 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
     runt_cell_bind(vm, cell, proc);
     runt_cell_data(vm, cell, ptr);
 
-    runt_list_prepend_cell(vm, &vm->plugins, cell);
-    return RUNT_OK;
+    return runt_cell_destructor(vm, cell);
+}
+
+runt_int runt_cell_destructor(runt_vm *vm, runt_cell *cell)
+{
+    return runt_list_prepend_cell(vm, &vm->plugins, cell);
 }

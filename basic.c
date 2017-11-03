@@ -1048,6 +1048,28 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_dtor(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint pos;
+    runt_cell *cell;
+
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos = s->f;
+
+    if(pos > 0) {
+        runt_cell_pool_get_cell(vm, pos, &cell);
+    } else {
+        cell = runt_to_cptr(s->p);
+    }
+  
+    runt_cell_destructor(vm, cell);
+    return RUNT_OK;
+}
+
 static runt_int load_control(runt_vm *vm)
 {
     runt_keyword_define(vm, "end", 3, rproc_end, NULL);
@@ -1158,6 +1180,9 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_keyword_define(vm, "dnew", 4, rproc_dnew, NULL);
     runt_keyword_define(vm, "dset", 4, rproc_dset, NULL);
     runt_keyword_define(vm, "dswap", 5, rproc_dswap, NULL);
+
+    /* add destructor */
+    runt_keyword_define(vm, "dtor", 4, rproc_dtor, NULL);
 
     return runt_is_alive(vm);
 }

@@ -194,6 +194,7 @@ runt_int runt_cell_undo(runt_vm *vm);
 void runt_cell_clear(runt_vm *vm, runt_cell *cell);
 runt_int runt_cell_get_psize(runt_vm *vm, runt_cell *cell);
 runt_int runt_cell_id_get(runt_vm *vm, runt_uint id, runt_cell **cell);
+runt_int runt_cell_destructor(runt_vm *vm, runt_cell *cell);
 
 /* Stack Operations */
 
