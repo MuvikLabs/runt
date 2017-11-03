@@ -811,6 +811,18 @@ static runt_int rproc_rand(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_urand(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc; 
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = (runt_float)rand() / RAND_MAX;
+
+    return RUNT_OK;
+}
+
 static runt_int rproc_psize(runt_vm *vm, runt_ptr p)
 {
     runt_uint id;
@@ -1067,6 +1079,7 @@ static int rproc_dtor(runt_vm *vm, runt_ptr p)
     }
   
     runt_cell_destructor(vm, cell);
+    runt_mark_set(vm);
     return RUNT_OK;
 }
 
@@ -1159,6 +1172,7 @@ runt_int runt_load_basic(runt_vm *vm)
     /* random number generator */
     srand(time(NULL));
     runt_keyword_define(vm, "rnd", 3, rproc_rand, NULL);
+    runt_keyword_define(vm, "urnd", 4, rproc_urand, NULL);
 
     /* proc size */
     runt_keyword_define(vm, "psize", 5, rproc_psize, NULL);
