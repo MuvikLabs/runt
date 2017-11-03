@@ -7,6 +7,10 @@
 #include <stdarg.h>
 #include "runt.h"
 
+#ifndef MAX
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#endif
+
 static runt_int runt_proc_zero(runt_vm *vm, runt_ptr p);
 static runt_int runt_proc_link(runt_vm *vm, runt_ptr p);
 static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest);
@@ -494,6 +498,7 @@ runt_uint runt_entry_create(runt_vm *vm,
     e->copy = runt_cell_link;
     e->cell = cell;
     e->p = vm->nil;
+    e->size = 0;
     return 0;
 }
 
@@ -539,6 +544,7 @@ runt_int runt_word(runt_vm *vm,
     list = &dict->list[pos]; 
 
     entry->p = runt_mk_string(vm, name, size);
+    entry->size = size;
 
     runt_list_append(list, entry);
 
@@ -546,9 +552,13 @@ runt_int runt_word(runt_vm *vm,
     return RUNT_NOT_OK;
 }
 
-static runt_int runt_strncmp(const char *str, runt_ptr ptr, runt_int n)
+static runt_int runt_strncmp(runt_vm *vm, const char *str, runt_int size, runt_entry *e)
 {
-    return strncmp(str, runt_to_string(ptr), n);
+    if(size == e->size) {
+        return strncmp(str, runt_to_string(e->p), size);
+    } else {
+        return 1;
+    }
 }
 
 runt_int runt_word_search(runt_vm *vm, 
@@ -572,7 +582,7 @@ runt_int runt_word_search(runt_vm *vm,
 
     for(i = 0; i < list->size; i++) {
         next = ent->next;
-        if(runt_strncmp(name, ent->p, size) == 0) {
+        if(runt_strncmp(vm, name, size, ent) == 0) {
             *entry = ent;
             return RUNT_OK;
         }
@@ -1089,7 +1099,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                 break;
             case RUNT_PROC:
-
                 if(vm->status & RUNT_MODE_KEYWORD) {
                     rc = runt_word_search(vm, &str[pos], word_size, &entry);
 

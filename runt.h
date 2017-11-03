@@ -78,6 +78,7 @@ typedef struct runt_entry {
     runt_cell *cell;
     runt_copy_proc copy;
     runt_ptr p;
+    runt_uint size;
     struct runt_entry *next;
 } runt_entry;
 
