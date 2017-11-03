@@ -495,18 +495,33 @@ static int rproc_rep(runt_vm *vm, runt_ptr p)
     runt_stacklet *s;
     runt_uint id;
     runt_uint i, reps;
+    runt_cell *cell;
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     id = s->f;
+
+    if(id > 0) {
+        cell = NULL;
+    } else {
+        cell = runt_to_cptr(s->p);
+    }
+
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     reps = s->f;
 
-    for(i = 0; i < reps; i++) {
-        rc = runt_cell_id_exec(vm, id);
-        RUNT_ERROR_CHECK(rc);
-    }   
+    if(cell == NULL) {
+        for(i = 0; i < reps; i++) {
+            rc = runt_cell_id_exec(vm, id);
+            RUNT_ERROR_CHECK(rc);
+        }   
+    } else {
+        for(i = 0; i < reps; i++) {
+            runt_cell_exec(vm, cell);
+            RUNT_ERROR_CHECK(rc);
+        } 
+    }
  
     return RUNT_OK;
 }
