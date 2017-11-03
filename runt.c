@@ -1312,6 +1312,18 @@ runt_int runt_is_alive(runt_vm *vm)
     }
 }
 
+#ifdef RUNT_PLUGINS
+static runt_int rproc_close_plugin(runt_vm *vm, runt_ptr p)
+{
+    void *handle;
+    handle = runt_to_cptr(p);
+    if(handle != NULL) {
+        dlclose(handle);
+    }
+    return RUNT_OK;
+}
+#endif
+
 runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 {
 #ifdef RUNT_PLUGINS
@@ -1319,6 +1331,7 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     void (*fun)(runt_vm *);
     runt_ptr p;
 
+    runt_print(vm, "loading plugin\n");
     if(handle == NULL) {
         runt_print(vm, "%s\n", dlerror());
         return RUNT_NOT_OK;
@@ -1331,8 +1344,9 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     /* add handle to plugin list */
   
     p = runt_mk_cptr(vm, handle);
-    p->type = RUNT_PLUGIN;
-    runt_list_append_ptr(vm, &vm->plugins, p);
+    handle = runt_to_cptr(p);
+
+    runt_add_destructor(vm, rproc_close_plugin, p);
 #endif
     return RUNT_OK;
 }
@@ -1466,25 +1480,12 @@ runt_int runt_close_plugins(runt_vm *vm)
     runt_list *plugins;
     runt_uint size;
 
-#ifdef RUNT_PLUGINS
-    void *handle;
-#endif
-
     plugins = &vm->plugins;
     size = runt_list_size(plugins);
     ent = runt_list_top(plugins);
 
     for(i = 0; i < size; i++) {
-#ifdef RUNT_PLUGINS
-        if(ent->p.type == RUNT_PLUGIN) {
-            handle = runt_to_cptr(ent->p);
-            dlclose(handle);
-        } else {
-#endif
         runt_cell_call(vm, ent->cell);
-#ifdef RUNT_PLUGINS
-        }
-#endif
         ent = ent->next;
     }
     return RUNT_OK;
@@ -1618,7 +1619,7 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
 
     rc = runt_cell_malloc(vm, &cell);
     RUNT_ERROR_CHECK(rc);
-    
+   
     runt_cell_bind(vm, cell, proc);
     runt_cell_data(vm, cell, ptr);
 

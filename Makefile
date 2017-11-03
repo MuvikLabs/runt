@@ -1,12 +1,17 @@
 .PHONY: default install clean plugin
 
-CFLAGS = -g -Wall -ansi -pedantic -fPIC -Ips -I.
+
+CFLAGS += -g -Wall -ansi -pedantic -fPIC -Ips -I.
 
 SPORTH_LIBS = -lsporth -lsoundpipe -lsndfile -lm
 
-LDFLAGS = -ldl -L/usr/local/lib
+LDFLAGS += -ldl -L/usr/local/lib
 
-OBJ = runt.o basic.o irunt.o
+OBJ += runt.o basic.o irunt.o
+
+CONFIG?=config.mk
+
+include $(CONFIG)
 
 default: irunt librunt.a 
 
