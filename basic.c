@@ -102,23 +102,7 @@ static runt_int rproc_mul(runt_vm *vm, runt_ptr p)
 
 static runt_int rproc_dup(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *val = NULL;
-    runt_stacklet *s1 = NULL;
-    runt_stacklet *s2 = NULL;
-
-    runt_int rc; 
-
-    rc = runt_ppop(vm, &val);
-    RUNT_ERROR_CHECK(rc);
-    rc = runt_ppush(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    rc = runt_ppush(vm, &s2);
-    RUNT_ERROR_CHECK(rc);
-
-    runt_stacklet_copy(vm, val, s1);
-    runt_stacklet_copy(vm, val, s2);
-
-    return rc;
+    return runt_stack_dup(vm);
 }
 
 static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
