@@ -142,28 +142,7 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
 
 static int rproc_swap(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s1;
-    runt_stacklet *s2;
-    runt_int rc;
-    runt_stacklet a, b;
-
-    rc = runt_ppop(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    runt_stacklet_copy(vm, s1, &a);
-
-    rc = runt_ppop(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    runt_stacklet_copy(vm, s1, &b);
-
-    rc = runt_ppush(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    rc = runt_ppush(vm, &s2);
-    RUNT_ERROR_CHECK(rc);
-
-    runt_stacklet_copy(vm, &a, s1);
-    runt_stacklet_copy(vm, &b, s2);
-
-    return RUNT_OK;
+    return runt_stack_swap(vm);
 }
 
 static int rproc_drop(runt_vm *vm, runt_ptr p)

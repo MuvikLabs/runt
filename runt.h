@@ -216,6 +216,7 @@ void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias);
 void runt_stack_unbias(runt_vm *vm, runt_stack *stack);
 void runt_stacklet_copy(runt_vm *vm, runt_stacklet *src, runt_stacklet *dst);
 int runt_stack_dup(runt_vm *vm);
+int runt_stack_swap(runt_vm *vm);
 
 /* Pointers */
 
