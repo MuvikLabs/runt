@@ -1474,6 +1474,11 @@ void runt_filehandle(runt_vm *vm, FILE *handle)
     vm->fp = handle;
 }
 
+FILE *runt_filehandle_get(runt_vm *vm)
+{
+    return vm->fp;
+}
+
 runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p)
 {
     runt_cell *pool = vm->cell_pool.cells;

@@ -154,6 +154,7 @@ runt_int runt_close_plugins(runt_vm *vm);
 runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr);
 void runt_print(runt_vm *vm, const char *fmt, ...);
 void runt_filehandle(runt_vm *vm, FILE *handle);
+FILE *runt_filehandle_get(runt_vm *vm);
 
 /* Pools */
 
