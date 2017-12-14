@@ -102,23 +102,7 @@ static runt_int rproc_mul(runt_vm *vm, runt_ptr p)
 
 static runt_int rproc_dup(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *val = NULL;
-    runt_stacklet *s1 = NULL;
-    runt_stacklet *s2 = NULL;
-
-    runt_int rc; 
-
-    rc = runt_ppop(vm, &val);
-    RUNT_ERROR_CHECK(rc);
-    rc = runt_ppush(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    rc = runt_ppush(vm, &s2);
-    RUNT_ERROR_CHECK(rc);
-
-    runt_stacklet_copy(vm, val, s1);
-    runt_stacklet_copy(vm, val, s2);
-
-    return rc;
+    return runt_stack_dup(vm);
 }
 
 static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
@@ -158,28 +142,7 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
 
 static int rproc_swap(runt_vm *vm, runt_ptr p)
 {
-    runt_stacklet *s1;
-    runt_stacklet *s2;
-    runt_int rc;
-    runt_stacklet a, b;
-
-    rc = runt_ppop(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    runt_stacklet_copy(vm, s1, &a);
-
-    rc = runt_ppop(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    runt_stacklet_copy(vm, s1, &b);
-
-    rc = runt_ppush(vm, &s1);
-    RUNT_ERROR_CHECK(rc);
-    rc = runt_ppush(vm, &s2);
-    RUNT_ERROR_CHECK(rc);
-
-    runt_stacklet_copy(vm, &a, s1);
-    runt_stacklet_copy(vm, &b, s2);
-
-    return RUNT_OK;
+    return runt_stack_swap(vm);
 }
 
 static int rproc_drop(runt_vm *vm, runt_ptr p)

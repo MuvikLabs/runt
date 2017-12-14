@@ -24,10 +24,10 @@ CFLAGS +=-DRUNT_PLUGINS
 endif
 
 playground: playground.c $(OBJ) plugin.so
-	$(CC) $(LDFLAGS) $(CFLAGS) playground.c $(OBJ) -o $@
+	$(CC) $(CFLAGS) playground.c $(OBJ) -o $@ $(LDFLAGS)
 
 irunt: main.c $(OBJ)
-	$(CC) $(LDFLAGS) $(CFLAGS) main.c $(OBJ) -o $@
+	$(CC) $(CFLAGS) main.c $(OBJ) -o $@ $(LDFLAGS)
 
 librunt.a: $(OBJ)
 	ar rcs $@ $(OBJ)

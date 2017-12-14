@@ -1644,3 +1644,54 @@ runt_int runt_cell_destructor(runt_vm *vm, runt_cell *cell)
 {
     return runt_list_prepend_cell(vm, &vm->plugins, cell);
 }
+
+int runt_stack_dup(runt_vm *vm)
+{
+    runt_stacklet *val;
+    runt_stacklet *s1;
+    runt_stacklet *s2;
+
+    runt_int rc; 
+
+    val = NULL;
+    s1 = NULL;
+    s2 = NULL;
+
+    rc = runt_ppop(vm, &val);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &s2);
+    RUNT_ERROR_CHECK(rc);
+
+    runt_stacklet_copy(vm, val, s1);
+    runt_stacklet_copy(vm, val, s2);
+
+    return rc;
+}
+
+int runt_stack_swap(runt_vm *vm)
+{
+    runt_stacklet *s1;
+    runt_stacklet *s2;
+    runt_int rc;
+    runt_stacklet a, b;
+
+    rc = runt_ppop(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    runt_stacklet_copy(vm, s1, &a);
+
+    rc = runt_ppop(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    runt_stacklet_copy(vm, s1, &b);
+
+    rc = runt_ppush(vm, &s1);
+    RUNT_ERROR_CHECK(rc);
+    rc = runt_ppush(vm, &s2);
+    RUNT_ERROR_CHECK(rc);
+
+    runt_stacklet_copy(vm, &a, s1);
+    runt_stacklet_copy(vm, &b, s2);
+
+    return RUNT_OK;
+}
