@@ -1695,3 +1695,13 @@ int runt_stack_swap(runt_vm *vm)
 
     return RUNT_OK;
 }
+
+runt_int runt_cell_from_stack(runt_vm *vm, runt_stacklet *s, runt_cell **cell)
+{
+    if(s->f > 0) {
+        runt_cell_id_get(vm, s->f, cell);
+    } else {
+        *cell = runt_to_cptr(s->p);
+    }
+    return RUNT_OK;
+}
