@@ -488,6 +488,48 @@ static int rproc_rep(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_loop(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint level;
+    runt_uint ppos;
+    runt_uint pos;
+    runt_int pstate;
+    runt_uint i;
+    runt_uint reps;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    reps = s->f;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+
+    pstate = runt_get_state(vm, RUNT_MODE_END);
+    runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
+    ppos = vm->pos;
+    pos = s->f;
+
+    vm->level++;
+    level = vm->level; 
+    for(i = 0; i < reps; i++) {
+        vm->pos = pos + 1;
+        runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
+        while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF &&
+                vm->level == level) {
+            rc = runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
+            RUNT_ERROR_CHECK(rc); 
+            vm->pos++;
+        }
+    }
+    vm->level--;
+    vm->pos = ppos;
+    runt_set_state(vm, RUNT_MODE_END, pstate);
+   
+    return RUNT_OK;
+}
+
 static int rproc_set(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -1108,6 +1150,9 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_keyword_define(vm, "inc", 3, rproc_incr, NULL);
     runt_keyword_define(vm, "incn", 4, rproc_incrn, NULL);
     runt_keyword_define(vm, "rep", 3, rproc_rep, NULL);
+
+    runt_keyword_define_with_copy(vm, "loop", 4, rproc_loop, 
+    rproc_call_copy, NULL);
 
     /* variables */
     runt_keyword_define(vm, "set", 3, rproc_set, NULL);

@@ -1,8 +1,8 @@
+[
 : hello "howdy!" say ;
 : infinite hello 1 _infinite goto end ; 
 : repeat dec dup hello _repeat goto end ; 
-
-stop
+]
 
 #quit
 
@@ -10,6 +10,6 @@ stop
 # _infinite call
 
 # Loop 4 times
-#4 _repeat call 
+# 4 _repeat call 
 
-quit
+_looper call
