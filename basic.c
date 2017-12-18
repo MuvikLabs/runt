@@ -1087,6 +1087,11 @@ static int rproc_dtor(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_oops(runt_vm *vm, runt_ptr p)
+{
+    return runt_word_oops(vm);
+}
+
 static runt_int load_control(runt_vm *vm)
 {
     runt_keyword_define(vm, "end", 3, rproc_end, NULL);
@@ -1204,6 +1209,9 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* add destructor */
     runt_keyword_define(vm, "dtor", 4, rproc_dtor, NULL);
+    
+    /* undo last word defined */
+    runt_keyword_define(vm, "oops", 4, rproc_oops, NULL);
 
     return runt_is_alive(vm);
 }

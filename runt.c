@@ -51,6 +51,7 @@ runt_int runt_init(runt_vm *vm)
     /* set up plugin handle list */
     runt_list_init(&vm->plugins);    
 
+    vm->nwords = 0;
     return RUNT_OK;
 }
 
@@ -149,6 +150,7 @@ runt_int runt_cell_malloc(runt_vm *vm, runt_cell **cell)
     id = runt_malloc(vm, sizeof(runt_cell), (void **)cell);
     if(id == 0) return RUNT_NOT_OK;
     runt_cell_clear(vm, *cell);
+    (*cell)->id = 0;
     return RUNT_OK;
 }
 
@@ -602,11 +604,29 @@ runt_int runt_list_append(runt_list *lst, runt_entry *ent)
 {
     if(lst->size == 0) {
         lst->top = ent;
+        lst->last = lst->top;
     } else {
         lst->last->next = ent;
     }
+    ent->prev = lst->last;
     lst->last = ent;
     lst->size++;
+    ent->list = lst;
+    return RUNT_OK;
+}
+
+runt_int runt_list_pop(runt_vm *vm, runt_list *lst)
+{
+    if(lst->size == 0) {
+        runt_print(vm, "No items on the list to pop off");
+        return RUNT_NOT_OK;
+    } else if(lst->size == 1) {
+        lst->size = 0;
+        return RUNT_OK;
+    }
+
+    lst->size--;
+    lst->last = lst->last->prev;
     return RUNT_OK;
 }
 
@@ -1031,6 +1051,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
     runt_cell *tmp;
     runt_entry *entry;
     runt_ptr ptr;
+    runt_uint c, m;
     float val = 0.0;
 
     runt_int rc = RUNT_OK;
@@ -1112,8 +1133,11 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                             word_size, word_size, &str[pos]);
                         return RUNT_NOT_OK;
                     } else {
+                        c = runt_cell_pool_used(vm);
+                        m = runt_memory_pool_used(vm);
                         runt_entry_create(vm, tmp, &entry);
                         runt_word(vm, &str[pos], word_size, entry);
+                        runt_word_last_defined(vm, entry, c - 1, m);
                     }
 
                     runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
@@ -1704,5 +1728,45 @@ runt_int runt_cell_from_stack(runt_vm *vm, runt_stacklet *s, runt_cell **cell)
     } else {
         *cell = runt_to_cptr(s->p);
     }
+    return RUNT_OK;
+}
+
+runt_int runt_word_last_defined(runt_vm *vm,
+        runt_entry *ent,
+        runt_uint c,
+        runt_uint m)
+{
+    ent->c = c;
+    ent->m = m;
+    ent->last_word_defined = vm->last_word_defined;
+    vm->last_word_defined = ent;
+    vm->nwords++;
+    return RUNT_OK;
+}
+
+runt_int runt_word_oops(runt_vm *vm)
+{
+    const char *name;
+    runt_entry *last_word;
+
+    if(vm->nwords == 0) {
+        runt_print(vm, "No words to undefine.\n");
+        return RUNT_NOT_OK;
+    }
+   
+    last_word = vm->last_word_defined;
+    name = runt_to_string(last_word->p);
+    runt_print(vm, "Undefining word '%s'\n", name);
+
+    runt_list_pop(vm, last_word->list);
+    vm->cell_pool.used = last_word->c;
+    vm->memory_pool.used = last_word->m;
+
+    vm->last_word_defined = last_word->last_word_defined;
+    vm->dict->nwords--;
+
+    vm->nwords--;
+
+    runt_mark_set(vm);
     return RUNT_OK;
 }

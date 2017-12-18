@@ -38,6 +38,7 @@ RUNT_END = 100 /* custom types can be numbered starting after RUNT_END */
 };
 
 typedef struct runt_vm runt_vm;
+typedef struct runt_entry runt_entry;
 
 typedef int runt_int;
 typedef float runt_float;
@@ -74,19 +75,24 @@ typedef struct {
     runt_int bias;
 } runt_stack;
 
-typedef struct runt_entry {
-    runt_cell *cell;
-    runt_copy_proc copy;
-    runt_ptr p;
-    runt_uint size;
-    struct runt_entry *next;
-} runt_entry;
-
 typedef struct runt_list {
     runt_int size;
     runt_entry *top;
     runt_entry *last;
 } runt_list;
+
+struct runt_entry {
+    runt_cell *cell;
+    runt_copy_proc copy;
+    runt_ptr p;
+    runt_uint size;
+    runt_uint c;
+    runt_uint m;
+    runt_list *list;
+    runt_entry *next;
+    runt_entry *prev;
+    runt_entry *last_word_defined;
+};
 
 typedef struct runt_dict {
     runt_int nwords;
@@ -141,6 +147,9 @@ struct runt_vm {
     char **argv;
     int argc;
     int argpos;
+
+    runt_entry *last_word_defined;
+    runt_uint nwords;
 };
 
 /* Main */
@@ -264,7 +273,7 @@ runt_int runt_word_search(runt_vm *vm,
         runt_int size,
         runt_entry **entry);
 
-runt_int runt_word_undefine(runt_vm *vm, const char *name, runt_int size);
+runt_int runt_word_oops(runt_vm *vm);
 
 void runt_list_init(runt_list *lst);
 runt_int runt_list_append(runt_list *lst, runt_entry *ent);
@@ -274,6 +283,7 @@ runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell);
 runt_int runt_list_prepend_cell(runt_vm *vm, runt_list *lst, runt_cell *cell);
 runt_int runt_list_size(runt_list *lst);
 runt_entry * runt_list_top(runt_list *lst);
+runt_int runt_list_pop(runt_vm *vm, runt_list *lst);
 
 void runt_dictionary_init(runt_vm *vm);
 void runt_dict_init(runt_vm *vm, runt_dict *dict);
@@ -294,6 +304,11 @@ runt_uint runt_word_define(runt_vm *vm,
         const char *name, 
         runt_uint size,
         runt_proc proc);
+
+runt_int runt_word_last_defined(runt_vm *vm,
+        runt_entry *ent,
+        runt_uint c,
+        runt_uint m);
 
 runt_uint runt_word_define_with_copy(runt_vm *vm, 
         const char *name, 
