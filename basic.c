@@ -345,7 +345,6 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
     pstate = runt_get_state(vm, RUNT_MODE_END);
     runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
     ppos = vm->pos;
-    if(ppos == 0) return RUNT_NOT_OK;
     vm->pos = s->f;
 
     vm->level++;

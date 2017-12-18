@@ -43,6 +43,7 @@ runt_int runt_init(runt_vm *vm)
     runt_set_state(vm, RUNT_MODE_RUNNING, RUNT_ON);
 
     vm->level = 0;
+    vm->pos = 0;
 
     /* set print output to STDERR by default */
     vm->fp = stderr;
