@@ -150,6 +150,8 @@ struct runt_vm {
 
     runt_entry *last_word_defined;
     runt_uint nwords;
+
+    runt_int (*loader)(runt_vm*);
 };
 
 /* Main */

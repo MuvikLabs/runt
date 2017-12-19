@@ -187,7 +187,8 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     runt_cell_pool_init(vm);
 
     runt_memory_pool_set(vm, irunt.mem, irunt.memsize);
-
+    
+    vm->loader = loader;
     loader(vm);
     runt_pmark_set(vm);
 

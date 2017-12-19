@@ -22,6 +22,7 @@ static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_cptr(runt_vm *vm, runt_ptr p);
 static int rproc_rec(runt_vm *vm, runt_ptr p);
 static int rproc_stop(runt_vm *vm, runt_cell *src, runt_cell *dst);
+static runt_int load_nothing(runt_vm *vm);
 
 runt_int runt_init(runt_vm *vm)
 {
@@ -52,6 +53,7 @@ runt_int runt_init(runt_vm *vm)
     runt_list_init(&vm->plugins);    
 
     vm->nwords = 0;
+    vm->loader = load_nothing;
     return RUNT_OK;
 }
 
@@ -1768,5 +1770,10 @@ runt_int runt_word_oops(runt_vm *vm)
     vm->nwords--;
 
     runt_mark_set(vm);
+    return RUNT_OK;
+}
+
+static runt_int load_nothing(runt_vm *vm)
+{
     return RUNT_OK;
 }
