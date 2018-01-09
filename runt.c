@@ -54,6 +54,9 @@ runt_int runt_init(runt_vm *vm)
 
     vm->nwords = 0;
     vm->loader = load_nothing;
+
+    runt_cell_bind(vm, &vm->empty, vm->zproc);
+    runt_cell_data(vm, &vm->empty, vm->nil);
     return RUNT_OK;
 }
 
@@ -645,8 +648,8 @@ runt_int runt_list_prepend(runt_list *lst, runt_entry *ent)
 runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p)
 {
     runt_entry *entry;
-    /* make entry, using float cell as dummy */
-    runt_entry_create(vm, vm->f_cell, &entry);
+    /* make entry, using empty cell */
+    runt_entry_create(vm, &vm->empty, &entry);
     /* set ptr to "string" entry in struct. works better than it looks */
     entry->p = p;
 
@@ -1775,5 +1778,27 @@ runt_int runt_word_oops(runt_vm *vm)
 
 static runt_int load_nothing(runt_vm *vm)
 {
+    return RUNT_OK;
+}
+
+runt_int runt_data(runt_vm *vm, 
+        const char *name,
+        runt_uint size,
+        runt_ptr p)
+{
+    runt_cell *cell;
+    runt_keyword_define(vm, name, size, vm->zproc, &cell);
+    runt_cell_data(vm, cell, p);
+    return RUNT_OK;
+}
+
+runt_int runt_data_search(runt_vm *vm, const char *name, runt_ptr *p)
+{
+    runt_entry *entry;
+    runt_int rc;
+
+    rc = runt_word_search(vm, name, strlen(name), &entry);
+    RUNT_ERROR_CHECK(rc);
+    *p = entry->cell->p;
     return RUNT_OK;
 }

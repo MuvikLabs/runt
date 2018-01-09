@@ -132,6 +132,9 @@ struct runt_vm {
     /* the base cell for strings */ 
     runt_cell *s_cell;
 
+    /* a cell that does nothing */
+    runt_cell empty;
+
     /* recursion level */
     runt_uint level;
     /* cell position */
@@ -330,6 +333,13 @@ runt_int runt_keyword_define_with_copy(runt_vm *vm,
         runt_proc proc,
         runt_copy_proc copy,
         runt_cell **pcell);
+
+runt_int runt_data(runt_vm *vm, 
+        const char *name,
+        runt_uint size,
+        runt_ptr p);
+
+runt_int runt_data_search(runt_vm *vm, const char *name, runt_ptr *p);
 
 runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p);
 
