@@ -15,8 +15,7 @@ static runt_int runt_test(runt_vm *vm, runt_ptr p)
 static runt_int status(runt_vm *vm, runt_ptr p)
 {
     user_data *ud;
-    ud = runt_to_cptr(p);
-    runt_print(vm, "The counter is at %d\n", ud->counter);
+    ud = runt_to_cptr(p); runt_print(vm, "The counter is at %d\n", ud->counter);
     return RUNT_OK;
 }
 
@@ -63,7 +62,7 @@ static runt_int loader(runt_vm *vm)
     custom_keyword_define(vm, "runt_test", 9, runt_test, p);
     custom_keyword_define(vm, "status", 6, status, p);
     custom_keyword_define(vm, "tick_up", 7, tick_up, p);
-    runt_append_destructor(vm, dtor, p);
+    runt_add_destructor(vm, dtor, p);
     return runt_is_alive(vm);
 }
 
