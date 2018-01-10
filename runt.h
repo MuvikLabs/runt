@@ -17,6 +17,7 @@
 
 #define RUNT_ERROR_CHECK(A) if(A == RUNT_NOT_OK) return RUNT_NOT_OK;
 
+#include <stdarg.h> /* a not-so-obvious header to include */
 
 enum {
 RUNT_NOT_OK = 0,
@@ -52,6 +53,7 @@ typedef struct {
 } runt_ptr;
 
 typedef runt_int (*runt_proc)(runt_vm *, runt_ptr);
+typedef void (*runt_printer)(runt_vm *, const char *fmt, va_list); 
 
 typedef struct {
     runt_proc fun;
@@ -155,6 +157,7 @@ struct runt_vm {
     runt_uint nwords;
 
     runt_int (*loader)(runt_vm*);
+    runt_printer print;
 };
 
 /* Main */
@@ -169,6 +172,8 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr);
 void runt_print(runt_vm *vm, const char *fmt, ...);
 void runt_filehandle(runt_vm *vm, FILE *handle);
 FILE *runt_filehandle_get(runt_vm *vm);
+void runt_print_default(runt_vm *vm, const char *fmt, va_list ap); 
+void runt_print_set(runt_vm *vm, runt_printer printer);
 
 /* Pools */
 

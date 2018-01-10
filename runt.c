@@ -4,7 +4,6 @@
 #ifdef RUNT_PLUGINS
 #include <dlfcn.h> 
 #endif
-#include <stdarg.h>
 #include "runt.h"
 
 #ifndef MAX
@@ -57,6 +56,9 @@ runt_int runt_init(runt_vm *vm)
 
     runt_cell_bind(vm, &vm->empty, vm->zproc);
     runt_cell_data(vm, &vm->empty, vm->nil);
+
+    runt_print_set(vm, runt_print_default);
+
     return RUNT_OK;
 }
 
@@ -1491,11 +1493,16 @@ runt_uint runt_mk_float_cell(runt_vm *vm,
     return id;
 }
 
+void runt_print_default(runt_vm *vm, const char *fmt, va_list ap)
+{
+    vfprintf(vm->fp, fmt, ap);
+}
+
 void runt_print(runt_vm *vm, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vfprintf(vm->fp, fmt, args);
+    vm->print(vm, fmt, args);
     va_end(args);
 }
 
@@ -1801,4 +1808,9 @@ runt_int runt_data_search(runt_vm *vm, const char *name, runt_ptr *p)
     RUNT_ERROR_CHECK(rc);
     *p = entry->cell->p;
     return RUNT_OK;
+}
+
+void runt_print_set(runt_vm *vm, runt_printer printer)
+{
+    vm->print = printer;
 }
