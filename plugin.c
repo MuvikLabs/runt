@@ -7,7 +7,7 @@ static runt_int simple_plugin(runt_vm *vm, runt_ptr p)
     printf("this is a plugin!\n");
 }
 
-runt_int runt_plugin_init(runt_vm *vm)
+runt_int rplug_plugin(runt_vm *vm)
 {
     runt_word_define(vm, "test", 4, simple_plugin);
     return runt_is_alive(vm);

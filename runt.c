@@ -1368,11 +1368,32 @@ static runt_int rproc_close_plugin(runt_vm *vm, runt_ptr p)
 }
 #endif
 
+/* modified from tinyscheme dynload utility */
+
+static void make_init_fn(const char *name, char *init_fn) {
+    const char *p;
+    char *e;
+    
+    p=strrchr(name,'/');
+    e=strrchr(name, '.');
+    if(p==0) {
+        p=name;
+    } else {
+        p++;
+    }
+    if(e != 0) {
+        *e = 0;
+    }
+    strcpy(init_fn,"rplug_");
+    strcat(init_fn,p);
+}
+
 runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 {
 #ifdef RUNT_PLUGINS
     void *handle = dlopen(filename, RTLD_NOW);
-    void (*fun)(runt_vm *);
+    int (*fun)(runt_vm *);
+    char fn_name[50];
     runt_ptr p;
     runt_cell *cell;
     runt_int rc;
@@ -1383,9 +1404,17 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
         return RUNT_NOT_OK;
     }
 
-    *(void **) (&fun) = dlsym(handle, "runt_plugin_init");
+    make_init_fn(filename, fn_name);
 
-    fun(vm);
+    *(void **) (&fun) = dlsym(handle, fn_name);
+
+    if(fun == NULL) {
+        runt_print(vm, "Could not find loader function %s\n", fn_name);
+        return RUNT_NOT_OK;
+    }
+
+    rc = fun(vm);
+    RUNT_ERROR_CHECK(rc);
 
     /* add handle to plugin list */
   
