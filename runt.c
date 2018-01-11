@@ -58,6 +58,9 @@ runt_int runt_init(runt_vm *vm)
     runt_cell_data(vm, &vm->empty, vm->nil);
 
     runt_print_set(vm, runt_print_default);
+   
+    /* set up destructor list */
+    runt_list_init(&vm->dtors);
 
     return RUNT_OK;
 }
@@ -1371,6 +1374,8 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     void *handle = dlopen(filename, RTLD_NOW);
     void (*fun)(runt_vm *);
     runt_ptr p;
+    runt_cell *cell;
+    runt_int rc;
 
     runt_print(vm, "loading plugin\n");
     if(handle == NULL) {
@@ -1386,8 +1391,15 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
   
     p = runt_mk_cptr(vm, handle);
     handle = runt_to_cptr(p);
+    
+    rc = runt_cell_malloc(vm, &cell);
+    RUNT_ERROR_CHECK(rc);
+   
+    runt_cell_bind(vm, cell, rproc_close_plugin);
+    runt_cell_data(vm, cell, p);
+    
+    return runt_list_prepend_cell(vm, &vm->plugins, cell);
 
-    runt_add_destructor(vm, rproc_close_plugin, p);
 #endif
     return RUNT_OK;
 }
@@ -1530,6 +1542,19 @@ runt_int runt_close_plugins(runt_vm *vm)
     runt_entry *ent;
     runt_list *plugins;
     runt_uint size;
+
+    /* first, call all user-made destructor functions */
+    
+    plugins = &vm->dtors;
+    size = runt_list_size(plugins);
+    ent = runt_list_top(plugins);
+
+    for(i = 0; i < size; i++) {
+        runt_cell_exec(vm, ent->cell);
+        ent = ent->next;
+    }
+
+    /* next, close all dll plugins */
 
     plugins = &vm->plugins;
     size = runt_list_size(plugins);
@@ -1679,7 +1704,7 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
 
 runt_int runt_cell_destructor(runt_vm *vm, runt_cell *cell)
 {
-    return runt_list_prepend_cell(vm, &vm->plugins, cell);
+    return runt_list_prepend_cell(vm, &vm->dtors, cell);
 }
 
 int runt_stack_dup(runt_vm *vm)

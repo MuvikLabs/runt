@@ -158,6 +158,9 @@ struct runt_vm {
 
     runt_int (*loader)(runt_vm*);
     runt_printer print;
+
+    /* list of destructors */
+    runt_list dtors;
 };
 
 /* Main */
