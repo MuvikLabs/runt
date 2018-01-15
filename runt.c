@@ -1141,6 +1141,10 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                         runt_print(vm, 
                             "Error: word '%*.*s' previously defined\n",
                             word_size, word_size, &str[pos]);
+
+                        /* on failure, break to interactive mode */
+                        runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
+                        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
                         return RUNT_NOT_OK;
                     } else {
                         c = runt_cell_pool_used(vm);
