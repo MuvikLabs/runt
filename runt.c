@@ -1139,7 +1139,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                     if(rc == RUNT_OK) {
                         runt_print(vm, 
-                            "Error: word '%*.*s' previously defined\n",
+                            "Word '%*.*s' previously defined\n",
                             word_size, word_size, &str[pos]);
 
                         /* on failure, break to interactive mode */
@@ -1172,7 +1172,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     }
                 } else {
                     /*TODO: cleaner error reporting */
-                    runt_print(vm, "Error: could not find function '%*.*s'\n",
+                    runt_print(vm, "Could not find function '%*.*s'\n",
                             word_size, word_size, str + pos);
                     return RUNT_NOT_OK;
                 }
