@@ -175,7 +175,6 @@ runt_ptr runt_mk_ptr(runt_type type, void *ud)
 runt_int runt_cell_bind(runt_vm *vm, runt_cell *cell, runt_proc proc)
 {
     cell->fun = proc;
-    cell->p = vm->nil;
     return RUNT_OK;
 }
 
@@ -1474,6 +1473,7 @@ runt_uint runt_pmark_free(runt_vm *vm)
 void runt_cell_clear(runt_vm *vm, runt_cell *cell)
 {
    runt_cell_bind(vm, cell, runt_proc_zero);
+   cell->p = vm->nil;
    cell->psize = 0;
 }
 
