@@ -16,7 +16,7 @@ runt_int rproc_hello(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-int main(int argc, char *argv[])
+void basic_cell(void)
 {
     runt_cell hello;
     runt_ptr p;
@@ -45,5 +45,12 @@ int main(int argc, char *argv[])
     /* This is exactly what runt_cell_call does */
     hello.fun(NULL, hello.p);
 
+}
+
+int main(int argc, char *argv[])
+{
+    /* read this function to learn about the basic cell */
+    basic_cell();
+    /* more to come some day... */
     return 0;
 }
