@@ -1401,7 +1401,6 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     runt_cell *cell;
     runt_int rc;
 
-    runt_print(vm, "loading plugin\n");
     if(handle == NULL) {
         runt_print(vm, "%s\n", dlerror());
         return RUNT_NOT_OK;

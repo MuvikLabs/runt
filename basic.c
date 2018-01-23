@@ -582,10 +582,26 @@ static runt_int load_dictionary(runt_vm *vm, const char *filename)
     return RUNT_OK;
 }
 
+static int loader(
+    runt_vm *vm, 
+    runt_int pstate,
+    const char *fname,
+    runt_stacklet *s,
+    int (*fn)(runt_vm *, const char*))
+{
+    runt_int rc;
+    vm->memory_pool.used = s->p.pos;
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
+    rc = fn(vm, fname);
+    runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
+    RUNT_ERROR_CHECK(rc);
+    runt_mark_set(vm);
+    return RUNT_OK;
+}
+
 static int rproc_load(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
-    runt_int rc;
     const char *str;
     const char *fname;
     char buf[1024];
@@ -596,6 +612,9 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     str = runt_to_string(s->p);
     pstate = runt_get_state(vm, RUNT_MODE_INTERACTIVE);
 
+
+    /* Try and load runt file */
+
     sprintf(buf, "%s.rnt", str);
 
     /* remove load cell from cell pool */
@@ -603,75 +622,28 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
 
     if(access(buf, F_OK) != -1) {
         fname = buf;
-        /* TODO: DRY */
-        /* remove string from cell pool */
-        vm->memory_pool.used = s->p.pos;
-        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-        load_dictionary(vm, fname);
-        runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
-        runt_mark_set(vm);
-        return RUNT_OK;
+        return loader(vm, pstate, fname, s, load_dictionary);
     } 
 
-    if(str[0] != '.' ) {
-        /* try to find a .so native plugin */
+    /* maybe it is a plugin? */
 
-        if(getenv("RUNT_PLUGIN_PATH") != NULL) {
-            sprintf(buf, "%s/%s.so", getenv("RUNT_PLUGIN_PATH"), str);
-        } else {
-            /* default path */
-            sprintf(buf, "/usr/local/share/runt/%s.so", str);
-        }
-
-        if(access(buf, F_OK) != -1) {
-            fname = buf;
-            /* TODO: DRY */
-            /* remove string from cell pool */
-            vm->memory_pool.used = s->p.pos;
-
-            runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-            rc = runt_load_plugin(vm, fname);
-            RUNT_ERROR_CHECK(rc);
-            runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
-            runt_mark_set(vm);
-            return RUNT_OK;
-        } 
-
-        /* finally, try to find a .rnt file */
-        if(getenv("RUNT_PLUGIN_PATH") != NULL) {
-            sprintf(buf, "%s/%s.rnt", getenv("RUNT_PLUGIN_PATH"), str);
-        } else {
-            /* default path */
-            sprintf(buf, "/usr/local/share/runt/%s.rnt", str);
-        }
-
-        if(access(buf, F_OK) != -1) {
-            fname = buf;
-            /* TODO: DRY */
-            /* remove string from cell pool */
-            vm->memory_pool.used = s->p.pos;
-            runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-            load_dictionary(vm, fname);
-            runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
-            runt_mark_set(vm);
-            return RUNT_OK;
-        } 
+    if(getenv("RUNT_PLUGIN_PATH") != NULL) {
+        sprintf(buf, "%s/%s.so", getenv("RUNT_PLUGIN_PATH"), str);
+    } else {
+        sprintf(buf, "%s/.runt/plugins/%s.so", getenv("HOME"), str);
     }
+
+    if(access(buf, F_OK) != -1) {
+        fname = buf;
+        return loader(vm, pstate, fname, s, runt_load_plugin);
+    } 
+
+    /* try local plugin */
 
     sprintf(buf, "%s.so", str);
 
     if(access(buf, F_OK) != -1) {
-        fname = buf;
-        /* TODO: DRY */
-        /* remove string from cell pool */
-        vm->memory_pool.used = s->p.pos;
-
-        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_OFF);
-        rc = runt_load_plugin(vm, fname);
-        RUNT_ERROR_CHECK(rc);
-        runt_set_state(vm, RUNT_MODE_INTERACTIVE, pstate);
-        runt_mark_set(vm);
-        return RUNT_OK;
+        return loader(vm, pstate, buf, s, runt_load_plugin);
     } 
 
     runt_print(vm, "Could not find '%s'\n", str);
