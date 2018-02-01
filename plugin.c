@@ -5,6 +5,7 @@
 static runt_int simple_plugin(runt_vm *vm, runt_ptr p)
 {
     printf("this is a plugin!\n");
+    return RUNT_OK;
 }
 
 runt_int rplug_plugin(runt_vm *vm)
