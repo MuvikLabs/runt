@@ -1108,6 +1108,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 if(vm->status & RUNT_MODE_INTERACTIVE) {
                     s = runt_push(vm);
                     s->p = ptr;
+                    s->t = RUNT_STRING;
                 } 
                 break;
             case RUNT_WORD:
