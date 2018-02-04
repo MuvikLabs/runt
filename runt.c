@@ -792,7 +792,6 @@ runt_int runt_tokenize(runt_vm *vm,
     }
 
     for(s = p; s < size; s++) {
-        if(str[s] == '#') return  RUNT_OK;
 
         if(stop != 0) {
             break;
@@ -818,6 +817,8 @@ runt_int runt_tokenize(runt_vm *vm,
                 }
                 continue;
             case 0:
+                if(str[s] == '#') return RUNT_OK;
+
                 if(str[s] != ' ' && str[s] != '\n') {
                     if(str[s] == '\'' || str[s] == '\"') {
                         mode = 3;
@@ -1099,7 +1100,6 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 }
                 break;
             case RUNT_STRING:
-
                 if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                 s = runt_push(vm);
                 ptr = runt_mk_string(vm, &str[pos + 1], word_size - 2);
