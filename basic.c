@@ -1065,6 +1065,12 @@ static int rproc_oops(runt_vm *vm, runt_ptr p)
     return runt_word_oops(vm);
 }
 
+static int rproc_key(runt_vm *vm, runt_ptr p)
+{
+    fgetc(stdin);
+    return RUNT_OK;
+}
+
 static runt_int load_control(runt_vm *vm)
 {
     runt_keyword_define(vm, "end", 3, rproc_end, NULL);
@@ -1185,6 +1191,9 @@ runt_int runt_load_basic(runt_vm *vm)
     
     /* undo last word defined */
     runt_keyword_define(vm, "oops", 4, rproc_oops, NULL);
+
+    /* key: wait for keypress */
+    runt_keyword_define(vm, "key", 3, rproc_key, NULL);
 
     return runt_is_alive(vm);
 }
