@@ -1372,6 +1372,8 @@ static runt_int rproc_close_plugin(runt_vm *vm, runt_ptr p)
 }
 #endif
 
+
+#ifdef RUNT_PLUGINS
 /* modified from tinyscheme dynload utility */
 
 static void make_init_fn(const char *name, char *init_fn) {
@@ -1391,6 +1393,7 @@ static void make_init_fn(const char *name, char *init_fn) {
     strcpy(init_fn,"rplug_");
     strcat(init_fn,p);
 }
+#endif
 
 runt_int runt_load_plugin(runt_vm *vm, const char *filename)
 {
