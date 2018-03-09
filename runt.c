@@ -277,6 +277,7 @@ runt_ptr runt_mk_float(runt_vm *vm, runt_float ival)
 {
     runt_ptr p;
     float *val;
+    val = NULL;
     p.pos = runt_malloc(vm, sizeof(runt_float), (void**)&val);
     p = runt_mk_ptr(RUNT_FLOAT, val);
     *val = ival;
@@ -316,8 +317,10 @@ runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
     runt_ptr p;
     char *buf;
     runt_uint i;
-    runt_uint pos = runt_malloc(vm, size + 1, (void *)&buf);
-
+    runt_uint pos;
+   
+    buf = NULL;
+    pos = runt_malloc(vm, size + 1, (void *)&buf);
     for(i = 0; i < size; i++) {
         buf[i] = str[i];
     }
@@ -505,6 +508,7 @@ runt_uint runt_entry_create(runt_vm *vm,
         runt_entry **entry)
 {
     runt_entry *e;
+    entry = NULL;
     runt_malloc(vm, sizeof(runt_entry), (void **)entry);
     e = *entry;
     e->copy = runt_cell_link;
@@ -652,6 +656,7 @@ runt_int runt_list_prepend(runt_list *lst, runt_entry *ent)
 runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p)
 {
     runt_entry *entry;
+    entry = NULL;
     /* make entry, using empty cell */
     runt_entry_create(vm, &vm->empty, &entry);
     /* set ptr to "string" entry in struct. works better than it looks */
@@ -664,6 +669,7 @@ runt_int runt_list_append_ptr(runt_vm *vm, runt_list *lst, runt_ptr p)
 runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell)
 {
     runt_entry *entry;
+    entry = NULL;
     runt_entry_create(vm, cell, &entry);
     runt_list_append(lst, entry);
     return RUNT_OK;
@@ -672,6 +678,7 @@ runt_int runt_list_append_cell(runt_vm *vm, runt_list *lst, runt_cell *cell)
 runt_int runt_list_prepend_cell(runt_vm *vm, runt_list *lst, runt_cell *cell)
 {
     runt_entry *entry;
+    entry = NULL;
     runt_entry_create(vm, cell, &entry);
     runt_list_prepend(lst, entry);
     return RUNT_OK;
@@ -1149,6 +1156,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     } else {
                         c = runt_cell_pool_used(vm);
                         m = runt_memory_pool_used(vm);
+                        entry = NULL;
                         runt_entry_create(vm, tmp, &entry);
                         runt_word(vm, &str[pos], word_size, entry);
                         runt_word_last_defined(vm, entry, c - 1, m);
@@ -1253,6 +1261,7 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
     runt_cell *cell;
     runt_entry *entry;
     runt_uint id;
+    entry = NULL;
 
     id = runt_cell_new(vm, &cell);
     if(id == 0) {
@@ -1287,7 +1296,8 @@ runt_int runt_keyword_define_with_copy(runt_vm *vm,
     runt_cell *cell;
     runt_entry *entry;
     runt_int rc;
-
+    cell = NULL;
+    entry = NULL;
     rc = runt_cell_malloc(vm, &cell);
     RUNT_ERROR_CHECK(rc);
     runt_cell_bind(vm, cell, proc);
