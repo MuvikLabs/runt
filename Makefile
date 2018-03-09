@@ -1,7 +1,6 @@
 .PHONY: default install clean plugin
 
-
-CFLAGS += -g -Wall -ansi -pedantic -fPIC -Ips -I.
+CFLAGS += -g -Wall -std=c89 -pedantic -I. -fPIC
 
 SPORTH_LIBS = -lsporth -lsoundpipe -lsndfile -lm
 
