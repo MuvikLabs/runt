@@ -65,10 +65,6 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
 runt_int runt_parse_file(runt_vm *vm, const char *filename)
 {
     FILE *fp;
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
-    runt_int rc = RUNT_OK;
 
     fp = fopen(filename, "r");
 
@@ -76,6 +72,18 @@ runt_int runt_parse_file(runt_vm *vm, const char *filename)
         runt_print(vm, "Could not open file %s\n", filename);
         return RUNT_NOT_OK;
     }
+
+    return runt_parse_filehandle(vm, fp);
+}
+
+runt_int runt_parse_filehandle(runt_vm *vm, FILE *fp)
+{
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    runt_int rc = RUNT_OK;
+
+    if(fp == NULL) return RUNT_NOT_OK;
 
     while((read = runt_getline(&line, &len, fp)) != -1) {
         rc = parse(vm, line, read);

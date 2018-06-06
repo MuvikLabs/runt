@@ -353,6 +353,8 @@ runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p);
 
 runt_int runt_parse_file(runt_vm *vm, const char *filename);
 
+runt_int runt_parse_filehandle(runt_vm *vm, FILE *fp);
+
 
 /* Lexing, Parsing, and Compiling */
 
