@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #ifdef RUNT_PLUGINS
-#include <dlfcn.h> 
+#include <dlfcn.h>
 #endif
 #include "runt.h"
 
@@ -29,7 +29,7 @@ runt_int runt_init(runt_vm *vm)
     vm->zproc = runt_proc_zero;
     vm->nil = runt_mk_ptr(RUNT_NIL, NULL);
 
-    /* init stack */ 
+    /* init stack */
 
     runt_stack_init(vm, &vm->stack);
 
@@ -47,9 +47,9 @@ runt_int runt_init(runt_vm *vm)
 
     /* set print output to STDERR by default */
     vm->fp = stderr;
-   
+
     /* set up plugin handle list */
-    runt_list_init(&vm->plugins);    
+    runt_list_init(&vm->plugins);
 
     vm->nwords = 0;
     vm->loader = load_nothing;
@@ -58,7 +58,7 @@ runt_int runt_init(runt_vm *vm)
     runt_cell_data(vm, &vm->empty, vm->nil);
 
     runt_print_set(vm, runt_print_default);
-   
+
     /* set up destructor list */
     runt_list_init(&vm->dtors);
 
@@ -78,7 +78,7 @@ runt_int runt_load_minimal(runt_vm *vm)
     /* ability to create procedures by default */
     runt_keyword_define_with_copy(vm, ":", 1, vm->zproc, rproc_begin, NULL);
     runt_keyword_define_with_copy(vm, ";", 1, vm->zproc, rproc_end, NULL);
-   
+
     /* [ and ] for rec, stop */
     runt_keyword_define(vm, "[", 1, rproc_rec, NULL);
     runt_keyword_define_with_copy(vm, "]", 1, vm->zproc, rproc_stop, NULL);
@@ -132,9 +132,9 @@ runt_uint runt_cell_new(runt_vm *vm, runt_cell **cell)
     runt_stacklet *s;
 
     pool->used++;
-   
+
     if(runt_get_state(vm, RUNT_MODE_PANIC) == RUNT_ON) {
-        return 0; 
+        return 0;
     }else if(pool->used >= pool->size) {
         runt_print(vm, "Oh dear. Runt cell pool space at maximum.\n");
         runt_set_state(vm, RUNT_MODE_PANIC, RUNT_ON);
@@ -213,7 +213,7 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
 {
     runt_uint i;
     runt_int rc = RUNT_OK;
-  
+
     if(cell->psize == 0) {
         return runt_cell_call(vm, cell);
     }
@@ -222,7 +222,7 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
         if(cell[i].psize == 0) {
             rc = runt_cell_call(vm, &cell[i]);
         } else {
-            rc = runt_cell_exec(vm, &cell[i]); 
+            rc = runt_cell_exec(vm, &cell[i]);
         }
         RUNT_ERROR_CHECK(rc);
     }
@@ -382,7 +382,7 @@ runt_int runt_ppeak(runt_vm *vm, runt_stacklet **s)
         *s = &vm->stack.stack[0];
         return RUNT_NOT_OK;
     }
-    
+
     return RUNT_OK;
 }
 
@@ -426,7 +426,7 @@ runt_int runt_stack_bias_pos(runt_vm *vm, runt_stack *stack)
 
 void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias)
 {
-   stack->bias = stack->pos - bias; 
+   stack->bias = stack->pos - bias;
 }
 
 void runt_stack_unbias(runt_vm *vm, runt_stack *stack)
@@ -474,7 +474,7 @@ runt_int  runt_ppop(runt_vm *vm, runt_stacklet **s)
         runt_print(vm, "Empty stack.\n");
         return RUNT_NOT_OK;
     }
-    
+
     return RUNT_OK;
 }
 
@@ -494,7 +494,7 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
     if(pool->used + size >= pool->size) {
         return 0;
     }
-  
+
     *ud = (void *)&pool->data[pool->used];
 
     id = pool->used + 1;
@@ -503,8 +503,8 @@ runt_uint runt_malloc(runt_vm *vm, size_t size, void **ud)
     return id;
 }
 
-runt_uint runt_entry_create(runt_vm *vm, 
-        runt_cell *cell, 
+runt_uint runt_entry_create(runt_vm *vm,
+        runt_cell *cell,
         runt_entry **entry)
 {
     runt_entry *e;
@@ -546,18 +546,18 @@ static runt_uint runt_hash(const char *str, runt_int size)
     return h % RUNT_DICT_SIZE;
 }
 
-runt_int runt_word(runt_vm *vm, 
-        const char *name, 
+runt_int runt_word(runt_vm *vm,
+        const char *name,
         runt_int size,
         runt_entry *entry)
 {
     runt_dict *dict;
-    runt_uint pos; 
+    runt_uint pos;
     runt_list *list;
-   
+
     dict = runt_dictionary_get(vm);
     pos = runt_hash(name, size);
-    list = &dict->list[pos]; 
+    list = &dict->list[pos];
 
     entry->p = runt_mk_string(vm, name, size);
     entry->size = size;
@@ -577,22 +577,22 @@ static runt_int runt_strncmp(runt_vm *vm, const char *str, runt_int size, runt_e
     }
 }
 
-runt_int runt_word_search(runt_vm *vm, 
-        const char *name, 
+runt_int runt_word_search(runt_vm *vm,
+        const char *name,
         runt_int size,
         runt_entry **entry)
 {
     runt_uint pos;
     runt_list *list;
     runt_dict *dict;
-    
+
     runt_uint i;
     runt_entry *ent;
     runt_entry *next;
-   
+
     dict = runt_dictionary_get(vm);
     pos = runt_hash(name, size);
-    list = &dict->list[pos]; 
+    list = &dict->list[pos];
 
     ent = runt_list_top(list);
 
@@ -766,14 +766,14 @@ runt_int runt_cell_pool_get_cell(runt_vm *vm, runt_uint id, runt_cell **cell)
 {
     runt_cell_pool *cell_pool = &vm->cell_pool;
     if(id > runt_cell_pool_size(vm) || id <= 0) {
-        runt_print(vm, "psize: invalid id %d\n", id); 
+        runt_print(vm, "psize: invalid id %d\n", id);
         return RUNT_NOT_OK;
     }
     *cell = &cell_pool->cells[id - 1];
     return RUNT_OK;
 }
 
-runt_int runt_tokenize(runt_vm *vm, 
+runt_int runt_tokenize(runt_vm *vm,
         const char *str,
         runt_uint size,
         runt_uint *pos,
@@ -789,7 +789,7 @@ runt_int runt_tokenize(runt_vm *vm,
 
     *pos = *next;
     p = *pos;
-    
+
 
     if(*pos > size) return RUNT_OK;
 
@@ -853,7 +853,7 @@ runt_int runt_tokenize(runt_vm *vm,
     return RUNT_CONTINUE;
 }
 
-runt_type runt_lex(runt_vm *vm, 
+runt_type runt_lex(runt_vm *vm,
         const char *str,
         runt_uint pos,
         runt_uint size)
@@ -1073,7 +1073,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
     runt_int rc = RUNT_OK;
 
-    while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE) 
+    while(runt_tokenize(vm, str, size, &pos, &word_size, &next) == RUNT_CONTINUE)
     {
         switch(runt_lex(vm, str, pos, word_size)) {
             case RUNT_FLOAT:
@@ -1116,15 +1116,15 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     s = runt_push(vm);
                     s->p = ptr;
                     s->t = RUNT_STRING;
-                } 
+                }
                 break;
             case RUNT_WORD:
-                if(runt_word_search(vm, 
-                            &str[pos + 1], 
-                            word_size - 1, 
+                if(runt_word_search(vm,
+                            &str[pos + 1],
+                            word_size - 1,
                             &entry) == RUNT_NOT_OK) {
                     return RUNT_NOT_OK;
-                } 
+                }
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
                     if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                     s = runt_push(vm);
@@ -1145,7 +1145,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                     tmp = runt_to_cell(s->p);
 
                     if(rc == RUNT_OK) {
-                        runt_print(vm, 
+                        runt_print(vm,
                             "Word '%*.*s' previously defined\n",
                             word_size, word_size, &str[pos]);
 
@@ -1164,12 +1164,12 @@ runt_int runt_compile(runt_vm *vm, const char *str)
 
                     runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
                     break;
-                } 
+                }
 
                 if(runt_word_search(vm, &str[pos], word_size, &entry) == RUNT_OK) {
                     if(vm->status & RUNT_MODE_INTERACTIVE) {
                         if(runt_entry_exec(vm, entry) == RUNT_NOT_OK) {
-                            runt_print(vm, "Error with word '%*.*s'\n", 
+                            runt_print(vm, "Error with word '%*.*s'\n",
                                     word_size, word_size, &str[pos]);
                             return RUNT_NOT_OK;
                         }
@@ -1244,16 +1244,16 @@ runt_uint runt_get_state(runt_vm *vm, runt_uint mode)
     }
 }
 
-runt_uint runt_word_define(runt_vm *vm, 
-        const char *name, 
+runt_uint runt_word_define(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc)
 {
     return runt_word_define_with_copy(vm, name, size, proc, runt_cell_link);
 }
 
-runt_uint runt_word_define_with_copy(runt_vm *vm, 
-        const char *name, 
+runt_uint runt_word_define_with_copy(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc,
         runt_copy_proc copy)
@@ -1275,8 +1275,8 @@ runt_uint runt_word_define_with_copy(runt_vm *vm,
     return id;
 }
 
-runt_int runt_keyword_define(runt_vm *vm, 
-        const char *name, 
+runt_int runt_keyword_define(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc,
         runt_cell **pcell)
@@ -1286,8 +1286,8 @@ runt_int runt_keyword_define(runt_vm *vm,
     );
 }
 
-runt_int runt_keyword_define_with_copy(runt_vm *vm, 
-        const char *name, 
+runt_int runt_keyword_define_with_copy(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc,
         runt_copy_proc copy,
@@ -1350,7 +1350,7 @@ runt_int runt_cell_undo(runt_vm *vm)
 
     if(pool->used == 0) {
         return RUNT_NOT_OK;
-    } 
+    }
 
     pool->used--;
     /* id is N - 1 */
@@ -1362,7 +1362,7 @@ runt_int runt_cell_undo(runt_vm *vm)
 
 runt_int runt_is_alive(runt_vm *vm)
 {
-    if(runt_get_state(vm, RUNT_MODE_RUNNING) == RUNT_ON && 
+    if(runt_get_state(vm, RUNT_MODE_RUNNING) == RUNT_ON &&
         runt_get_state(vm, RUNT_MODE_PANIC) == RUNT_OFF) {
         return RUNT_OK;
     } else {
@@ -1389,7 +1389,7 @@ static runt_int rproc_close_plugin(runt_vm *vm, runt_ptr p)
 static void make_init_fn(const char *name, char *init_fn) {
     const char *p;
     char *e;
-    
+
     p=strrchr(name,'/');
     e=strrchr(name, '.');
     if(p==0) {
@@ -1433,16 +1433,16 @@ runt_int runt_load_plugin(runt_vm *vm, const char *filename)
     RUNT_ERROR_CHECK(rc);
 
     /* add handle to plugin list */
-  
+
     p = runt_mk_cptr(vm, handle);
     handle = runt_to_cptr(p);
-    
+
     rc = runt_cell_malloc(vm, &cell);
     RUNT_ERROR_CHECK(rc);
-   
+
     runt_cell_bind(vm, cell, rproc_close_plugin);
     runt_cell_data(vm, cell, p);
-    
+
     return runt_list_prepend_cell(vm, &vm->plugins, cell);
 
 #endif
@@ -1497,7 +1497,7 @@ void * runt_to_cptr(runt_ptr p)
     /*TODO: error handling */
     if(p.type == RUNT_CPTR) {
         cptr = p.ud;
-    } 
+    }
 
     return cptr;
 }
@@ -1521,7 +1521,7 @@ runt_list * runt_to_list(runt_ptr p)
     /*TODO: error handling */
     if(p.type == RUNT_LIST) {
         lst = p.ud;
-    } 
+    }
     return lst;
 }
 
@@ -1535,13 +1535,13 @@ runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr)
     runt_cell *cell;
     if(runt_cell_new(vm, &cell) == RUNT_NOT_OK) {
         return RUNT_NOT_OK;
-    } 
+    }
     cell->fun = rproc_cptr;
-    cell->p = runt_mk_cptr(vm, cptr); 
+    cell->p = runt_mk_cptr(vm, cptr);
     return RUNT_OK;
 }
 
-runt_uint runt_mk_float_cell(runt_vm *vm, 
+runt_uint runt_mk_float_cell(runt_vm *vm,
         const char *name,
         runt_uint size,
         runt_float *flt)
@@ -1590,7 +1590,7 @@ runt_int runt_close_plugins(runt_vm *vm)
     runt_uint size;
 
     /* first, call all user-made destructor functions */
-    
+
     plugins = &vm->dtors;
     size = runt_list_size(plugins);
     ent = runt_list_top(plugins);
@@ -1639,7 +1639,7 @@ runt_int runt_cell_id_get(runt_vm *vm, runt_uint id, runt_cell **cell)
         *cell = vm->f_cell;
         return RUNT_NOT_OK;
     } else  {
-        *cell = &vm->cell_pool.cells[id - 1]; 
+        *cell = &vm->cell_pool.cells[id - 1];
         return RUNT_OK;
     }
 }
@@ -1741,7 +1741,7 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
 
     rc = runt_cell_malloc(vm, &cell);
     RUNT_ERROR_CHECK(rc);
-   
+
     runt_cell_bind(vm, cell, proc);
     runt_cell_data(vm, cell, ptr);
 
@@ -1759,7 +1759,7 @@ int runt_stack_dup(runt_vm *vm)
     runt_stacklet *s1;
     runt_stacklet *s2;
 
-    runt_int rc; 
+    runt_int rc;
 
     val = NULL;
     s1 = NULL;
@@ -1836,7 +1836,7 @@ runt_int runt_word_oops(runt_vm *vm)
         runt_print(vm, "No words to undefine.\n");
         return RUNT_NOT_OK;
     }
-   
+
     last_word = vm->last_word_defined;
     name = runt_to_string(last_word->p);
     runt_print(vm, "Undefining word '%s'\n", name);
@@ -1859,7 +1859,7 @@ static runt_int load_nothing(runt_vm *vm)
     return RUNT_OK;
 }
 
-runt_int runt_data(runt_vm *vm, 
+runt_int runt_data(runt_vm *vm,
         const char *name,
         runt_uint size,
         runt_ptr p)

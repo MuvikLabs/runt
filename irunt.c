@@ -36,7 +36,7 @@ static runt_int load_dictionary_handle(runt_vm *vm, FILE *fp)
     while((read = runt_getline(&line, &len, fp)) != -1) {
         rc = parse(vm, line, read);
         if(rc == RUNT_NOT_OK) {
-            runt_print(vm, "Bad return value. Dipping out.\n");    
+            runt_print(vm, "Bad return value. Dipping out.\n");
             break;
         }
     }
@@ -47,7 +47,7 @@ static runt_int load_dictionary_handle(runt_vm *vm, FILE *fp)
 
 static runt_int load_dictionary(runt_vm *vm, char *filename)
 {
-    FILE *fp; 
+    FILE *fp;
 
     fp = fopen(filename, "r");
 
@@ -64,7 +64,7 @@ static runt_int load_dictionary(runt_vm *vm, char *filename)
 
 runt_int runt_parse_file(runt_vm *vm, const char *filename)
 {
-    FILE *fp; 
+    FILE *fp;
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
@@ -87,9 +87,9 @@ runt_int runt_parse_file(runt_vm *vm, const char *filename)
     return rc;
 }
 
-static int irunt_get_flag(irunt_data *irunt, 
-        char *argv[], 
-        runt_int pos, 
+static int irunt_get_flag(irunt_data *irunt,
+        char *argv[],
+        runt_int pos,
         runt_int nargs,
         runt_int *n)
 {
@@ -140,7 +140,7 @@ static int irunt_parse_args(irunt_data *irunt, int argc, char *argv[])
         n = 0;
         if(argv[a][0] == '-') {
             if(irunt_get_flag(irunt, argv, a, argc, &n) != RUNT_OK) return -1;
-            argpos -= n; 
+            argpos -= n;
             a += (n - 1);
         } else {
             break;
@@ -155,7 +155,7 @@ static void irunt_init(irunt_data *irunt)
     runt_init(&irunt->vm);
     irunt->batch_mode = 1;
     irunt->ncells = 512;
-    irunt->memsize = 4 * RUNT_MEGABYTE; 
+    irunt->memsize = 4 * RUNT_MEGABYTE;
 }
 
 runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
@@ -187,7 +187,7 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
     runt_cell_pool_init(vm);
 
     runt_memory_pool_set(vm, irunt.mem, irunt.memsize);
-    
+
     vm->loader = loader;
     loader(vm);
     runt_pmark_set(vm);

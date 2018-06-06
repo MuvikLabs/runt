@@ -5,11 +5,11 @@
 #define RUNT_MEGABYTE (RUNT_KILOBYTE * 1000)
 #define RUNT_GIGABYTE (RUNT_MEGABYTE * 1000)
 #define RUNT_STACK_SIZE 32
-#define RUNT_MODE_PROC 1 
+#define RUNT_MODE_PROC 1
 #define RUNT_MODE_INTERACTIVE 2
 #define RUNT_MODE_KEYWORD 4
 #define RUNT_MODE_RUNNING 8
-#define RUNT_MODE_VERBOSE 16 
+#define RUNT_MODE_VERBOSE 16
 #define RUNT_MODE_PANIC 32
 #define RUNT_MODE_END 64
 
@@ -53,7 +53,7 @@ typedef struct {
 } runt_ptr;
 
 typedef runt_int (*runt_proc)(runt_vm *, runt_ptr);
-typedef void (*runt_printer)(runt_vm *, const char *fmt, va_list); 
+typedef void (*runt_printer)(runt_vm *, const char *fmt, va_list);
 
 typedef struct {
     runt_proc fun;
@@ -129,9 +129,9 @@ struct runt_vm {
     runt_proc zproc;
     runt_ptr nil;
 
-    /* the base cell for floats */ 
+    /* the base cell for floats */
     runt_cell *f_cell;
-    /* the base cell for strings */ 
+    /* the base cell for strings */
     runt_cell *s_cell;
 
     /* a cell that does nothing */
@@ -175,7 +175,7 @@ runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr);
 void runt_print(runt_vm *vm, const char *fmt, ...);
 void runt_filehandle(runt_vm *vm, FILE *handle);
 FILE *runt_filehandle_get(runt_vm *vm);
-void runt_print_default(runt_vm *vm, const char *fmt, va_list ap); 
+void runt_print_default(runt_vm *vm, const char *fmt, va_list ap);
 void runt_print_set(runt_vm *vm, runt_printer printer);
 
 /* Pools */
@@ -262,7 +262,7 @@ runt_list * runt_to_list(runt_ptr p);
 runt_ptr runt_mk_list(runt_vm *vm, runt_list *lst);
 
 runt_int runt_mk_cptr_cell(runt_vm *vm, void *cptr);
-runt_uint runt_mk_float_cell(runt_vm *vm, 
+runt_uint runt_mk_float_cell(runt_vm *vm,
         const char *name,
         runt_uint size,
         runt_float *flt);
@@ -276,13 +276,13 @@ void runt_entry_set_copy_proc(runt_entry *entry, runt_copy_proc copy);
 runt_int runt_entry_copy(runt_vm *vm, runt_entry *entry, runt_cell *dest);
 runt_int runt_entry_exec(runt_vm *vm, runt_entry *entry);
 
-runt_int runt_word(runt_vm *vm, 
-        const char *name, 
+runt_int runt_word(runt_vm *vm,
+        const char *name,
         runt_int size,
         runt_entry *entry);
 
-runt_int runt_word_search(runt_vm *vm, 
-        const char *name, 
+runt_int runt_word_search(runt_vm *vm,
+        const char *name,
         runt_int size,
         runt_entry **entry);
 
@@ -313,8 +313,8 @@ runt_dict * runt_dictionary_swap(runt_vm *vm);
 
 runt_uint runt_dictionary_new(runt_vm *vm, runt_dict **pdict);
 
-runt_uint runt_word_define(runt_vm *vm, 
-        const char *name, 
+runt_uint runt_word_define(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc);
 
@@ -323,26 +323,26 @@ runt_int runt_word_last_defined(runt_vm *vm,
         runt_uint c,
         runt_uint m);
 
-runt_uint runt_word_define_with_copy(runt_vm *vm, 
-        const char *name, 
+runt_uint runt_word_define_with_copy(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc,
         runt_copy_proc copy);
 
-runt_int runt_keyword_define(runt_vm *vm, 
-        const char *name, 
+runt_int runt_keyword_define(runt_vm *vm,
+        const char *name,
         runt_uint size,
-        runt_proc proc, 
+        runt_proc proc,
         runt_cell **pcell);
 
-runt_int runt_keyword_define_with_copy(runt_vm *vm, 
-        const char *name, 
+runt_int runt_keyword_define_with_copy(runt_vm *vm,
+        const char *name,
         runt_uint size,
         runt_proc proc,
         runt_copy_proc copy,
         runt_cell **pcell);
 
-runt_int runt_data(runt_vm *vm, 
+runt_int runt_data(runt_vm *vm,
         const char *name,
         runt_uint size,
         runt_ptr p);
@@ -358,14 +358,14 @@ runt_int runt_parse_file(runt_vm *vm, const char *filename);
 
 runt_int runt_compile(runt_vm *vm, const char *str);
 
-runt_int runt_tokenize(runt_vm *vm, 
+runt_int runt_tokenize(runt_vm *vm,
         const char *str,
         runt_uint size,
         runt_uint *pos,
         runt_uint *wsize,
         runt_uint *next);
 
-runt_type runt_lex(runt_vm *vm, 
+runt_type runt_lex(runt_vm *vm,
         const char *str,
         runt_uint pos,
         runt_uint size);
