@@ -508,7 +508,6 @@ runt_uint runt_entry_create(runt_vm *vm,
         runt_entry **entry)
 {
     runt_entry *e;
-    entry = NULL;
     runt_malloc(vm, sizeof(runt_entry), (void **)entry);
     e = *entry;
     e->copy = runt_cell_link;
