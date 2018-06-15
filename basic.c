@@ -128,9 +128,9 @@ static runt_int rproc_dynload(runt_vm *vm, runt_ptr p)
         runt_print(vm, "Error loading plugin\n");
     }
 
-    /* mark it so it doesn't get overwritten in memory 
+    /* mark it so it doesn't get overwritten in memory
      * NOTE: this will cause the filepath to stay in memory
-     * this will be fixed in the future for sure... 
+     * this will be fixed in the future for sure...
      * is this fixed actually? */
 
     runt_mark_set(vm);
@@ -180,7 +180,7 @@ static int rproc_rot(runt_vm *vm, runt_ptr p)
     runt_stacklet_copy(vm, &b, push[0]);
     runt_stacklet_copy(vm, &a, push[1]);
     runt_stacklet_copy(vm, &c, push[2]);
-    
+
     return RUNT_OK;
 }
 
@@ -248,7 +248,7 @@ static int rproc_peak(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
 
     runt_stacklet_copy(vm, peak, s2);
-    
+
     return RUNT_OK;
 }
 
@@ -348,17 +348,17 @@ static int rproc_call(runt_vm *vm, runt_ptr p)
     vm->pos = s->f;
 
     vm->level++;
-    level = vm->level; 
+    level = vm->level;
     while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF &&
             vm->level == level) {
         rc = runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
-        RUNT_ERROR_CHECK(rc); 
+        RUNT_ERROR_CHECK(rc);
         vm->pos++;
     }
     vm->level--;
     vm->pos = ppos;
     runt_set_state(vm, RUNT_MODE_END, pstate);
-   
+
     return RUNT_OK;
 }
 
@@ -378,7 +378,7 @@ static int rproc_ex(runt_vm *vm, runt_ptr p)
         cell = runt_to_cptr(s->p);
         runt_cell_exec(vm, cell);
     }
-   
+
     return RUNT_OK;
 }
 
@@ -400,7 +400,7 @@ static int rproc_goto(runt_vm *vm, runt_ptr p)
     if(jump && pos < vm->cell_pool.size + 1) {
         vm->pos = pos;
     }
-    
+
     return RUNT_OK;
 }
 
@@ -408,7 +408,7 @@ static int rproc_decr(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
     runt_int rc;
-        
+
     rc = runt_ppeak(vm, &s);
     RUNT_ERROR_CHECK(rc);
     s->f -= 1;
@@ -477,14 +477,14 @@ static int rproc_rep(runt_vm *vm, runt_ptr p)
         for(i = 0; i < reps; i++) {
             rc = runt_cell_id_exec(vm, id);
             RUNT_ERROR_CHECK(rc);
-        }   
+        }
     } else {
         for(i = 0; i < reps; i++) {
             runt_cell_exec(vm, cell);
             RUNT_ERROR_CHECK(rc);
-        } 
+        }
     }
- 
+
     return RUNT_OK;
 }
 
@@ -498,7 +498,7 @@ static int rproc_loop(runt_vm *vm, runt_ptr p)
     runt_int pstate;
     runt_uint i;
     runt_uint reps;
-    
+
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     reps = s->f;
@@ -512,21 +512,21 @@ static int rproc_loop(runt_vm *vm, runt_ptr p)
     pos = s->f;
 
     vm->level++;
-    level = vm->level; 
+    level = vm->level;
     for(i = 0; i < reps; i++) {
         vm->pos = pos + 1;
         runt_set_state(vm, RUNT_MODE_END, RUNT_OFF);
         while(runt_get_state(vm, RUNT_MODE_END) == RUNT_OFF &&
                 vm->level == level) {
             rc = runt_cell_call(vm, &vm->cell_pool.cells[vm->pos - 1]);
-            RUNT_ERROR_CHECK(rc); 
+            RUNT_ERROR_CHECK(rc);
             vm->pos++;
         }
     }
     vm->level--;
     vm->pos = ppos;
     runt_set_state(vm, RUNT_MODE_END, pstate);
-   
+
     return RUNT_OK;
 }
 
@@ -561,7 +561,7 @@ static void parse(runt_vm *vm, char *str, size_t read)
 
 static runt_int load_dictionary(runt_vm *vm, const char *filename)
 {
-    FILE *fp; 
+    FILE *fp;
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
@@ -583,7 +583,7 @@ static runt_int load_dictionary(runt_vm *vm, const char *filename)
 }
 
 static int loader(
-    runt_vm *vm, 
+    runt_vm *vm,
     runt_int pstate,
     const char *fname,
     runt_stacklet *s,
@@ -623,7 +623,7 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     if(access(buf, F_OK) != -1) {
         fname = buf;
         return loader(vm, pstate, fname, s, load_dictionary);
-    } 
+    }
 
     /* maybe it is a plugin? */
 
@@ -636,7 +636,7 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     if(access(buf, F_OK) != -1) {
         fname = buf;
         return loader(vm, pstate, fname, s, runt_load_plugin);
-    } 
+    }
 
     /* try local plugin */
 
@@ -644,7 +644,7 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
 
     if(access(buf, F_OK) != -1) {
         return loader(vm, pstate, buf, s, runt_load_plugin);
-    } 
+    }
 
     runt_print(vm, "Could not find '%s'\n", str);
     return RUNT_NOT_OK;
@@ -671,15 +671,15 @@ static int rproc_eval(runt_vm *vm, runt_ptr p)
 
 static int rproc_usage(runt_vm *vm, runt_ptr p)
 {
-    runt_print(vm, "Cell pool: used %d of %d cells.\n", 
+    runt_print(vm, "Cell pool: used %d of %d cells.\n",
             runt_cell_pool_used(vm),
             runt_cell_pool_size(vm));
 
-    runt_print(vm, "Memory pool: used %d of %d bytes.\n", 
+    runt_print(vm, "Memory pool: used %d of %d bytes.\n",
             runt_memory_pool_used(vm),
             runt_memory_pool_size(vm));
 
-    runt_print(vm, "Dictionary: %d words defined.\n", 
+    runt_print(vm, "Dictionary: %d words defined.\n",
             runt_dictionary_size(vm));
     return RUNT_OK;
 }
@@ -756,7 +756,7 @@ static runt_int rproc_wordlist(runt_vm *vm, runt_ptr p)
     runt_int nentry = 0;
     runt_dict *dict;
     runt_list *list;
-    dict = runt_dictionary_get(vm); 
+    dict = runt_dictionary_get(vm);
 
     list = dict->list;
     for(w = 0; w < RUNT_DICT_SIZE; w++) {
@@ -775,7 +775,7 @@ static runt_int rproc_rand(runt_vm *vm, runt_ptr p)
 {
     runt_uint max;
     runt_stacklet *s;
-    runt_int rc; 
+    runt_int rc;
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
@@ -791,7 +791,7 @@ static runt_int rproc_rand(runt_vm *vm, runt_ptr p)
 static runt_int rproc_urand(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
-    runt_int rc; 
+    runt_int rc;
 
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
@@ -816,7 +816,7 @@ static runt_int rproc_psize(runt_vm *vm, runt_ptr p)
 
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-   
+
     s->f = cell->psize;
 
     return RUNT_OK;
@@ -845,11 +845,11 @@ static runt_int rproc_restore(runt_vm *vm, runt_ptr p)
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     mem = s->f;
-    
+
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     cell = s->f;
-   
+
     vm->cell_pool.used = cell;
     vm->memory_pool.used = mem;
 
@@ -950,7 +950,7 @@ static runt_int rproc_argv(runt_vm *vm, runt_ptr p)
         runt_print(vm, "argv: invalid position %d\n", pos);
         return RUNT_NOT_OK;
     }
-   
+
     rc = runt_ppush(vm, &s);
     str = vm->argv[pos];
     len = strlen(str);
@@ -987,7 +987,7 @@ static runt_int rproc_dset(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
     ptr = s->f;
 
-    if(ptr == 0) { 
+    if(ptr == 0) {
         dict = &vm->idict;
     } else {
         runt_memory_pool_get(vm, ptr, (void **)&dict);
@@ -1014,7 +1014,7 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
     ptr = runt_dictionary_new(vm, &dict);
     if(ptr == 0) return RUNT_NOT_OK;
 
-  
+
     /* load minimal set */
     runt_dictionary_set(vm, dict);
     runt_load_minimal(vm);
@@ -1025,7 +1025,7 @@ static runt_int rproc_dnew(runt_vm *vm, runt_ptr p)
     runt_keyword_define(vm, "dswap", 5, rproc_dswap, NULL);
     load_control(vm);
     runt_dictionary_swap(vm);
-    
+
     /* preserve memory */
     runt_mark_set(vm);
 
@@ -1054,7 +1054,7 @@ static int rproc_dtor(runt_vm *vm, runt_ptr p)
     } else {
         cell = runt_to_cptr(s->p);
     }
-  
+
     runt_cell_destructor(vm, cell);
     runt_mark_set(vm);
     return RUNT_OK;
@@ -1074,11 +1074,11 @@ static int rproc_key(runt_vm *vm, runt_ptr p)
 static runt_int load_control(runt_vm *vm)
 {
     runt_keyword_define(vm, "end", 3, rproc_end, NULL);
-    runt_keyword_define_with_copy(vm, "call", 4, 
+    runt_keyword_define_with_copy(vm, "call", 4,
             rproc_call, rproc_call_copy, NULL);
-    runt_keyword_define_with_copy(vm, "goto", 4, 
+    runt_keyword_define_with_copy(vm, "goto", 4,
             rproc_goto, rproc_call_copy, NULL);
-    runt_keyword_define_with_copy(vm, "ex", 2, 
+    runt_keyword_define_with_copy(vm, "ex", 2,
             rproc_ex, rproc_call_copy, NULL);
     return runt_is_alive(vm);
 }
@@ -1126,7 +1126,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_keyword_define(vm, "!=", 2, rproc_neq, NULL);
 
     /* control */
-    
+
     load_control(vm);
 
     runt_keyword_define(vm, "dec", 3, rproc_decr, NULL);
@@ -1135,7 +1135,7 @@ runt_int runt_load_basic(runt_vm *vm)
     runt_keyword_define(vm, "incn", 4, rproc_incrn, NULL);
     runt_keyword_define(vm, "rep", 3, rproc_rep, NULL);
 
-    runt_keyword_define_with_copy(vm, "loop", 4, rproc_loop, 
+    runt_keyword_define_with_copy(vm, "loop", 4, rproc_loop,
     rproc_call_copy, NULL);
 
     /* variables */
@@ -1156,7 +1156,7 @@ runt_int runt_load_basic(runt_vm *vm)
     /* stack bias/unbias */
     runt_keyword_define(vm, "bias", 4, rproc_bias, NULL);
     runt_keyword_define(vm, "unbias", 6, rproc_unbias, NULL);
-    
+
     /* list words in dictionary */
     runt_keyword_define(vm, "w", 1, rproc_wordlist, NULL);
 
@@ -1167,14 +1167,14 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* proc size */
     runt_keyword_define(vm, "psize", 5, rproc_psize, NULL);
-    
+
     /* restore returns the cell + memory pools to a given position */
     runt_keyword_define(vm, "restore", 7, rproc_restore, NULL);
 
     /* blocks */
-    runt_keyword_define_with_copy(vm, "{", 1, 
+    runt_keyword_define_with_copy(vm, "{", 1,
         rproc_block_begin, rcopy_block_begin, NULL);
-    runt_keyword_define_with_copy(vm, "}", 1, 
+    runt_keyword_define_with_copy(vm, "}", 1,
         vm->zproc, rcopy_block_end, NULL);
 
     /* command line arguments */
@@ -1188,7 +1188,7 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* add destructor */
     runt_keyword_define(vm, "dtor", 4, rproc_dtor, NULL);
-    
+
     /* undo last word defined */
     runt_keyword_define(vm, "oops", 4, rproc_oops, NULL);
 
@@ -1197,4 +1197,3 @@ runt_int runt_load_basic(runt_vm *vm)
 
     return runt_is_alive(vm);
 }
-
