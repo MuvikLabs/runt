@@ -214,6 +214,11 @@ runt_int runt_cell_exec(runt_vm *vm, runt_cell *cell)
     runt_uint i;
     runt_int rc = RUNT_OK;
 
+    if(cell == NULL) {
+        runt_print(vm, "Could not execute. Cell is NULL\n");
+        return RUNT_NOT_OK;
+    }
+
     if(cell->psize == 0) {
         return runt_cell_call(vm, cell);
     }
