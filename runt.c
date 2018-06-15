@@ -15,7 +15,9 @@ static runt_int runt_proc_link(runt_vm *vm, runt_ptr p);
 static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest);
 static int rproc_float(runt_vm *vm, runt_ptr p);
 static int runt_copy_string(runt_vm *vm, runt_cell *src, runt_cell *dest);
+static int runt_copy_cell(runt_vm *vm, runt_cell *c);
 static int rproc_string(runt_vm *vm, runt_ptr p);
+static int rproc_cell(runt_vm *vm, runt_ptr p);
 static int rproc_begin(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_end(runt_vm *vm, runt_cell *src, runt_cell *dst);
 static int rproc_cptr(runt_vm *vm, runt_ptr p);
@@ -1132,13 +1134,18 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 if(!(vm->status & RUNT_MODE_INTERACTIVE)) {
                     if(runt_cell_new(vm, &tmp) == 0) return RUNT_NOT_OK;
                     s = runt_push(vm);
-                    s->f = entry->cell->id;
-                    runt_copy_float(vm, vm->f_cell, tmp);
+                    if(entry->cell->id > 0) {
+                        s->f = entry->cell->id;
+                        runt_copy_float(vm, vm->f_cell, tmp);
+                    } else {
+                        s->p = runt_mk_cptr(vm, entry->cell);
+                        runt_copy_cell(vm, tmp);
+                    }
                 } else {
                     s = runt_push(vm);
                     s->f = entry->cell->id;
+                    s->p = runt_mk_cptr(vm, entry->cell);
                 }
-                s->p = runt_mk_cptr(vm, entry->cell);
 
                 break;
             case RUNT_PROC:
@@ -1205,6 +1212,16 @@ static int runt_copy_float(runt_vm *vm, runt_cell *src, runt_cell *dest)
 
     dest->fun = src->fun;
     dest->p = runt_mk_float(vm, s->f);
+
+    return RUNT_OK;
+}
+
+static int runt_copy_cell(runt_vm *vm, runt_cell *c)
+{
+    runt_stacklet *s = runt_pop(vm);
+
+    c->fun = rproc_cell;
+    c->p = s->p;
 
     return RUNT_OK;
 }
@@ -1329,6 +1346,17 @@ static int rproc_string(runt_vm *vm, runt_ptr p)
     s = runt_push(vm);
     s->p = p;
     s->t = RUNT_STRING;
+    return RUNT_OK;
+}
+
+static int rproc_cell(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+
+    s = runt_push(vm);
+    s->f = 0; /* explicitely overwrite any variable here */
+    s->p = p;
+    s->t = RUNT_CELL;
     return RUNT_OK;
 }
 
