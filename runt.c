@@ -545,7 +545,7 @@ static runt_uint runt_hash(const char *str, runt_int size)
     runt_int i = 0;
 
     for(i = 0; i < size; i++) {
-        h = ((h << 5) + h) ^ str[0];
+        h = ((h << 5) + h) ^ str[i];
         h %= 0x7FFFFFFF;
     }
 
