@@ -12,7 +12,7 @@ CONFIG?=config.mk
 
 include $(CONFIG)
 
-default: irunt librunt.a 
+default: irunt librunt.a
 
 ifdef ALIGNED_MALLOC
 CFLAGS += -DALIGNED_MALLOC
@@ -33,11 +33,11 @@ librunt.a: $(OBJ)
 
 plugin: plugin.so
 
-plugin.so: plugin.c 
+plugin.so: plugin.c
 	$(CC) plugin.c -shared -fPIC -o $@ librunt.a
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^ -o $@ 
+	$(CC) $(CFLAGS) -c $^ -o $@
 
 install: default
 	mkdir -p $(HOME)/.runt/lib
@@ -48,5 +48,5 @@ install: default
 	install runt.h $(HOME)/.runt/include
 
 clean:
-	rm -rf playground runt.o plugin.so irunt librunt.a 
+	rm -rf playground runt.o plugin.so irunt librunt.a
 	rm -rf $(OBJ)
