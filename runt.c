@@ -64,6 +64,9 @@ runt_int runt_init(runt_vm *vm)
     /* set up destructor list */
     runt_list_init(&vm->dtors);
 
+    /* set up registers */
+    runt_registers_init(vm);
+
     return RUNT_OK;
 }
 
@@ -1916,4 +1919,33 @@ runt_int runt_data_search(runt_vm *vm, const char *name, runt_ptr *p)
 void runt_print_set(runt_vm *vm, runt_printer printer)
 {
     vm->print = printer;
+}
+
+void runt_registers_init(runt_vm *vm)
+{
+    int i;
+    for(i = 0; i < RUNT_REGISTER_SIZE; i++) {
+        runt_stacklet_init(vm, &vm->reg[i]);
+    }
+}
+
+void runt_stacklet_init(runt_vm *vm, runt_stacklet *s)
+{
+    s->t = RUNT_FLOAT;
+    s->f = 0.f;
+    s->p = vm->nil;
+}
+
+runt_int runt_register_get(runt_vm *vm, runt_int r, runt_stacklet **s)
+{
+    if(r < 0 || r >= RUNT_REGISTER_SIZE) return RUNT_NOT_OK;
+    *s = &vm->reg[r];
+    return RUNT_OK;
+}
+
+runt_int runt_register_set(runt_vm *vm, runt_int r, runt_stacklet *s)
+{
+    if(r < 0 || r >= RUNT_REGISTER_SIZE) return RUNT_NOT_OK;
+    vm->reg[r] = *s;
+    return RUNT_OK;
 }

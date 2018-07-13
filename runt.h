@@ -5,6 +5,7 @@
 #define RUNT_MEGABYTE (RUNT_KILOBYTE * 1000)
 #define RUNT_GIGABYTE (RUNT_MEGABYTE * 1000)
 #define RUNT_STACK_SIZE 32
+#define RUNT_REGISTER_SIZE 8
 #define RUNT_MODE_PROC 1
 #define RUNT_MODE_INTERACTIVE 2
 #define RUNT_MODE_KEYWORD 4
@@ -161,6 +162,9 @@ struct runt_vm {
 
     /* list of destructors */
     runt_list dtors;
+
+    /* registers */
+    runt_stacklet reg[RUNT_REGISTER_SIZE];
 };
 
 /* Main */
@@ -241,6 +245,7 @@ void runt_stack_init(runt_vm *vm, runt_stack *stack);
 void runt_stack_bias(runt_vm *vm, runt_stack *stack, runt_int bias);
 void runt_stack_unbias(runt_vm *vm, runt_stack *stack);
 void runt_stacklet_copy(runt_vm *vm, runt_stacklet *src, runt_stacklet *dst);
+void runt_stacklet_init(runt_vm *vm, runt_stacklet *s);
 int runt_stack_dup(runt_vm *vm);
 int runt_stack_swap(runt_vm *vm);
 
@@ -381,6 +386,12 @@ runt_uint runt_get_state(runt_vm *vm, runt_uint mode);
 
 runt_int runt_proc_begin(runt_vm *vm, runt_cell *proc);
 runt_int runt_proc_end(runt_vm *vm);
+
+/* Register System */
+
+void runt_registers_init(runt_vm *vm);
+runt_int runt_register_get(runt_vm *vm, runt_int r, runt_stacklet **s);
+runt_int runt_register_set(runt_vm *vm, runt_int r, runt_stacklet *s);
 
 /* Standard Library Procedures */
 

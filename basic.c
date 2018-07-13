@@ -1083,6 +1083,47 @@ static runt_int load_control(runt_vm *vm)
     return runt_is_alive(vm);
 }
 
+static int rproc_regset(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_int r;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    r = s->f;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+
+    rc = runt_register_set(vm, r, s);
+    RUNT_ERROR_CHECK(rc);
+
+    return RUNT_OK;
+}
+
+static int rproc_regget(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_stacklet *out;
+    runt_int r;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    r = s->f;
+
+    rc = runt_register_get(vm, r, &s);
+    RUNT_ERROR_CHECK(rc);
+
+    rc = runt_ppush(vm, &out);
+    RUNT_ERROR_CHECK(rc);
+
+    *out = *s;
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -1194,6 +1235,10 @@ runt_int runt_load_basic(runt_vm *vm)
 
     /* key: wait for keypress */
     runt_keyword_define(vm, "key", 3, rproc_key, NULL);
+
+    /* register operations */
+    runt_keyword_define(vm, "regset", 6, rproc_regset, NULL);
+    runt_keyword_define(vm, "regget", 6, rproc_regget, NULL);
 
     return runt_is_alive(vm);
 }
