@@ -1132,7 +1132,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                             &str[pos + 1],
                             word_size - 1,
                             &entry) == RUNT_NOT_OK) {
-                    runt_print(vm, "Could find word '%*.*s'\n",
+                    runt_print(vm, "Could not find word '%*.*s'\n",
                                word_size - 1,
                                word_size - 1,
                                &str[pos + 1]);
