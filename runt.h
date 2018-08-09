@@ -181,6 +181,8 @@ void runt_filehandle(runt_vm *vm, FILE *handle);
 FILE *runt_filehandle_get(runt_vm *vm);
 void runt_print_default(runt_vm *vm, const char *fmt, va_list ap);
 void runt_print_set(runt_vm *vm, runt_printer printer);
+int runt_vm_alloc(runt_vm *vm, runt_uint ncells, runt_uint memsize);
+int runt_vm_free(runt_vm *vm);
 
 /* Pools */
 

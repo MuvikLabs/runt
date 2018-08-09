@@ -1,13 +1,17 @@
 default: all
 
-all: simple lowlevel
+all: simple lowlevel api
 
 simple: simple.c
-	$(CC) $< -o $@ -I../ -L../ -lrunt -ldl
+	$(CC) $< -o $@ -I../ ../librunt.a -ldl
 
 lowlevel: lowlevel.c
-	$(CC) $< -o $@ -I../ -L../ -lrunt -ldl
+	$(CC) $< -o $@ -I../ ../librunt.a -ldl
+
+api: api.c
+	$(CC) $< -o $@ -I../ ../librunt.a -ldl
 
 clean:
-	rm -rf simple
-	rm -rf lowlevel 
+	$(RM) simple
+	$(RM) lowlevel
+	$(RM) api

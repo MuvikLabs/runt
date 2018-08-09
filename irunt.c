@@ -226,3 +226,25 @@ runt_int irunt_begin(int argc, char *argv[], runt_int (*loader)(runt_vm *))
 
     return 0;
 }
+
+int runt_vm_alloc(runt_vm *vm, runt_uint ncells, runt_uint memsize)
+{
+    unsigned char *mem;
+    runt_cell *cells;
+
+    mem = malloc(memsize);
+    cells = malloc(sizeof(runt_cell) * ncells);
+    runt_init(vm);
+    runt_cell_pool_set(vm, cells, ncells);
+    runt_cell_pool_init(vm);
+    runt_memory_pool_set(vm, mem, memsize);
+    return RUNT_OK;
+}
+
+int runt_vm_free(runt_vm *vm)
+{
+    runt_close_plugins(vm);
+    free(vm->cell_pool.cells);
+    free(vm->memory_pool.data);
+    return RUNT_OK;
+}
