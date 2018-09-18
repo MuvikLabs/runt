@@ -17,6 +17,10 @@
 #define RUNT_DICT_SIZE 128
 
 #define RUNT_ERROR_CHECK(A) if(A == RUNT_NOT_OK) return RUNT_NOT_OK;
+#define RUNT_ERROR_CHECK_VERBOSE(VM, A, STR) if(A == RUNT_NOT_OK) {\
+    runt_print(VM, STR);\
+    return RUNT_NOT_OK;\
+}
 
 #include <stdarg.h> /* a not-so-obvious header to include */
 
