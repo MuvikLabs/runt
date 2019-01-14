@@ -1124,6 +1124,27 @@ static int rproc_regget(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_anon(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+
+    rc = RUNT_OK;
+    if(vm->anon == NULL) rc = RUNT_NOT_OK;
+    else if(vm->anon->cell->id > runt_cell_pool_used(vm)) rc = RUNT_NOT_OK;
+
+    if(rc != RUNT_OK) {
+        runt_print(vm, "The anonymous function position is undefined\n");
+        return RUNT_NOT_OK;
+    }
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+
+    s->f = vm->anon->cell->id;
+    return RUNT_OK;
+}
+
 runt_int runt_load_basic(runt_vm *vm)
 {
     /* quit function for interactive mode */
@@ -1239,6 +1260,10 @@ runt_int runt_load_basic(runt_vm *vm)
     /* register operations */
     runt_keyword_define(vm, "regset", 6, rproc_regset, NULL);
     runt_keyword_define(vm, "regget", 6, rproc_regget, NULL);
+
+    /* get anonymous cell position */
+
+    runt_keyword_define(vm, "@", 1, rproc_anon, NULL);
 
     return runt_is_alive(vm);
 }

@@ -67,6 +67,8 @@ runt_int runt_init(runt_vm *vm)
     /* set up registers */
     runt_registers_init(vm);
 
+    vm->anon = NULL;
+
     return RUNT_OK;
 }
 
@@ -1157,27 +1159,33 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 break;
             case RUNT_PROC:
                 if(vm->status & RUNT_MODE_KEYWORD) {
-                    rc = runt_word_search(vm, &str[pos], word_size, &entry);
 
-                    s = runt_peak(vm);
-                    tmp = runt_to_cell(s->p);
-
-                    if(rc == RUNT_OK) {
-                        runt_print(vm,
-                            "Word '%*.*s' previously defined\n",
-                            word_size, word_size, &str[pos]);
-
-                        /* on failure, break to interactive mode */
-                        runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
-                        runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
-                        return RUNT_NOT_OK;
-                    } else {
-                        c = runt_cell_pool_used(vm);
-                        m = runt_memory_pool_used(vm);
-                        entry = NULL;
+                    if(str[pos] == '@' && word_size == 1) {
                         runt_entry_create(vm, tmp, &entry);
-                        runt_word(vm, &str[pos], word_size, entry);
-                        runt_word_last_defined(vm, entry, c - 1, m);
+                        vm->anon = entry;
+                    } else {
+                        rc = runt_word_search(vm, &str[pos], word_size, &entry);
+
+                        s = runt_peak(vm);
+                        tmp = runt_to_cell(s->p);
+
+                        if(rc == RUNT_OK) {
+                            runt_print(vm,
+                                "Word '%*.*s' previously defined\n",
+                                word_size, word_size, &str[pos]);
+
+                            /* on failure, break to interactive mode */
+                            runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);
+                            runt_set_state(vm, RUNT_MODE_INTERACTIVE, RUNT_ON);
+                            return RUNT_NOT_OK;
+                        } else {
+                            c = runt_cell_pool_used(vm);
+                            m = runt_memory_pool_used(vm);
+                            entry = NULL;
+                            runt_entry_create(vm, tmp, &entry);
+                            runt_word(vm, &str[pos], word_size, entry);
+                            runt_word_last_defined(vm, entry, c - 1, m);
+                        }
                     }
 
                     runt_set_state(vm, RUNT_MODE_KEYWORD, RUNT_OFF);

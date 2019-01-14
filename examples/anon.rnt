@@ -1,0 +1,27 @@
+# Anonymous functions in Runt
+
+# Here is the one liner, which loops an anonymous function 4 times:
+
+# c m [ : @ "hello there" say ; ] 4 @ rep restore
+
+# Let's break it down.
+# "c m" gets the current cell position and memory position
+# and pushes it on the stack, we will restore to this point
+
+c m
+
+# An anonymous function is declared using the special '@' keyword.
+# When a function is declared using this word, a keyword will not be
+# allocated, only the cell pointer.
+
+[ : @ "hello world" say ; ]
+
+# When the '@' function is called, it returns the cell ID. We use this
+# to pass it into the "rep" keyword, to repeat 4 times.
+
+4 @ rep
+
+# Finally, we restore the cell position and the memory position to a point
+# before the function was declared.
+
+restore

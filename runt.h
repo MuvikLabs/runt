@@ -169,6 +169,9 @@ struct runt_vm {
 
     /* registers */
     runt_stacklet reg[RUNT_REGISTER_SIZE];
+
+    /* anonymous function */
+    runt_entry *anon;
 };
 
 /* Main */
