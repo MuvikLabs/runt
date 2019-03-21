@@ -1164,6 +1164,9 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                 if(vm->status & RUNT_MODE_KEYWORD) {
 
                     if(str[pos] == '@' && word_size == 1) {
+                        s = runt_peak(vm);
+                        tmp = runt_to_cell(s->p);
+                        runt_cell_clear(vm, tmp);
                         runt_entry_create(vm, tmp, &entry);
                         vm->anon = entry;
                     } else {
@@ -1185,6 +1188,7 @@ runt_int runt_compile(runt_vm *vm, const char *str)
                             c = runt_cell_pool_used(vm);
                             m = runt_memory_pool_used(vm);
                             entry = NULL;
+                            runt_cell_clear(vm, tmp);
                             runt_entry_create(vm, tmp, &entry);
                             runt_word(vm, &str[pos], word_size, entry);
                             runt_word_last_defined(vm, entry, c - 1, m);
