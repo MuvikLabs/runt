@@ -172,6 +172,10 @@ struct runt_vm {
 
     /* anonymous function */
     runt_entry *anon;
+
+    /* last cell called */
+
+    runt_cell *last_cell_called;
 };
 
 /* Main */
@@ -190,6 +194,8 @@ void runt_print_default(runt_vm *vm, const char *fmt, va_list ap);
 void runt_print_set(runt_vm *vm, runt_printer printer);
 int runt_vm_alloc(runt_vm *vm, runt_uint ncells, runt_uint memsize);
 int runt_vm_free(runt_vm *vm);
+runt_cell * runt_last_cell_called(runt_vm *vm);
+const char * runt_last_word_called(runt_vm *vm);
 
 /* Pools */
 
@@ -368,6 +374,12 @@ runt_int runt_word_bind_ptr(runt_vm *vm, runt_uint id, runt_ptr p);
 runt_int runt_parse_file(runt_vm *vm, const char *filename);
 
 runt_int runt_parse_filehandle(runt_vm *vm, FILE *fp);
+
+runt_int runt_proc_search(runt_vm *vm,
+        runt_proc p,
+        runt_entry **entry);
+
+const char * runt_entry_get_name(runt_entry *entry);
 
 
 /* Lexing, Parsing, and Compiling */

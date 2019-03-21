@@ -69,6 +69,8 @@ runt_int runt_init(runt_vm *vm)
 
     vm->anon = NULL;
 
+    vm->last_cell_called = &vm->empty;
+
     return RUNT_OK;
 }
 
@@ -193,6 +195,7 @@ runt_int runt_cell_data(runt_vm *vm, runt_cell *cell, runt_ptr p)
 
 runt_int runt_cell_call(runt_vm *vm, runt_cell *cell)
 {
+    vm->last_cell_called = cell;
     return cell->fun(vm, cell->p);
 }
 
@@ -1960,4 +1963,58 @@ runt_int runt_register_set(runt_vm *vm, runt_int r, runt_stacklet *s)
     if(r < 0 || r >= RUNT_REGISTER_SIZE) return RUNT_NOT_OK;
     vm->reg[r] = *s;
     return RUNT_OK;
+}
+
+runt_int runt_proc_search(runt_vm *vm,
+        runt_proc p,
+        runt_entry **entry)
+{
+    runt_uint pos;
+    runt_list *list;
+    runt_dict *dict;
+
+    runt_uint i;
+    runt_entry *ent;
+    runt_entry *next;
+
+    dict = runt_dictionary_get(vm);
+
+    for(pos = 0; pos < RUNT_DICT_SIZE; pos++) {
+        list = &dict->list[pos];
+
+        ent = runt_list_top(list);
+
+        for(i = 0; i < list->size; i++) {
+            next = ent->next;
+            if(ent->cell->fun == p) {
+                *entry = ent;
+                return RUNT_OK;
+            }
+            ent = next;
+        }
+    }
+
+    return RUNT_NOT_OK;
+}
+
+const char * runt_entry_get_name(runt_entry *entry)
+{
+    return runt_to_string(entry->p);
+}
+
+const char * runt_last_word_called(runt_vm *vm)
+{
+    runt_cell *lcc;
+    runt_entry *ent;
+    runt_int rc;
+
+    lcc = vm->last_cell_called;
+
+    if(lcc == &vm->empty) return NULL;
+
+    rc = runt_proc_search(vm, lcc->fun, &ent);
+
+    if(rc == RUNT_NOT_OK) return NULL;
+
+    return runt_entry_get_name(ent);
 }
