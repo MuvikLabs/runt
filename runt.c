@@ -74,6 +74,17 @@ runt_int runt_init(runt_vm *vm)
     return RUNT_OK;
 }
 
+/* Useful if runt needs to be reloaded */
+
+runt_int runt_reinit(runt_vm *vm)
+{
+    runt_init(vm);
+    runt_cell_pool_set(vm, vm->cell_pool.cells, vm->cell_pool.size);
+    runt_cell_pool_init(vm);
+    runt_memory_pool_set(vm, vm->memory_pool.data, vm->memory_pool.size);
+    return RUNT_OK;
+}
+
 runt_int runt_load_minimal(runt_vm *vm)
 {
     /* create float type */
