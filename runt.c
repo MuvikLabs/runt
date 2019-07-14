@@ -576,11 +576,22 @@ runt_int runt_word(runt_vm *vm,
         runt_int size,
         runt_entry *entry)
 {
-    runt_dict *dict;
+    return runt_word_dict(vm,
+                          name,
+                          size,
+                          entry,
+                          runt_dictionary_get(vm));
+}
+
+runt_int runt_word_dict(runt_vm *vm,
+        const char *name,
+        runt_int size,
+        runt_entry *entry,
+        runt_dict *dict)
+{
     runt_uint pos;
     runt_list *list;
 
-    dict = runt_dictionary_get(vm);
     pos = runt_hash(name, size);
     list = &dict->list[pos];
 
@@ -590,7 +601,7 @@ runt_int runt_word(runt_vm *vm,
     runt_list_append(list, entry);
 
     dict->nwords++;
-    return RUNT_NOT_OK;
+    return RUNT_OK;
 }
 
 static runt_int runt_strncmp(runt_vm *vm, const char *str, runt_int size, runt_entry *e)
@@ -607,15 +618,26 @@ runt_int runt_word_search(runt_vm *vm,
         runt_int size,
         runt_entry **entry)
 {
+    return runt_word_search_dict(vm,
+                                 name,
+                                 size,
+                                 entry,
+                                 runt_dictionary_get(vm));
+}
+
+runt_int runt_word_search_dict(runt_vm *vm,
+        const char *name,
+        runt_int size,
+        runt_entry **entry,
+        runt_dict *dict)
+{
     runt_uint pos;
     runt_list *list;
-    runt_dict *dict;
 
     runt_uint i;
     runt_entry *ent;
     runt_entry *next;
 
-    dict = runt_dictionary_get(vm);
     pos = runt_hash(name, size);
     list = &dict->list[pos];
 

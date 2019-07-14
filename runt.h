@@ -302,10 +302,22 @@ runt_int runt_word(runt_vm *vm,
         runt_int size,
         runt_entry *entry);
 
+runt_int runt_word_dict(runt_vm *vm,
+        const char *name,
+        runt_int size,
+        runt_entry *entry,
+        runt_dict *dict);
+
 runt_int runt_word_search(runt_vm *vm,
         const char *name,
         runt_int size,
         runt_entry **entry);
+
+runt_int runt_word_search_dict(runt_vm *vm,
+        const char *name,
+        runt_int size,
+        runt_entry **entry,
+        runt_dict *dict);
 
 runt_int runt_word_oops(runt_vm *vm);
 
