@@ -1,24 +1,37 @@
+/* how to use the runt dictionary without the VM */
+/* things currently do not work */
+
 #include <stdio.h>
+#include <string.h>
 #include "../runt.h"
-
-void dict_add_value(runt_dict *d, const char *str, int val)
-{
-    /* TODO: implement me! */
-}
-
-void dict_get_value(runt_dict *d, const char *str, int *val)
-{
-    /* TODO: implement me! */
-}
 
 int main(int argc, char *argv[])
 {
     runt_dict dict;
-    int val;
+    runt_entry ent;
+    runt_entry *e;
+    const char *name;
+    int rc;
+
+    name = "foo";
     runt_dict_init(NULL, &dict);
-    dict_add_value(&dict, "foo", 12345);
-    val = 0;
-    dict_get_value(&dict, "foo", &val);
-    printf("the retrieved foo value is %d\n", val);
+
+    /* zeroing out instead of initialization */
+    memset(&ent, 0, sizeof(runt_entry));
+
+    /* manually store the string value */
+    ent.p = runt_mk_ptr(RUNT_STRING, (void *)name);
+
+    runt_word_dict(NULL, "foo", 3, &ent, &dict);
+
+    /* shouldn't crash, but we haven't gotten here yet */
+    rc = runt_word_search_dict(NULL, "foo", 3, &e, &dict);
+
+    if(rc != RUNT_OK) {
+        printf("Could not find word.\n");
+    } else {
+        printf("Found word '%s'.\n", runt_to_string(e->p));
+    }
+
     return 0;
 }

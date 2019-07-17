@@ -336,6 +336,7 @@ const char * runt_to_string(runt_ptr p)
         return NULL;
     }
 
+    return NULL;
 }
 
 runt_ptr runt_mk_string(runt_vm *vm, const char *str, runt_uint size)
@@ -576,6 +577,7 @@ runt_int runt_word(runt_vm *vm,
         runt_int size,
         runt_entry *entry)
 {
+    entry->p = runt_mk_string(vm, name, size);
     return runt_word_dict(vm,
                           name,
                           size,
@@ -595,7 +597,6 @@ runt_int runt_word_dict(runt_vm *vm,
     pos = runt_hash(name, size);
     list = &dict->list[pos];
 
-    entry->p = runt_mk_string(vm, name, size);
     entry->size = size;
 
     runt_list_append(list, entry);
