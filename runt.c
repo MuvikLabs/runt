@@ -1770,11 +1770,12 @@ runt_uint runt_dictionary_new(runt_vm *vm, runt_dict **pdict)
     return rc;
 }
 
-size_t runt_getline(char **lineptr, size_t *n, FILE *stream) {
+size_t runt_getline(char **lineptr, size_t *n, FILE *stream)
+{
     char *bufptr = NULL;
-    char *p = bufptr;
     size_t size;
-    int c;
+    char c;
+    size_t pos;
 
     if (lineptr == NULL) {
         return -1;
@@ -1799,27 +1800,27 @@ size_t runt_getline(char **lineptr, size_t *n, FILE *stream) {
         }
         size = 128;
     }
-    p = bufptr;
+    pos = 0;
     while(c != EOF) {
-        if ((p - bufptr) > (size - 1)) {
+        if (pos >= (size - 1)) {
             size = size + 128;
             bufptr = realloc(bufptr, size);
             if (bufptr == NULL) {
                 return -1;
             }
         }
-        *p++ = c;
+        bufptr[pos] = c;
+        pos++;
         if (c == '\n') {
             break;
         }
         c = fgetc(stream);
     }
 
-    *p++ = '\0';
+    bufptr[pos] = '\0';
     *lineptr = bufptr;
     *n = size;
-
-    return p - bufptr - 1;
+    return pos;
 }
 
 runt_int runt_add_destructor(runt_vm *vm, runt_proc proc, runt_ptr ptr)
